@@ -207,6 +207,7 @@ class DashboardController extends Controller
                 DB::raw("NULLIF(a.trustmark_id,'') as trustmark_id"),
                 DB::raw("NULLIF(a.business_name,'') as business_name"),
                 DB::raw("NULLIF(a.reg_num,'') as reg_num"),
+                DB::raw("NULLIF(a.on_hold,'') as on_hold"),
                 DB::raw("NULLIF(a.tin,'') as tin"),
                 DB::raw("(CASE a.corporation_type
                             WHEN 1 THEN 'Sole Proprietorship'
@@ -318,17 +319,40 @@ class DashboardController extends Controller
             $arr[$i]['representative']=$row->representative ?? 'N/A';
             $arr[$i]['generated']=$row->date_generated ?? 'N/A';
             $arr[$i]['date_submitted']=$row->date_submitted ?? 'N/A';
-            
-                                $badgeClass = match ($status) {
-                                    'APPROVED' => 'badge badge-bg-approve p-2 px-3',
-                                    'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2 px-3',
-                                    'RETURNED' => 'badge badge-bg-returned p-2 px-3',
-                                    'DISAPPROVED' => 'badge badge-bg-disapproved p-2 px-3',
-                                    'DRAFT' => 'badge badge-bg-draft p-2 px-3',
-                                    ''=>'badge badge-bg-draft',
-                                };
-            //$arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
-            $arr[$i]['status'] = '<span class="'.$badgeClass.'">'.$status.'</span>';
+            $displayStatus = $status;
+
+            $badgeClass = match ($status) {
+                'APPROVED'     => 'badge badge-bg-approve p-2',
+                'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2',
+                'ON-HOLD'      => 'badge badge-bg-evaluation p-2',
+                'REJECTED'     => 'badge badge-bg-rejected p-2',
+                'RETURNED'     => 'badge badge-bg-returned p-2',
+                'DISAPPROVED'  => 'badge badge-bg-disapproved p-2',
+                'DRAFT'        => 'badge badge-bg-draft p-2',
+                default        => 'badge badge-bg-draft',
+            };
+
+            //condition for ROLE = 2 and ON-HOLD
+            if ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 2) {
+                $displayStatus = 'UNDER EVALUATION <span style="color:#ec6868 !important; font-weight:bold;">(On-Hold)</span>';
+            }elseif ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 1){
+                $displayStatus = 'UNDER EVALUATION';
+            }
+            // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
+            $arr[$i]['status'] = '<span class="'.$badgeClass.'" style="
+                text-align:center;
+                white-space: normal;
+                word-break: break-word;
+            ">'.$displayStatus.'</span>';
+                                // $badgeClass = match ($status) {
+                                //     'APPROVED' => 'badge badge-bg-approve p-2 px-3',
+                                //     'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2 px-3',
+                                //     'RETURNED' => 'badge badge-bg-returned p-2 px-3',
+                                //     'DISAPPROVED' => 'badge badge-bg-disapproved p-2 px-3',
+                                //     'DRAFT' => 'badge badge-bg-draft p-2 px-3',
+                                //     ''=>'badge badge-bg-draft',
+                                // };
+            // $arr[$i]['status'] = '<span class="'.$badgeClass.'">'.$status.'</span>';
             $arr[$i]['action']=$actions;
             $i++;
         }
