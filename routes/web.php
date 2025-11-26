@@ -444,8 +444,9 @@ Route::middleware(['auth','role.access'])->group(function () {
     Route::get('/business-app', [BusinessController::class, 'businessapp'])->name('business.business-app');
 
     Route::get('/list-under', [BusinessController::class, 'list_under_evaluation'])->name('business.under-evaluation');
+    Route::get('/list-on-hold', [BusinessController::class, 'list_on_hold'])->name('business.list_on_hold');
     Route::get('/get-list-under', [BusinessController::class, 'getlistunderevalution'])->name('business.get-list-under');
-
+    Route::get('/get-list-onhold', [BusinessController::class, 'getlistOnhold'])->name('business.getlistOnhold');
     Route::get('/list-approved', [BusinessController::class, 'list_approved'])->name('business.list-approved');
     Route::get('/get-list-approved', [BusinessController::class, 'getlistapproved'])->name('business.get-list-approved');
 

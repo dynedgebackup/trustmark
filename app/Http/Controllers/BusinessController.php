@@ -3357,7 +3357,52 @@ class BusinessController extends Controller
             ));
         }
     }
+    public function list_on_hold(Request $request)
+    {
+        $businesses = [];
+        $allcounts = $this->getallsttausescout();
 
+        $under_evaluations = $allcounts['under_evaluations'];
+        $approves = $allcounts['approves'];
+        $paid = $allcounts['paid'];
+        $returns = $allcounts['returns'];
+        $drafts = $allcounts['drafts'];
+        $disapproves = $allcounts['disapproves'];
+        $allApplicationCount = $allcounts['all'];
+        $displayStartDate = date('Y-m-d');
+        $displayEndDate = date('Y-m-d');
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
+        if (Auth::check() && Auth::user()->role == 1) {
+            return view('business.list_on_hold', compact('businesses', 'under_evaluations',
+                'approves',
+                'paid',
+                'returns',
+                'drafts',
+                'allApplicationCount',
+                'disapproves',
+                'displayStartDate',
+                'displayEndDate','onhold'));
+        } else {
+            return view('business.list_on_hold', compact(
+                'businesses',
+                'under_evaluations',
+                'approves',
+                'paid',
+                'returns',
+                'drafts',
+                'allApplicationCount',
+                'disapproves',
+                'displayStartDate',
+                'displayEndDate','onhold'
+            ));
+        }
+    }
     public function businessapp(Request $request)
     {
         // $businesses = Business::where('status', 'UNDER EVALUATION');
@@ -3572,7 +3617,159 @@ class BusinessController extends Controller
         ];
         echo json_encode($json_data);
     }
+    public function getlistOnhold(Request $request)
+    {
+        $params = $_REQUEST;
+        $q = $request->input('q');
+        $fromdate = $request->input('fromdate');
+        $todate = $request->input('todate');
 
+        if (! isset($params['start']) || ! isset($params['length'])) {
+            $params['start'] = '0';
+            $params['length'] = '10';
+        }
+
+        $columns = [
+            1 => 'trustmark_id',
+            2 => 'business_name',
+            3 => 'reg_num',
+            4 => 'business_type',
+            5 => 'tin',
+            6 => 'representative',
+            7 => 'date_submitted',
+        ];
+
+        $sql = DB::table('businesses as a')
+            ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
+            ->select([
+                DB::raw("NULLIF(a.id,'') as id"), // fixed here
+                DB::raw("NULLIF(a.trustmark_id,'') as trustmark_id"),
+                DB::raw("NULLIF(a.business_name,'') as business_name"),
+                DB::raw("NULLIF(a.reg_num,'') as reg_num"),
+                DB::raw("NULLIF(a.tin,'') as tin"),
+                DB::raw("NULLIF(a.on_hold,'') as on_hold"),
+                DB::raw("(CASE a.corporation_type
+                            WHEN 1 THEN 'Sole Proprietorship'
+                            WHEN 2 THEN 'Corporation/Partnership'
+                            WHEN 4 THEN 'Cooperative'
+                        END) as business_type"),
+                DB::raw('b.name as representative'),
+                DB::raw("DATE_FORMAT(a.submit_date, '%m/%d/%Y') as date_submitted"),
+                DB::raw('DATEDIFF(CURRENT_DATE(), a.submit_date) as no_of_days'),
+                DB::raw("NULLIF(a.admin_remarks,'') as remarks"),
+                DB::raw("NULLIF(a.status,'') as status"),
+                DB::raw("NULLIF(a.payment_id,'') as payment_id"),
+                DB::raw("NULLIF(a.corporation_type,'') as corporation_type"),
+            ])
+            ->where('a.is_active', 1)->where('a.on_hold', 1);
+        $sql->where('a.status', 'UNDER EVALUATION');
+            // ->whereRaw('IFNULL(a.evaluator_id,0)=0');
+        if (! empty($q)) {
+            $sql->where(function ($query) use ($q) {
+                $query->where(DB::raw('LOWER(trustmark_id)'), 'like', '%'.strtolower($q).'%')
+                    ->orWhere(DB::raw('LOWER(business_name)'), 'like', '%'.strtolower($q).'%')
+                    ->orWhere(DB::raw('LOWER(tin)'), 'like', '%'.strtolower($q).'%')
+                    ->orWhere(DB::raw('LOWER(b.name)'), 'like', '%'.strtolower($q).'%')
+                    ->orWhere(DB::raw('LOWER(admin_remarks)'), 'like', '%'.strtolower($q).'%')
+                    ->orWhere(DB::raw('LOWER(reg_num)'), 'like', '%'.strtolower($q).'%');
+            });
+        }
+        if (! empty($fromdate) && isset($fromdate)) {
+            $sql->whereDate('submit_date', '>=', trim($fromdate));
+        }
+        if (! empty($todate) && isset($todate)) {
+            $sql->whereDate('submit_date', '<=', trim($todate));
+        }
+
+        if (Auth::check() && Auth::user()->role == 1) {
+            $sql->where('user_id', Auth::id());
+        }
+
+        if (isset($params['order'][0]['column'])) {
+            $sql->orderBy($columns[$params['order'][0]['column']], $params['order'][0]['dir']);
+        } else {
+            $sql->orderBy('a.id', 'DESC');
+        }
+
+        $data_cnt = $sql->count();
+
+        if ((int) $params['start'] >= $data_cnt) {
+            $params['start'] = 0;
+        }
+
+        $sql->offset((int) $params['start'])->limit((int) $params['length']);
+        $data = $sql->get();
+
+        // $data=$this->business->getList($request);
+        // echo "<pre>"; print_r($data); exit;
+        $arr = [];
+        $i = '0';
+        $sr_no = (int) $request->input('start') - 1;
+        $sr_no = $sr_no > 0 ? $sr_no + 1 : 0;
+        $role = Auth::user()->role;
+
+        foreach ($data as $row) {
+            $hashids = new Hashids(env('APP_KEY'), 10);
+            $ids = $hashids->encode($row->id);
+            $status = $row->status;
+            $sr_no = $sr_no + 1;
+
+            $actions = '<a href="'.route('business.view', $ids).'" 
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                            title="View"><i class="custom-eye-icon fa fa-eye"></i></a>';
+
+            $arr[$i]['srno'] = $sr_no;
+            $arr[$i]['trustmark_id'] = $row->trustmark_id ?? 'N/A';
+            $arr[$i]['business_name'] = $row->business_name;
+            $arr[$i]['reg_num'] = $row->reg_num ?? 'N/A';
+            $arr[$i]['tin'] = $row->tin ?? 'N/A';
+            $arr[$i]['business_type'] = $row->business_type ?? 'N/A';
+            $arr[$i]['representative'] = $row->representative ?? 'N/A';
+            $arr[$i]['date_submitted'] = $row->date_submitted ?? 'N/A';
+            $arr[$i]['no_of_days'] = $row->no_of_days ?? 'N/A';
+            // $badgeClass = match ($status) {
+            //     'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2 px-3',
+            //     '' => 'badge badge-bg-draft',
+            // };
+            // // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
+            // $arr[$i]['status'] = '<span class="'.$badgeClass.'">'.$status.'</span>';
+            $displayStatus = $status;
+
+                $badgeClass = match ($status) {
+                    'APPROVED'     => 'badge badge-bg-approve p-2',
+                    'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2',
+                    'ON-HOLD'      => 'badge badge-bg-evaluation p-2',
+                    'REJECTED'     => 'badge badge-bg-rejected p-2',
+                    'RETURNED'     => 'badge badge-bg-returned p-2',
+                    'DISAPPROVED'  => 'badge badge-bg-disapproved p-2',
+                    'DRAFT'        => 'badge badge-bg-draft p-2',
+                    default        => 'badge badge-bg-draft',
+                };
+    
+                //condition for ROLE = 2 and ON-HOLD
+                if ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 2) {
+                    $displayStatus = 'UNDER EVALUATION <span style="color:#ec6868 !important; font-weight:bold;">(On-Hold)</span>';
+                }elseif ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 1){
+                    $displayStatus = 'UNDER EVALUATION';
+                }
+            // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
+            $arr[$i]['status'] = '<span class="'.$badgeClass.'" style="
+                text-align:center;
+                white-space: normal;
+                word-break: break-word;
+            ">'.$displayStatus.'</span>';
+            $arr[$i]['action'] = $actions;
+            $i++;
+        }
+
+        $totalRecords = $data_cnt;
+        $json_data = [
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords),
+            'data' => $arr,   // total data array
+        ];
+        echo json_encode($json_data);
+    }
     public function list_draft(Request $request)
     {
         // $businesses = Business::where('status', 'DRAFT');
