@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="col">
-                    <div class="card shadow border-left-warning py-2">
+                    <div class="card shadow border-left-warning py-2" style="height: 100%;">
                         <div class="card-body">
                             <a href="{{ route('business.under-evaluation') }}"
                                 style="text-decoration: none; color: inherit;">
@@ -70,7 +70,29 @@
                             </a>
                         </div>
                     </div>
+                    
                 </div>
+                @if(Auth::user()->role == 2)  
+                    <div class="col">
+                        <div class="card shadow border-left-warning py-2">
+                            <div class="card-body">
+                                <a href="{{ route('business.list_on_hold') }}"
+                                    style="text-decoration: none; color: inherit;">
+                                    <div class="row g-0 align-items-center">
+                                        <div class="col me-2">
+                                            <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span
+                                                    style="font-family: sans-serif;font-size: 12px;">Under Evaluation (On-hold)</span>
+                                            </div>
+                                            <div class="text-dark fw-bold h5 mb-0">
+                                                <span>{{ number_format($onhold) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 <div class="col">
                     <div class="card shadow border-left-danger py-2">
                         <div class="card-body">
@@ -159,25 +181,5 @@
                         </div>
                     </div>
                 </div>
-                @if(Auth::user()->role == 2)  
-                <div class="col">
-                    <div class="card shadow border-left-warning py-2">
-                        <div class="card-body">
-                            <a href="{{ route('business.list_on_hold') }}"
-                                style="text-decoration: none; color: inherit;">
-                                <div class="row g-0 align-items-center">
-                                    <div class="col me-2">
-                                        <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span
-                                                style="font-family: sans-serif;font-size: 12px;">Under Evaluation (On-hold)</span>
-                                        </div>
-                                        <div class="text-dark fw-bold h5 mb-0">
-                                            <span>{{ number_format($onhold) }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                @endif
+                
             </div>

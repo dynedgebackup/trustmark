@@ -630,7 +630,13 @@ class BusinessController extends Controller
             }
         }
         if ($request->filled('status')) {
-            $sql->where('status', $request->status);
+
+            if ($request->status === 'ON-HOLD') {
+                $sql->where('on_hold', 1);
+            } else {
+                $sql->where('status', $request->status);
+            }
+        
         }
         if ($request->filled('evaluator_id')) {
             $sql->where('evaluator_id', $request->evaluator_id);
