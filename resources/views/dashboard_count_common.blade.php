@@ -163,7 +163,7 @@
                 <div class="col">
                     <div class="card shadow border-left-warning py-2">
                         <div class="card-body">
-                            <a href="{{ route('business.under-evaluation') }}"
+                            <a href="{{ route('business.list_on_hold') }}"
                                 style="text-decoration: none; color: inherit;">
                                 <div class="row g-0 align-items-center">
                                     <div class="col me-2">
