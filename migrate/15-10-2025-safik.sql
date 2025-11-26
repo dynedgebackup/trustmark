@@ -1,0 +1,1 @@
+ALTER TABLE `businesses` ADD `busn_category_id` INT(10) NULL DEFAULT NULL COMMENT 'Ref-Table: business_category.id' AFTER `bmbe_doc`, ADD `busn_valuation_doc` TEXT NULL DEFAULT NULL COMMENT 'attachment.. proof of total asset valution' AFTER `busn_category_id`;

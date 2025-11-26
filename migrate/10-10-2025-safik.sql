@@ -1,0 +1,1 @@
+ALTER TABLE business_compliance CHANGE busn_trade_is_compliance busn_trade_is_compliance TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=compliance, 1=not compliance';

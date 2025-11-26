@@ -1,0 +1,85 @@
+/* public/css/custom-register.css */
+
+#wrapper .navbar-brand {
+    height: 64px;
+    background: #09325d;
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+#wrapper .navbar-brand img {
+    max-height: 48px;
+    width: auto;
+    margin-left: 51px;
+}
+
+.container,
+#content-wrapper {
+    width: auto;
+}
+
+#content {
+    background: #ffffff;
+}
+
+#multple-step-form-n {
+    margin-top: -19px;
+    padding-top: 3rem;
+}
+
+#progress-bar-button {
+    background: transparent;
+}
+
+.multisteps-form__progress-btn {
+    font-family: sans-serif;
+    font-size: 15px;
+}
+
+.multisteps-form__panel {
+    background-color: #ffffff;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.multisteps-form__title {
+    font-family: sans-serif;
+    font-size: 18px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+}
+
+.form-label,
+input.form-control,
+button.btn {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+button.js-btn-next,
+button.js-btn-prev {
+    font-size: 14px;
+}
+
+.form-check-label {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+.divider-line {
+    height: 1px;
+    background-color: #ddd7d7;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+
+.custom-label {
+    font-family:sans-serif;
+    font-size:12px;
+}

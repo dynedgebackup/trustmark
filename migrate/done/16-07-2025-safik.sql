@@ -1,0 +1,1 @@
+ALTER TABLE `application_canned_messages` ADD `remarks` TEXT NOT NULL AFTER `status`;

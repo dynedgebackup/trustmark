@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Page</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .payment-container {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .billing-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .billing-amount {
+      text-align: center;
+      font-size: 20px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .custom-dropdown {
+      position: relative;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .dropdown-selected {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      background-color: #fff;
+    }
+
+    .dropdown-selected img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .dropdown-options {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: none;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 9999;
+    }
+
+    .dropdown-option {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .dropdown-option:hover {
+      background-color: #e8f0e8;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    .footer a {
+      color: #025a02;
+      text-decoration: none;
+    }
+
+    .pay-button {
+      padding: 10px 20px;
+      background-color: #025a02;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+     .dropdown-selected img,
+    .dropdown-option img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h1 class="billing-title">Billing</h1>
+    <p class="billing-amount">
+        <input type="hidden" value="{{$total_amount}}" id="payAmount">
+        <input type="hidden" value="{{$business_id}}" id="business_id">
+        <span>Amount:</span> ₱ <span id="currentPayAmount">{{$total_amount}}</span>
+    </p>
+
+    <label>Select Bank</label>
+    <div class="custom-dropdown">
+      <div class="dropdown-selected" onclick="toggleDropdown(this)">
+        <img src="https://cdn-icons-png.flaticon.com/512/197/197615.png" alt="Default" />
+        <span>Select Bank</span>
+      </div>
+      <div class="dropdown-options">
+        @foreach ($paymentChannels as $bank)
+          <div class="dropdown-option" channel_code="{{$bank['code']}}" onclick="selectBank(this)">
+            <img src="{{ $bank['image'] }}" />
+            <span>{{ $bank['value'] }}</span>
+          </div>
+        @endforeach
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        By continuing, you agree to the
+        <a href="#">Terms and Conditions</a> &
+        <a href="#">Privacy Policy</a>
+      </p>
+      <button class="pay-button" id="payBtn">Pay</button>
+    </div>
+  </div>
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+
+    const BASE_URL = "{{ url('/') }}";
+    var channel_code='';
+    document.getElementById('payBtn').addEventListener('click', function() {
+        const selectedText = document.querySelector('.dropdown-selected span').textContent.trim();
+        const defaults = ['Select Bank', 'Select Wallet'];
+        if (defaults.includes(selectedText)) {
+          alert('Please select bank');
+          return;
+        }
+        $.ajax({
+          url: BASE_URL + '/addpayment',
+          data : {
+              channel_code:channel_code,
+              amount:$("#payAmount").val(),
+              business_id:$("#business_id").val()
+          },
+          type: 'GET',
+          dataType:"JSON",
+          success: function(res) {
+             console.log("Server Response:", res);
+              var transaction_id = res.data.transaction_id;
+              if(transaction_id!=''){
+                  const urlToOpen = BASE_URL + '/payment-view-page/'+transaction_id; 
+                  window.location.href = urlToOpen
+                  //openPaymentPage(urlToOpen,transaction_id)
+              }
+          }
+      });
+    });
+    function openPaymentPage(url) {
+      const subWindowDetails = getSubWindowDetails();
+      const windowName = subWindowDetails.windowName;
+      const windowFeatures = subWindowDetails.windowFeatures;
+      // Open the new window
+      const newWindow = window.open(url, windowName, windowFeatures);
+      const inter = setInterval(() => {
+        if (newWindow?.closed) {
+          clearInterval(inter);
+          onWindowClosedNew()
+        }
+      }, 100);
+    }
+
+    function onWindowClosedNew(){
+      var BASE_URL = $("#BASE_URL").val(); 
+      $.ajax({
+        url: BASE_URL + '/check-payment-response',
+        data : {
+            business_id:$("#business_id").val()
+        },
+        type: 'GET',
+        dataType:"JSON",
+        success: function(res) {
+           console.log("Server Response:", res);
+            var payment_status = res.data.payment_status;
+            if(payment_status==1){
+              localStorage.setItem('paymentSuccess', 'true');
+              window.location.reload();
+            }else{
+              localStorage.setItem('paymentError', 'true');
+              window.location.reload();
+            }
+        }
+      });
+    }
+
+    function getSubWindowDetails(){
+      const windowName = 'CenteredWindow'; 
+      const width = 700;  // Width of the new window
+      const height = 500; // Height of the new window (adjusted for padding)
+
+      // Calculate position to center the window
+      const left = (window.innerWidth / 2) - (width / 2);
+      const top = (window.innerHeight / 2) - (height / 2) + 150; // Adjust top value directly
+
+      // Specify window features
+      const windowFeatures = `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=yes,resizable=yes`;
+
+      const object = {
+        windowName : 'CenteredWindow',
+        windowFeatures,
+      }
+      return object;
+    }
+
+    function toggleDropdown(selectedEl) {
+      const dropdown = selectedEl.parentElement;
+      const options = dropdown.querySelector(".dropdown-options");
+
+      // Close other dropdowns
+      document.querySelectorAll(".dropdown-options").forEach(opt => {
+        if (opt !== options) opt.style.display = "none";
+      });
+
+      // Toggle this dropdown
+      options.style.display = options.style.display === "block" ? "none" : "block";
+    }
+
+    function selectBank(optionEl) {
+      const dropdown = optionEl.closest(".custom-dropdown");
+      const selected = dropdown.querySelector(".dropdown-selected");
+      const img = optionEl.querySelector("img").src;
+      const text = optionEl.querySelector("span").textContent;
+
+      selected.querySelector("img").src = img;
+      selected.querySelector("span").textContent = text;
+      dropdown.querySelector(".dropdown-options").style.display = "none";
+      channel_code = optionEl.getAttribute('channel_code');
+    }
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", function (e) {
+      if (!e.target.closest(".custom-dropdown")) {
+        document.querySelectorAll(".dropdown-options").forEach(d => d.style.display = "none");
+      }
+    });
+  </script>
+</body>
+</html>

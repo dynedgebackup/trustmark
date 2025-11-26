@@ -1,0 +1,1 @@
+ALTER TABLE `businesses` ADD `first_name` VARCHAR(100) NULL DEFAULT NULL AFTER `user_id`, ADD `middle_name` VARCHAR(100) NULL DEFAULT NULL AFTER `first_name`, ADD `last_name` VARCHAR(100) NULL DEFAULT NULL AFTER `middle_name`, ADD `suffix` VARCHAR(100) NULL DEFAULT NULL AFTER `last_name`;

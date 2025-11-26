@@ -1,0 +1,136 @@
+/* Font settings for tab labels */
+.nav-tabs .nav-link {
+    font-family: sans-serif;
+    font-size: 13px;
+}
+
+/* Active tab appearance */
+.nav-tabs .nav-link.active {
+    font-weight: bold;
+}
+
+/* Content label text */
+.tab-content .form-label {
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+/* Span content (values shown beside labels) */
+.tab-content span {
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #000;
+}
+
+/* Remove extra margins and normalize layout */
+.tab-content .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.tab-content .col {
+    margin-top: 12px;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+
+
+
+/* Apply spacing to rows inside any tab */
+.tab-pane .row {
+    margin-top: 5px;
+    margin-left: -5px;
+}
+
+/* Apply spacing to columns inside any tab */
+.tab-pane .col {
+    margin-top: 10px;
+}
+
+/* Style form labels inside any tab */
+.tab-pane .form-label {
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+/* Style span with name attribute (used for values) */
+.tab-pane span[name] {
+    display: inline-block;
+    margin-left: 4px;
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #000;
+}
+
+/* Ensure margin below mb-3 class inside tabs */
+.tab-pane .mb-3 {
+    margin-bottom: 1rem;
+}
+
+
+/* Section spacing for tab content */
+.tab-pane .tab-section {
+    margin-top: 10px;
+}
+
+/* Inline label and value (e.g. Receipt Number) */
+.tab-pane .receipt-info {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.tab-pane .form-label-inline {
+    font-family: sans-serif;
+    font-size: 12px;
+    margin-right: 10px;
+    margin-bottom: 0;
+    color: #000;
+}
+
+.tab-pane .form-value {
+    font-family: sans-serif;
+    font-size: 12px;
+    margin-left: 4px;
+    color: #000;
+}
+
+/* Table styles */
+.tab-pane .charges-table-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.tab-pane .charges-table {
+    width: 500px;
+}
+
+.tab-pane .table-heading {
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+.tab-pane .table-label,
+.tab-pane .table-value {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+.tab-pane .table-value {
+    width: 200px;
+}
+
+/* Make totals stand out slightly */
+.tab-pane .total {
+    font-size: 14px;
+    font-weight: bold;
+}

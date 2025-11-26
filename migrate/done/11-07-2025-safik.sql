@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `is_primary` INT(1) NOT NULL DEFAULT '0' COMMENT '0=not executive,1=executive' AFTER `is_active`;
