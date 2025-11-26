@@ -3325,6 +3325,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_under_evaluation', compact('businesses', 'under_evaluations',
                 'approves',
@@ -3334,7 +3341,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate','onhold'));
         } else {
             return view('business.list_under_evaluation_admin', compact(
                 'businesses',
@@ -3346,7 +3353,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate','onhold'
             ));
         }
     }
@@ -3377,6 +3384,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_business_app', compact('businesses', 'under_evaluations',
                 'approves',
@@ -3386,7 +3400,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate',
+                'onhold'));
         } else {
             return view('business.list_business_app_admin', compact(
                 'businesses',
@@ -3398,7 +3413,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate',
+                'onhold'
             ));
         }
     }
@@ -3433,6 +3449,7 @@ class BusinessController extends Controller
                 DB::raw("NULLIF(a.business_name,'') as business_name"),
                 DB::raw("NULLIF(a.reg_num,'') as reg_num"),
                 DB::raw("NULLIF(a.tin,'') as tin"),
+                DB::raw("NULLIF(a.on_hold,'') as on_hold"),
                 DB::raw("(CASE a.corporation_type
                             WHEN 1 THEN 'Sole Proprietorship'
                             WHEN 2 THEN 'Corporation/Partnership'
@@ -3447,8 +3464,8 @@ class BusinessController extends Controller
                 DB::raw("NULLIF(a.corporation_type,'') as corporation_type"),
             ])
             ->where('a.is_active', 1);
-        $sql->where('a.status', 'UNDER EVALUATION')
-            ->whereRaw('IFNULL(a.evaluator_id,0)=0');
+        $sql->where('a.status', 'UNDER EVALUATION');
+            // ->whereRaw('IFNULL(a.evaluator_id,0)=0');
         if (! empty($q)) {
             $sql->where(function ($query) use ($q) {
                 $query->where(DB::raw('LOWER(trustmark_id)'), 'like', '%'.strtolower($q).'%')
@@ -3512,12 +3529,37 @@ class BusinessController extends Controller
             $arr[$i]['representative'] = $row->representative ?? 'N/A';
             $arr[$i]['date_submitted'] = $row->date_submitted ?? 'N/A';
             $arr[$i]['no_of_days'] = $row->no_of_days ?? 'N/A';
-            $badgeClass = match ($status) {
-                'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2 px-3',
-                '' => 'badge badge-bg-draft',
-            };
+            // $badgeClass = match ($status) {
+            //     'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2 px-3',
+            //     '' => 'badge badge-bg-draft',
+            // };
+            // // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
+            // $arr[$i]['status'] = '<span class="'.$badgeClass.'">'.$status.'</span>';
+            $displayStatus = $status;
+
+                $badgeClass = match ($status) {
+                    'APPROVED'     => 'badge badge-bg-approve p-2',
+                    'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2',
+                    'ON-HOLD'      => 'badge badge-bg-evaluation p-2',
+                    'REJECTED'     => 'badge badge-bg-rejected p-2',
+                    'RETURNED'     => 'badge badge-bg-returned p-2',
+                    'DISAPPROVED'  => 'badge badge-bg-disapproved p-2',
+                    'DRAFT'        => 'badge badge-bg-draft p-2',
+                    default        => 'badge badge-bg-draft',
+                };
+    
+                //condition for ROLE = 2 and ON-HOLD
+                if ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 2) {
+                    $displayStatus = 'UNDER EVALUATION <span style="color:#ec6868 !important; font-weight:bold;">(On-Hold)</span>';
+                }elseif ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 1){
+                    $displayStatus = 'UNDER EVALUATION';
+                }
             // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
-            $arr[$i]['status'] = '<span class="'.$badgeClass.'">'.$status.'</span>';
+            $arr[$i]['status'] = '<span class="'.$badgeClass.'" style="
+                text-align:center;
+                white-space: normal;
+                word-break: break-word;
+            ">'.$displayStatus.'</span>';
             $arr[$i]['action'] = $actions;
             $i++;
         }
@@ -3557,6 +3599,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_draft', compact('businesses', 'under_evaluations',
                 'approves',
@@ -3566,7 +3615,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate',
+                'onhold'));
         } else {
             return view('business.list_draft_admin', compact(
                 'businesses',
@@ -3578,7 +3628,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate',
+                'onhold'
             ));
         }
     }
@@ -3869,7 +3920,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
-
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_approved', compact('businesses', 'under_evaluations',
                 'approves',
@@ -3879,7 +3936,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate',
+                'onhold'));
         } else {
             return view('business.list_approved_admin', compact(
                 'businesses',
@@ -3891,7 +3949,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate',
+                'onhold'
             ));
         }
     }
@@ -4060,7 +4119,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
-
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_paid', compact('businesses', 'under_evaluations',
                 'approves',
@@ -4070,7 +4135,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate',
+                'onhold'));
         } else {
             return view('business.list_paid_admin', compact(
                 'businesses',
@@ -4082,7 +4148,8 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate',
+                'onhold'
             ));
         }
     }
@@ -4249,7 +4316,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
-
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_returned', compact('businesses', 'under_evaluations',
                 'approves',
@@ -4259,7 +4332,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate','onhold'));
         } else {
             return view('business.list_returned_admin', compact(
                 'businesses',
@@ -4271,7 +4344,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate','onhold'
             ));
         }
     }
@@ -4426,7 +4499,13 @@ class BusinessController extends Controller
         $allApplicationCount = $allcounts['all'];
         $displayStartDate = date('Y-m-d');
         $displayEndDate = date('Y-m-d');
-
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         if (Auth::check() && Auth::user()->role == 1) {
             return view('business.list_disapproved', compact('businesses', 'under_evaluations',
                 'approves',
@@ -4436,7 +4515,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'));
+                'displayEndDate','onhold'));
         } else {
             return view('business.list_disapproved_admin', compact(
                 'businesses',
@@ -4448,7 +4527,7 @@ class BusinessController extends Controller
                 'allApplicationCount',
                 'disapproves',
                 'displayStartDate',
-                'displayEndDate'
+                'displayEndDate','onhold'
             ));
         }
     }
