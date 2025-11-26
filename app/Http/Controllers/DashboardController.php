@@ -86,7 +86,13 @@ class DashboardController extends Controller
         } else {
             $under_evaluations = $under_evaluations->count();
         }
-
+        $onhold = Business::where('status', 'UNDER EVALUATION')->where('on_hold', 1)->where('is_active', 1)->select('id');
+        if (Auth::check() && Auth::user()->role == 1) {
+            $onhold = $onhold->where('user_id', Auth::id())
+                ->count();
+        } else {
+            $onhold = $onhold->count();
+        }
         $approves = Business::where('status', 'APPROVED')->where('is_active', 1)->select('id');
         if (Auth::check() && Auth::user()->role == 1) {
             $approves = $approves->where('user_id', Auth::id())->count();
@@ -160,7 +166,8 @@ class DashboardController extends Controller
             'allApplicationCount',
             'disapproves',
             'displayStartDate',
-            'displayEndDate'
+            'displayEndDate',
+            'onhold'
         ));
        }else{
              return view('dashboardadmin', compact(
@@ -173,7 +180,8 @@ class DashboardController extends Controller
             'allApplicationCount',
             'disapproves',
             'displayStartDate',
-            'displayEndDate'
+            'displayEndDate',
+            'onhold'
         ));
        }
 
@@ -321,23 +329,23 @@ class DashboardController extends Controller
             $arr[$i]['date_submitted']=$row->date_submitted ?? 'N/A';
             $displayStatus = $status;
 
-            $badgeClass = match ($status) {
-                'APPROVED'     => 'badge badge-bg-approve p-2',
-                'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2',
-                'ON-HOLD'      => 'badge badge-bg-evaluation p-2',
-                'REJECTED'     => 'badge badge-bg-rejected p-2',
-                'RETURNED'     => 'badge badge-bg-returned p-2',
-                'DISAPPROVED'  => 'badge badge-bg-disapproved p-2',
-                'DRAFT'        => 'badge badge-bg-draft p-2',
-                default        => 'badge badge-bg-draft',
-            };
-
-            //condition for ROLE = 2 and ON-HOLD
-            if ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 2) {
-                $displayStatus = 'UNDER EVALUATION <span style="color:#ec6868 !important; font-weight:bold;">(On-Hold)</span>';
-            }elseif ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 1){
-                $displayStatus = 'UNDER EVALUATION';
-            }
+                $badgeClass = match ($status) {
+                    'APPROVED'     => 'badge badge-bg-approve p-2',
+                    'UNDER EVALUATION' => 'badge badge-bg-evaluation p-2',
+                    'ON-HOLD'      => 'badge badge-bg-evaluation p-2',
+                    'REJECTED'     => 'badge badge-bg-rejected p-2',
+                    'RETURNED'     => 'badge badge-bg-returned p-2',
+                    'DISAPPROVED'  => 'badge badge-bg-disapproved p-2',
+                    'DRAFT'        => 'badge badge-bg-draft p-2',
+                    default        => 'badge badge-bg-draft',
+                };
+    
+                //condition for ROLE = 2 and ON-HOLD
+                if ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 2) {
+                    $displayStatus = 'UNDER EVALUATION <span style="color:#ec6868 !important; font-weight:bold;">(On-Hold)</span>';
+                }elseif ($status == 'UNDER EVALUATION' && $row->on_hold == 1 && $role == 1){
+                    $displayStatus = 'UNDER EVALUATION';
+                }
             // $arr[$i]['status'] = '<button class=" '.$badgeClass.' ">'.$status.'<button>';
             $arr[$i]['status'] = '<span class="'.$badgeClass.'" style="
                 text-align:center;
