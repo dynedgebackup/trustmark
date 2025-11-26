@@ -178,6 +178,9 @@
                             <option
                                 value="UNDER EVALUATION"{{ request('status') == 'UNDER EVALUATION' ? 'selected' : '' }}>
                                 UNDER EVALUATION</option>
+                            <option
+                            value="ON-HOLD"{{ request('status') == 'ON-HOLD' ? 'selected' : '' }}>
+                            ON-HOLD</option>
                             <option value="DRAFT" {{ request('status') == 'DRAFT' ? 'selected' : '' }}>DRAFT</option>
                         </select>
                     </div>
