@@ -102,7 +102,7 @@
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td width="100%" align="left" style="padding-left: 50px; padding-bottom: 0;">
-                <img src="{{ public_path('assets/img/DTI-BP-transparent.png') }}" width="160" height="80">
+                <img src="{{ public_path('assets/img/DTI-BP-transparent-statement.png') }}" width="160" height="80">
             </td>
         </tr>
         <tr>
