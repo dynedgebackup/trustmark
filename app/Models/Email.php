@@ -41,6 +41,21 @@ class Email extends Model
                 case 'registration':
                     $message['subject'] = 'Trustmark Application Submission - Reference No. '.$business->trustmark_id;
                     //$message['subject'] = 'Your ECPT Application Has Been Received';
+                    
+
+                    // ========== Email Content ==========
+                    $message['html'] = View::make('emails.received', compact('business'))->render();
+
+                    $message['to'][] = [
+                        'email' => $business->pic_email,
+                        'name' => $business->pic_name,
+                        'type' => 'to',
+                    ];
+                    
+                    break;
+
+                case 'adminApproved':
+                    $message['subject'] = 'Trustmark Application Approved - Reference No. '.$business->trustmark_id;
                     $business = DB::table('businesses')->where('id', $business->id)->first();
                     $type_corporations = DB::table('type_corporations')
                         ->where('id', $business->corporation_type)
@@ -73,9 +88,7 @@ class Email extends Model
 
                     // PDF as a string (important!)
                     $pdfString = $pdf->Output('statement_CERTIFICATE.pdf', 'S');
-
-                    // ========== Email Content ==========
-                    $message['html'] = View::make('emails.received', compact('business'))->render();
+                    $message['html'] = View::make('emails.approved', compact('business'))->render();
 
                     $message['to'][] = [
                         'email' => $business->pic_email,
@@ -85,19 +98,7 @@ class Email extends Model
                     $message['attachments'][] = [
                         'content' => base64_encode($pdfString),
                         'type'    => 'application/pdf',
-                        'name'    => 'statement_CERTIFICATE.pdf',
-                    ];
-                    break;
-
-                case 'adminApproved':
-                    $message['subject'] = 'Trustmark Application Approved - Reference No. '.$business->trustmark_id;
-                    
-                    $message['html'] = View::make('emails.approved', compact('business'))->render();
-
-                    $message['to'][] = [
-                        'email' => $business->pic_email,
-                        'name' => $business->pic_name,
-                        'type' => 'to',
+                        'name'    => 'STATEMENT_CERTIFICATE.pdf',
                     ];
                     break;
 
