@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Mandrill;
-
+use TCPDF;
+use TCPDF_FONTS;
 class Email extends Model
 {
     public static function sendMail($type, $data)
