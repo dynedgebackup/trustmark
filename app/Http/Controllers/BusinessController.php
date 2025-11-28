@@ -6516,5 +6516,26 @@ class BusinessController extends Controller
         return response()->json(['success' => true]);
     }
     
+    public function generateStatmentOfAccutCertificate($id)
+    {
+        $business = Business::findOrFail($id);
+        $type_corporations = DB::table('type_corporations')->where('id',$business->corporation_type)->first();
+        $busines_fee = BusinessFees::where('busn_id', $id)->get();
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->SetAlpha(0.08);
+        $pdf->Image(public_path('assets/img/trustmark_logo.png'), 35, 47, 140, 200);
+        $pdf->SetAlpha(1);
+        $html = view('business.certificate_statement', compact('business','type_corporations','busines_fee'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        return response($pdf->Output('statement_CERTIFICATE.pdf', 'I'))
+            ->header('Content-Type', 'application/pdf');
+    }
 
 }

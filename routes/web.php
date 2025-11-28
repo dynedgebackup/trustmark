@@ -381,6 +381,8 @@ Route::get('/get-reasons/{status_id}', [ApplicationStatusCannedMessageController
 Route::post('/get-platform-details', [BusinessController::class, 'getPlatformDetails'])->name('platform.details');
 Route::get('/business_internal_redress/{id}/certificate', [BusinessController::class, 'generateInternalRedCertificate'])
      ->name('business.certificate');
+Route::get('/generateStatmentOfAccutCertificate/{id}/certificate', [BusinessController::class, 'generateStatmentOfAccutCertificate'])
+->name('business.generateStatmentOfAccutCertificate');
 Route::any('/irm-save', [BusinessController::class, 'saveirm'])->name('irm.save');
 
 Route::middleware(['auth','role.access'])->group(function () {

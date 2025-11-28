@@ -40,6 +40,40 @@ class Email extends Model
                 case 'registration':
                     $message['subject'] = 'Trustmark Application Submission - Reference No. '.$business->trustmark_id;
                     //$message['subject'] = 'Your ECPT Application Has Been Received';
+                    $business = DB::table('businesses')->where('id', $business->id)->first();
+                    $type_corporations = DB::table('type_corporations')
+                        ->where('id', $business->corporation_type)
+                        ->first();
+
+                    $busines_fee = DB::table('business_fees')->where('busn_id', $business->id)->get();
+
+                    // ========== Generate PDF ==========
+                    $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'A4', true, 'UTF-8', false);
+                    $pdf->SetCreator(PDF_CREATOR);
+                    $pdf->SetMargins(10, 10, 10);
+                    $pdf->SetAutoPageBreak(true, 10);
+                    $pdf->SetPrintHeader(false);
+                    $pdf->SetPrintFooter(false);
+                    $pdf->AddPage();
+
+                    // watermark
+                    $pdf->SetAlpha(0.08);
+                    $pdf->Image(public_path('assets/img/trustmark_logo.png'), 35, 47, 140, 200);
+                    $pdf->SetAlpha(1);
+
+                    // html load
+                    $html = view('business.certificate_statement', compact(
+                        'business',
+                        'type_corporations',
+                        'busines_fee'
+                    ))->render();
+
+                    $pdf->writeHTML($html, true, false, true, false, '');
+
+                    // PDF as a string (important!)
+                    $pdfString = $pdf->Output('statement_CERTIFICATE.pdf', 'S');
+
+                    // ========== Email Content ==========
                     $message['html'] = View::make('emails.received', compact('business'))->render();
 
                     $message['to'][] = [
@@ -47,10 +81,16 @@ class Email extends Model
                         'name' => $business->pic_name,
                         'type' => 'to',
                     ];
+                    $message['attachments'][] = [
+                        'content' => base64_encode($pdfString),
+                        'type'    => 'application/pdf',
+                        'name'    => 'statement_CERTIFICATE.pdf',
+                    ];
                     break;
 
                 case 'adminApproved':
                     $message['subject'] = 'Trustmark Application Approved - Reference No. '.$business->trustmark_id;
+                    
                     $message['html'] = View::make('emails.approved', compact('business'))->render();
 
                     $message['to'][] = [
