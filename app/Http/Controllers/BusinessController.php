@@ -6529,7 +6529,7 @@ class BusinessController extends Controller
         $pdf->SetPrintFooter(false);
         $pdf->AddPage();
         $pdf->SetAlpha(0.08);
-        $pdf->Image(public_path('assets/img/trustmark_logo.png'), 35, 47, 140, 200);
+        $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 35, 47, 140, 200);
         $pdf->SetAlpha(1);
         $html = view('business.certificate_statement', compact('business','type_corporations','busines_fee'))->render();
         $pdf->writeHTML($html, true, false, true, false, '');

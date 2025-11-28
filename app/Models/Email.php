@@ -74,7 +74,7 @@ class Email extends Model
 
                     // watermark
                     $pdf->SetAlpha(0.08);
-                    $pdf->Image(public_path('assets/img/trustmark_logo.png'), 35, 47, 140, 200);
+                    $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 35, 47, 140, 200);
                     $pdf->SetAlpha(1);
 
                     // html load
