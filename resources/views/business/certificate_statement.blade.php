@@ -7,42 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Trustmark</title>
     <link rel="stylesheet" href="{{ public_path('assets/bootstrap/css/bootstrap.min.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 </head>
 
 
 <style>
-    
-    @font-face {
-        font-family: 'Montserrat';
-        src: url('{{ public_path('fonts/montserrat/Montserrat-Regular.ttf') }}') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-        color:#4a4444;
-    }
-
-    @font-face {
-        font-family: 'Baskerville';
-        src: url('{{ public_path('fonts/baskerville/Baskerville-Regular.ttf') }}') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-        color:#4a4444;
-    }
-
-    body {
-        font-family: 'Montserrat', sans-serif;
-        color:#4a4444;
-    }
-
-    .trustmark-title {
-        font-family: 'Baskerville', serif;
-    }
-
-    .text-justify {
-        text-align: justify;
-        color:#4a4444;
-    }
-
     @page {
         size: A4;
         margin: 0;
@@ -102,7 +70,7 @@
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td width="100%" align="left" style="padding-left: 50px; padding-bottom: 0;">
-                <img src="{{ public_path('assets/img/DTI-BP-transparent-statement.png') }}" width="160" height="80">
+                <img src="{{ $logo }}" width="160" height="80">
             </td>
         </tr>
         <tr>
