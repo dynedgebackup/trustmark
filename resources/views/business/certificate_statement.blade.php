@@ -85,6 +85,7 @@
 <div class="right">
 Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y') }} </strong> <br>
     Reference Number: <strong>{{ $business->trustmark_id ?? 'N/A' }}</strong>
+    
 </div>
 
 
