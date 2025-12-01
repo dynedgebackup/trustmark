@@ -147,6 +147,14 @@ class DailyReportController extends Controller
         $enddate = $request->input('todate');
 
        $query = DB::table('businesses as a')
+                ->leftJoin(
+                    DB::raw("(SELECT busn_id, GROUP_CONCAT(url SEPARATOR '<br>') AS business_urls
+                            FROM business_url
+                            GROUP BY busn_id) as burl"),
+                    'burl.busn_id',
+                    '=',
+                    'a.id'
+                )
                 ->select([
                     'a.id as ID',
                     DB::raw("IFNULL(a.trustmark_id,'') AS `SecurityNo`"),
@@ -159,8 +167,9 @@ class DailyReportController extends Controller
                             WHEN 3 THEN 'Cooperative'
                         END, ''
                     ) AS `BusinessType`"),
+                    DB::raw("IFNULL(a.id,'') AS `id`"),
                     DB::raw("IFNULL(a.tin,'') AS `TIN`"),
-                    DB::raw("IFNULL(burl.url,'') AS `business_urls`"),
+                    DB::raw("COALESCE(burl.business_urls, '') AS business_urls"),
                     DB::raw("IFNULL(b.name,'') AS `Representative`"),
                     DB::raw("IFNULL(a.amount,'') AS `Payment`"),
                     DB::raw("IFNULL(a.admin_remarks,'') AS `Remarks`"),
@@ -188,7 +197,6 @@ class DailyReportController extends Controller
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
-            ->leftJoin('business_url as burl', 'burl.busn_id', '=', 'a.id')
             ->where('a.is_active', 1);
             // ->orderByDesc('a.id');
             if ($request->filled('status')) {
