@@ -160,6 +160,7 @@ class DailyReportController extends Controller
                         END, ''
                     ) AS `BusinessType`"),
                     DB::raw("IFNULL(a.tin,'') AS `TIN`"),
+                    DB::raw("IFNULL(burl.url,'') AS `business_urls`"),
                     DB::raw("IFNULL(b.name,'') AS `Representative`"),
                     DB::raw("IFNULL(a.amount,'') AS `Payment`"),
                     DB::raw("IFNULL(a.admin_remarks,'') AS `Remarks`"),
@@ -187,6 +188,7 @@ class DailyReportController extends Controller
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
+            ->leftJoin('business_url as burl', 'burl.busn_id', '=', 'a.id')
             ->where('a.is_active', 1);
             // ->orderByDesc('a.id');
             if ($request->filled('status')) {
@@ -284,7 +286,8 @@ class DailyReportController extends Controller
             22 =>'mun_desc',
             23 =>'prov_desc',
             24 =>'reg_region',
-            25=>'is_bmbe'
+            25=>'is_bmbe',
+            26=>'burl.url'
 
         ];
         $totalRecords = DB::table('businesses as a')->count();
@@ -333,7 +336,8 @@ class DailyReportController extends Controller
                     'Municipality_City' => $row->Municipality_City ?? ' ',
                     'Province' => $row->Province ?? ' ',
                     'Region' => $row->Region ?? ' ',
-                    'witbemb' => $row->withBMBE ?? ' '
+                    'witbemb' => $row->withBMBE ?? ' ',
+                    'business_url' => $row->business_urls ?? ' '
             ];
         }
 

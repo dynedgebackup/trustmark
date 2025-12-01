@@ -89,6 +89,7 @@
                                 <th style="width: 120px;">{{ __('Province') }}</th>
                                 <th style="width: 120px;">{{ __('Region') }}</th>
                                 <th style="width: 120px;">{{ __('With BMBE (Yes/No)') }}</th>
+                                <th style="width: 120px;">{{ __('Business URL | Website | Social Media Platform') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,7 +140,8 @@ function datatablefunction() {
             { data: 'unicipality_City', width: "120px" },
             { data: 'Province', width: "120px" },
             { data: 'Region', width: "120px" },
-            { data: 'BMBE', width: "120px" }
+            { data: 'BMBE', width: "120px" },
+            { data: 'business_url', width: "120px" }
         ],
         processing: true,
         serverSide: true,
@@ -181,7 +183,8 @@ function datatablefunction() {
             { data: 'Municipality_City' },
             { data: 'Province' },
             { data: 'Region' },
-            { data: 'witbemb' }
+            { data: 'witbemb' },
+            makeRemarkColumn('business_url'),
         ],
         drawCallback: function() {
             bindToggleEvents();
