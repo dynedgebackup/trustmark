@@ -26,7 +26,7 @@ class DailyReportController extends Controller
         $enddate = $request->input('todate');
         $query = DB::table('businesses as a')
                 ->leftJoin(
-                    DB::raw("(SELECT busn_id, GROUP_CONCAT(url SEPARATOR ', ') AS business_urls
+                    DB::raw("(SELECT busn_id, GROUP_CONCAT(url SEPARATOR '<br>') AS business_urls
                             FROM business_url
                             GROUP BY busn_id) as burl"),
                     'burl.busn_id',
