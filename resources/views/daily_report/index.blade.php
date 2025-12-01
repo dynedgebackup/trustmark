@@ -268,7 +268,7 @@ async function loadDataForExcelSheet() {
         const headerRow = worksheet.addRow([
             "No.", "Security No.", "Business Name", "Registration No.",
             "Business Type", "TIN", "Representative", "Payment", "Remarks", "Status", "Email Address"
-            , "Contact No.", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)"
+            , "Contact No.", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)","Business URL | Website | Social Media Platform"
         ]);
         headerRow.eachCell((cell) => {
             cell.fill = {
@@ -315,7 +315,8 @@ async function loadDataForExcelSheet() {
                 row.Municipality_City,
                 row.Province,
                 row.Region,
-                row.withBMBE
+                row.withBMBE,
+                row.business_urls
             ]);
             newRow.eachCell(cell => {
                 cell.border = {
