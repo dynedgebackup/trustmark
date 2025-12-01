@@ -289,6 +289,10 @@ async function loadDataForExcelSheet() {
             cell.alignment = { vertical: 'middle', horizontal: 'center' };
         });
         result.data.forEach((row, index) => {
+            const urls = row.business_urls
+                ? row.business_urls.replace(/<br\s*\/?>/gi, '\n')
+                : "";
+
             const newRow = worksheet.addRow([
                 index + 1,
                 row.SecurityNo,
@@ -316,8 +320,10 @@ async function loadDataForExcelSheet() {
                 row.Province,
                 row.Region,
                 row.withBMBE,
-                row.business_urls
+                urls  
             ]);
+            newRow.getCell(27).alignment = { wrapText: true };
+
             newRow.eachCell(cell => {
                 cell.border = {
                     top:    { style: 'thin' },
@@ -326,7 +332,8 @@ async function loadDataForExcelSheet() {
                     right:  { style: 'thin' }
                 };
             });
-        });
+            });
+
         worksheet.columns.forEach(column => {
             let maxLength = 10;
             column.eachCell({ includeEmpty: true }, cell => {
