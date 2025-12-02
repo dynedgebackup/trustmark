@@ -76,8 +76,8 @@ class Email extends Model
                     $pdf->SetAlpha(0.20);
                     $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 26, 46, 160, 200);
                     $pdf->SetAlpha(1);
-                    $barangays = DB::table('barangays')->select('id','brgy_description')->where('id',$business->barangay_id)->first();
-                    $complete_address = $barangays->brgy_description.', '.$business->complete_address;
+                    $barangays = DB::table('barangays')->select('id','reg_region','prov_desc','mun_desc','brgy_name')->where('id',$business->barangay_id)->first();
+                    $complete_address = $barangays->reg_region.', '.$barangays->prov_desc.', '.$barangays->mun_desc.', '.$barangays->brgy_name.', '.$business->complete_address;
                     $logoPath = public_path('assets/img/DTI-BP-transparent-statement.png');
                     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
                     // html load
