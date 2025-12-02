@@ -32,13 +32,14 @@
     .title {
         text-align: center;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 10px;
     }
     .right {
         text-align: right;
         font-size: 11px;
         line-height: 16px;
+        padding-right:60px;
     }
     .section-title {
         font-weight: bold;
@@ -69,47 +70,48 @@
     <div class="certificate-container">
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="100%" align="left" style="padding-left: 50px; padding-bottom: 0;">
-                <img src="{{ $logo }}" width="160" height="80">
+            <td width="100%" align="left" style="padding-left: 0px; padding-bottom: 0;">
+                <img src="{{ $logo }}" width="130" height="70">
+                <br><br>
             </td>
         </tr>
-        <tr>
-            <td width="100%" align="center" style="font-family: 'Baskerville', serif;font-size: 32px; font-weight: bold;color:#4a4444; line-height: normal;">
-               
-            </td>
-        </tr>
+       
     </table>
 
 <div class="title">STATEMENT OF ACCOUNT</div>
 
-<div class="right">
-Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y') }} </strong> <br>
-    Reference Number: <strong>{{ $business->trustmark_id ?? 'N/A' }}</strong>
-    
-</div>
-
-
-<table class="no-border">
-    <tr><td style="width: 16%;">
+<table width="90%">
+    <tr>
+        <td style="text-align:right; font-size:11px;">
+        <br><br><br>
+            Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y') }}</strong><br>
+            Reference Number: <strong>{{ $business->trustmark_id ?? 'N/A' }}</strong>
         </td>
-        <td style="width: 70%;">
-        <div class="section-title2" ><strong>Applicant Information</strong><br>Business Name: <strong>{{ $business->business_name }}</strong><br>Owner/Representative: <strong>{{ $business->pic_name }}</strong><br>Business Address: <strong>{{ $business->complete_address }}</strong><br>Email Address: <strong>{{ $business->pic_email }}</strong><br>Contact Number: <strong>{{ $business->pic_ctc_no }}</strong></div>
+    </tr>
+</table>
+
+
+<table class="no-border" >
+    <tr><td style="width: 11.5%;">
+        </td>
+        <td style="width: 78.5%;">
+        <div class="section-title2"><br><strong>Applicant Information</strong><br>Business Name: <strong>{{ $business->business_name }}</strong><br>Owner/Representative: <strong>{{ $business->pic_name }}</strong><br>Business Address: <strong>{{ $complete_address }}</strong><br>Email Address: <strong>{{ $business->pic_email }}</strong><br>Contact Number: <strong>{{ $business->pic_ctc_no }}</strong></div>
             
 
             <div class="section-title">Transaction Details</div>
 
-            <table class="table" style="width: 98%;">
+            <table class="table" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 70%;">Item Description</th>
-                        <th style="width: 30%;">Amount</th>
+                        <th style="width: 70%;text-align: center;font-weight: bold;height:10px;">Item Description</th>
+                        <th style="width: 30%;text-align: center;font-weight: bold;height:10px;">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse ($busines_fee as $fee)
                     <tr>
                         <td>{{ $fee->fee_name }}</td>
-                        <td>P {{ number_format($fee->amount, 2) }}</td>
+                        <td style="text-align: right;">P {{ number_format($fee->amount, 2) }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -118,7 +120,7 @@ Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y
                 @endforelse
                     <tr>
                         <td style="text-align: right;"><strong>Total Amount Due</strong></td>
-                        <td><strong>P {{ number_format($busines_fee->sum('amount'), 2) }}</strong></td>
+                        <td style="text-align: right;"><strong>P {{ number_format($busines_fee->sum('amount'), 2) }}</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -131,8 +133,8 @@ Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y
     </tr>
 </table>
 <table width="100%" class="no-border">
-            <tr><td width="14%"></td>
-                <td width="70%">
+            <tr><td width="11.5%"></td>
+                <td width="78.5%">
                     <ol style="font-size: 10px; line-height: 18px;">
                         <li>Log in to your account at trustmark.dti.gov.ph</li>
                         <li>Go to the Dashboard, click Approved, or click My Application on the sidebar and search for your application.</li>
@@ -147,11 +149,11 @@ Date: <strong>{{ \Carbon\Carbon::parse($business->date_approved)->format('F d, Y
             </tr>
         </table>
         <table width="100%" class="no-border">
-            <tr><td width="14%"></td>
-                <td width="70%">
-                    <ol style="font-size: 10px; line-height: 18px;">
-                        <li>This document is system-generated and does not require a signature.</li>
-                        <li>For concerns, email us at trustmark@dti.gov.ph or call (02) 7791-3282.
+            <tr><td width="10%"></td>
+                <td width="78.5%">
+                    <ol style="font-size: 10px; line-height: 18px;list-style-type:none;">
+                        <li>-   This document is system-generated and does not require a signature.</li>
+                        <li>-   For concerns, email us at trustmark@dti.gov.ph or call (02) 7791-3282.
                         </li>
                     </ol>
                 </td><td width="12%"></td>

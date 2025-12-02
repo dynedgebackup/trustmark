@@ -73,22 +73,24 @@ class Email extends Model
                     $pdf->AddPage();
 
                     // watermark
-                    $pdf->SetAlpha(0.08);
-                    $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 35, 47, 140, 200);
+                    $pdf->SetAlpha(0.20);
+                    $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 26, 46, 160, 200);
                     $pdf->SetAlpha(1);
+                    $barangays = DB::table('barangays')->select('id','brgy_description')->where('id',$business->barangay_id)->first();
+                    $complete_address = $business->complete_address.', '.$barangays->brgy_description;
                     $logoPath = public_path('assets/img/DTI-BP-transparent-statement.png');
                     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
                     // html load
                     $html = view('business.certificate_statement', compact(
                         'business',
                         'type_corporations',
-                        'busines_fee','logo'
+                        'busines_fee','logo','complete_address'
                     ))->render();
 
                     $pdf->writeHTML($html, true, false, true, false, '');
 
                     // PDF as a string (important!)
-                    $pdfString = $pdf->Output('statement_CERTIFICATE.pdf', 'S');
+                    $pdfString = $pdf->Output('STATEMENT_CERTIFICATE.pdf', 'S');
                     $message['html'] = View::make('emails.approved', compact('business'))->render();
 
                     $message['to'][] = [
