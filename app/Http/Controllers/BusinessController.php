@@ -6533,8 +6533,8 @@ class BusinessController extends Controller
         $logo = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
         $pdf->Image(public_path('assets/img/trustmark_logo.PNG'), 26, 46, 160, 200);
         $pdf->SetAlpha(1);
-        $barangays = DB::table('barangays')->select('id','reg_region','prov_desc','mun_desc','brgy_name')->where('id',$business->barangay_id)->first();
-        $complete_address = $barangays->reg_region.', '.$barangays->prov_desc.', '.$barangays->mun_desc.', '.$barangays->brgy_name.', '.$business->complete_address;
+        $barangays = DB::table('barangays')->select('id','brgy_description')->where('id',$business->barangay_id)->first();
+        $complete_address = $business->complete_address.', '.$barangays->brgy_description;
         $html = view('business.certificate_statement', compact('business','type_corporations','busines_fee','logo','complete_address'))->render();
         $pdf->writeHTML($html, true, false, true, false, '');
 
