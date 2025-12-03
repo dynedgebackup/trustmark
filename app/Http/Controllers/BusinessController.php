@@ -5521,11 +5521,13 @@ class BusinessController extends Controller
                     Storage::disk('public')->delete($business->bmbe_doc);
                 }
             }
-            if((int)$business->payment_id==0 &&  ($request->input('is_bmbe')!=$business->is_bmbe || $request->input('busn_category_id')!=$business->busn_category_id)){
+            //&&  ($request->input('is_bmbe')!=$business->is_bmbe || $request->input('busn_category_id')!=$business->busn_category_id)
+            if((int)$business->payment_id==0){
                 if($business->status=='APPROVED'){
-                    DB::table('business_fees')->where('busn_id', $businessId)->where('app_code', $business->app_code)->where('tax_year', $business->tax_year)->delete();
-
                     $applicationFees = ApplicationFees::where('app_code', $business->app_code)->get();
+                    if(count($applicationFees)>0){
+                        DB::table('business_fees')->where('busn_id', $businessId)->where('app_code', $business->app_code)->where('tax_year', $business->tax_year)->delete();
+                    }
                     foreach ($applicationFees as $app_fee) {
                         if($app_fee->is_application_fee==1){
                             if ((int)$request->input('is_bmbe') == 0) {
