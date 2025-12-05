@@ -2288,6 +2288,16 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         e.target.submit(); // submit the form if confirmed
+                        $.ajax({
+                            url: "{{ route('business.performance') }}",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                id: "{{ $business->id }}",
+                                evaluator_id: "{{ $business->evaluator_id }}",
+                                status: "{{ $business->status }}"
+                            }
+                        });
                     }
                 });
              });
