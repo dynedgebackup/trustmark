@@ -383,6 +383,8 @@ Route::get('/business_internal_redress/{id}/certificate', [BusinessController::c
      ->name('business.certificate');
 Route::get('/generateStatmentOfAccutCertificate/{id}/certificate', [BusinessController::class, 'generateStatmentOfAccutCertificate'])
 ->name('business.generateStatmentOfAccutCertificate');
+Route::post('/business-performance', [BusinessController::class, 'performance'])->name('business.performance');
+
 Route::any('/irm-save', [BusinessController::class, 'saveirm'])->name('irm.save');
 
 Route::middleware(['auth','role.access'])->group(function () {

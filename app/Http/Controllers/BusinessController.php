@@ -6543,5 +6543,21 @@ class BusinessController extends Controller
         return response($pdf->Output('STATEMENT_CERTIFICATE.pdf', 'I'))
             ->header('Content-Type', 'application/pdf');
     }
+    public function performance(Request $request){
+        DB::table('business_performance')->updateOrInsert(
+            [
+                'busn_id'   => $request->id,
+            ],
+            [
+            'year'      => date('Y'),
+            'user_id'   => $request->evaluator_id,
+            'process'   => $request->status,
+            'process_date'     => now(),
+        ]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Business updated successfully!'
+        ]);
+    }
 
 }
