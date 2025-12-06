@@ -6544,11 +6544,9 @@ class BusinessController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
     public function performance(Request $request){
-        DB::table('business_performance')->updateOrInsert(
+        DB::table('business_performance')->insert(
             [
-                'busn_id'   => $request->id,
-            ],
-            [
+            'busn_id'   => $request->id,
             'year'      => date('Y'),
             'user_id'   => $request->evaluator_id,
             'process'   => $request->status,

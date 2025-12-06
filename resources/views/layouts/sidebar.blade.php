@@ -390,7 +390,7 @@
                 </li>
                 @endif
                 @php
-                    $isMasterActive = request()->routeIs('Income.*') || request()->routeIs('dailyreport.*') || request()->routeIs('archivedApplicationsReport.*') || request()->routeIs('returnedApplicationsReport.*');
+                    $isMasterActive = request()->routeIs('Income.*') || request()->routeIs('dailyreport.*') || request()->routeIs('archivedApplicationsReport.*') || request()->routeIs('returnedApplicationsReport.*') || request()->routeIs('EvaluatorKpi.*');
                 @endphp
 
                 
@@ -427,6 +427,12 @@
                                 <a class="custom-nav-link nav-link {{ request()->routeIs('archivedApplicationsReport.index') ? 'active' : '' }}"
                                     href="{{ route('archivedApplicationsReport.index') }}">
                                     Archived Applications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('EvaluatorKpi.index') ? 'active' : '' }}"
+                                    href="{{ route('EvaluatorKpi.index') }}">
+                                    Evaluator KPI
                                 </a>
                             </li>
                            
