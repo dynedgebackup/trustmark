@@ -202,7 +202,7 @@ async function loadDataForExcelSheet() {
                 row.Returned,
                 row.Disapproved,
                 row['On-Hold'],        
-                row['Re-Activated'],   
+                row['Archived'],   
                 row['Re-Activated']
             ]);
             newRow.eachCell(cell => {

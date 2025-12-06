@@ -5972,10 +5972,18 @@ class BusinessController extends Controller
             ->update(['is_active' => 3,
                 'date_archived' => date('Y-m-d H:i:s'),
             ]);
-
+        
         $businessdata = DB::table('businesses')
-            ->where('id', $id)->select('trustmark_id', 'status')
+            ->where('id', $id)->select('trustmark_id','evaluator_id', 'status')
             ->first();
+        DB::table('business_performance')->insert(
+            [
+            'busn_id'   => $id,
+            'year'      => date('Y'),
+            'user_id'   => $businessdata->evaluator_id,
+            'process'   => "ARCHIVED",
+            'process_date'     => now(),
+        ]);
         $lat = $request->lat;
         $long = $request->long;
         $remark = '';

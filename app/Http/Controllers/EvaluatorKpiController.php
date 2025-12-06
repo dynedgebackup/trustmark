@@ -60,6 +60,7 @@ class EvaluatorKpiController extends Controller
             DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
             DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
             DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+            DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
         ])
         ->groupBy('u.id', 'u.name')
         ->orderBy('u.name', 'asc');
@@ -87,6 +88,7 @@ class EvaluatorKpiController extends Controller
             DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
             DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
             DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+            DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
         ])
         ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
         ->whereNotNull('bp.user_id')
@@ -143,7 +145,7 @@ class EvaluatorKpiController extends Controller
                 'Returned'      => $row->Returned,
                 'Disapproved'   => $row->Disapproved,
                 'On-Hold'       => $row->{'On-Hold'},
-                'acrhived'  => $row->{'Re-Activated'},
+                'acrhived'  => $row->{'Archived'},
                 'Re-Activated'  => $row->{'Re-Activated'},
                 'action' => '<a href="#" 
                     class="mx-3 btn btn-sm align-items-center viewEvaluatorBtn"
