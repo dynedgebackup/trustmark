@@ -212,6 +212,14 @@ class ArchivedApplicationsReportController extends Controller
                 'admin_updated_at' => now(),
                 'updated_at' => now(),
             ]);
+        DB::table('business_performance')->insert(
+            [
+            'busn_id'   => $id,
+            'year'      => date('Y'),
+            'user_id'   => $business->evaluator_id,
+            'process'   => "RE-ACTIVATED",
+            'process_date'     => now(),
+        ]);
         DB::table('user_logs')->updateOrInsert(
             [
                 'busn_id'   => $id,
