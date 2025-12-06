@@ -77,92 +77,92 @@ class EvaluatorKpiController extends Controller
     }
 
     public function getEvaluatorKpiList(Request $request)
-{
-    $startdate = $request->input('fromdate');
-    $enddate   = $request->input('todate');
+    {
+        $startdate = $request->input('fromdate');
+        $enddate   = $request->input('todate');
 
-    $query = DB::table('business_performance as bp')
-    ->select([
-        'u.id as Evaluator_ID',
-        'u.name as Evaluator',
-        'bp.busn_id',
-        DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
-        DB::raw("SUM(CASE WHEN bp.process='Approved' THEN 1 ELSE 0 END) AS Approved"),
-        DB::raw("SUM(CASE WHEN bp.process='Returned' THEN 1 ELSE 0 END) AS Returned"),
-        DB::raw("SUM(CASE WHEN bp.process='Disapproved' THEN 1 ELSE 0 END) AS Disapproved"),
-        DB::raw("SUM(CASE WHEN bp.process='On-Hold' THEN 1 ELSE 0 END) AS `On-Hold`"),
-        DB::raw("SUM(CASE WHEN bp.process='Re-Activated' THEN 1 ELSE 0 END) AS `Re-Activated`"),
-    ])
-    ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
-    ->whereNotNull('bp.user_id')
-    ->groupBy('u.id', 'u.name', 'bp.busn_id');
-    if (!empty($startdate)) {
-        $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
-        $query->whereDate('bp.process_date', '>=', $sdate);
-    }
-    if (!empty($enddate)) {
-        $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
-        $query->whereDate('bp.process_date', '<=', $edate);
-    }
-    if (!empty($request->q)) {
-        $search = strtolower($request->q);
+        $query = DB::table('business_performance as bp')
+        ->select([
+            'u.id as Evaluator_ID',
+            'u.name as Evaluator',
+            'bp.busn_id',
+            DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
+            DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
+            DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
+            DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
+            DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
+            DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+        ])
+        ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
+        ->whereNotNull('bp.user_id')
+        ->groupBy('u.id', 'u.name', 'bp.busn_id');
+        if (!empty($startdate)) {
+            $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
+            $query->whereDate('bp.process_date', '>=', $sdate);
+        }
+        if (!empty($enddate)) {
+            $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
+            $query->whereDate('bp.process_date', '<=', $edate);
+        }
+        if (!empty($request->q)) {
+            $search = strtolower($request->q);
 
-        $query->where(function ($q) use ($search) {
-            $q->where(DB::raw('LOWER(u.name)'), 'like', "%{$search}%")
-                ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
-                ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
-        });
-    }
+            $query->where(function ($q) use ($search) {
+                $q->where(DB::raw('LOWER(u.name)'), 'like', "%{$search}%")
+                    ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
+                    ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
+            });
+        }
 
-    $totalFiltered = $query->count();
-    $limit = $request->input('length');
-    $start = $request->input('start');
-    $query->skip($start)->take($limit);
-    $orderColumnIndex = $request->input('order.0.column');
-    $orderDirection   = $request->input('order.0.dir', 'asc');
+        $totalFiltered = $query->count();
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $query->skip($start)->take($limit);
+        $orderColumnIndex = $request->input('order.0.column');
+        $orderDirection   = $request->input('order.0.dir', 'asc');
 
-    $columns = [
-        0 => 'u.id',
-        1 => 'u.name',
-        2 => null, 
-    ];
-
-    if (!empty($columns[$orderColumnIndex])) {
-        $query->orderBy($columns[$orderColumnIndex], $orderDirection);
-    }
-
-    $rows = $query->get();
-    $data = [];
-    $i = $start + 1;
-
-    foreach ($rows as $row) {
-        $data[] = [
-            'no'            => $i++,
-            'Evaluator_ID'  => $row->Evaluator_ID,
-            'Evaluator'     => $row->Evaluator,
-            'Date'         => $row->LastDate,  
-            'Approved'      => $row->Approved,
-            'Returned'      => $row->Returned,
-            'Disapproved'   => $row->Disapproved,
-            'On-Hold'       => $row->{'On-Hold'},
-            'Re-Activated'  => $row->{'Re-Activated'},
-            'action' => '<a href="#" 
-                class="mx-3 btn btn-sm align-items-center viewEvaluatorBtn"
-                data-id="'.$row->busn_id.'"
-                title="View Business" 
-                style="background:#09325d;color:#fff;">
-                <i class="fas fa-search"></i>
-            </a>',
+        $columns = [
+            0 => 'u.id',
+            1 => 'u.name',
+            2 => null, 
         ];
-    }
 
-    return response()->json([
-        'draw'            => intval($request->input('draw')),
-        'recordsTotal'    => $totalFiltered,
-        'recordsFiltered' => $totalFiltered,
-        'data'            => $data
-    ]);
-}
+        if (!empty($columns[$orderColumnIndex])) {
+            $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+        }
+
+        $rows = $query->get();
+        $data = [];
+        $i = $start + 1;
+
+        foreach ($rows as $row) {
+            $data[] = [
+                'no'            => $i++,
+                'Evaluator_ID'  => $row->Evaluator_ID,
+                'Evaluator'     => $row->Evaluator,
+                'Date'         => $row->LastDate,  
+                'Approved'      => $row->Approved,
+                'Returned'      => $row->Returned,
+                'Disapproved'   => $row->Disapproved,
+                'On-Hold'       => $row->{'On-Hold'},
+                'Re-Activated'  => $row->{'Re-Activated'},
+                'action' => '<a href="#" 
+                    class="mx-3 btn btn-sm align-items-center viewEvaluatorBtn"
+                    data-id="'.$row->busn_id.'"
+                    title="View Business" 
+                    style="background:#09325d;color:#fff;">
+                    <i class="fas fa-search"></i>
+                </a>',
+            ];
+        }
+
+        return response()->json([
+            'draw'            => intval($request->input('draw')),
+            'recordsTotal'    => $totalFiltered,
+            'recordsFiltered' => $totalFiltered,
+            'data'            => $data
+        ]);
+    }
 
 
 public function getEvaluatorBusinessList($id)
