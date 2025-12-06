@@ -143,18 +143,22 @@
                                     <div class="col-md-12" style="padding:0px 7px;">
                                         <!-- <label class="form-label">Business URL/Website/Social Media Platform Link
                                                                                                         :&nbsp;</label> -->
-                                        @if (!empty($business->url_platform) && is_array($business->url_platform))
-                                            @foreach ($business->url_platform as $url)
-                                                @if (!empty($url))
-                                                    <a href="{{ $url }}" class="custom-label" target="_blank"
-                                                        rel="noopener noreferrer" title="{{ $url }}">
-                                                        {{ \Illuminate\Support\Str::limit($url, 150) }}
-                                                    </a><br>
-                                                @endif
-                                            @endforeach
-                                        @else
-                                            <span class="custom-label">N/A</span>
-                                        @endif
+                                    @if (!empty($business->url_platform) && is_array($business->url_platform))
+                                        @foreach ($business->url_platform as $url)
+                                            @php
+                                                $link = is_array($url) ? ($url['link'] ?? '') : $url;
+                                            @endphp
+
+                                            @if (!empty($link))
+                                                <a href="{{ $link }}" class="custom-label" target="_blank"
+                                                    rel="noopener noreferrer" title="{{ $link }}">
+                                                    {{ \Illuminate\Support\Str::limit($link, 150) }}
+                                                </a><br>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <span class="custom-label">N/A</span>
+                                    @endif
                                     </div>
                                 </div>
 
