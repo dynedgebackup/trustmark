@@ -2295,7 +2295,7 @@
                                 _token: "{{ csrf_token() }}",
                                 id: "{{ $business->id }}",
                                 evaluator_id: "{{ $business->evaluator_id }}",
-                                status: "{{ $business->status }}"
+                                status: $("#status_id option:selected").text()
                             }
                         });
                     }
