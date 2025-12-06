@@ -27,54 +27,51 @@ class EvaluatorKpiController extends Controller
     public function exportAll(Request $request)
     {
         $startdate = $request->input('fromdate');
-        $enddate = $request->input('todate');
-        $query = DB::table('business_fees as a')
-            
-            ->join('businesses as b', 'a.busn_id', '=', 'b.id')
-            ->join('payments as c', 'a.payment_id', '=', 'c.id')
-            ->join('users as d', 'b.user_id', '=', 'd.id')
-            ->where('a.payment_id', '>', 0);
+        $enddate   = $request->input('todate');
 
-            if ($request->filled('fee_id')) {
-                $query->where('a.fee_id', $request->fee_id);
-            }
-            if (!empty($startdate)) {
-                $sdate = explode('-', $startdate);
-                $startdate = date('Y-m-d', strtotime("{$sdate[2]}-{$sdate[1]}-{$sdate[0]}"));
-                $query->whereDate('a.create_date', '>=', trim($startdate));
-            }
+        $query = DB::table('business_performance as bp')
+            ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
+            ->whereNotNull('bp.user_id');
+        if (!empty($startdate)) {
+            $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
+            $query->whereDate('bp.process_date', '>=', $sdate);
+        }
+        if (!empty($enddate)) {
+            $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
+            $query->whereDate('bp.process_date', '<=', $edate);
+        }
+        if ($request->filled('user_id_filter')) {
+            $query->where('bp.user_id', $request->user_id_filter);
+        }
+        if (!empty($request->q)) {
+            $search = strtolower($request->q);
+            $query->where(function ($q) use ($search) {
+                $q->where(DB::raw('LOWER(u.name)'), 'like', "%{$search}%")
+                    ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
+                    ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
+            });
+        }
+        $query->select([
+            'u.id as Evaluator_ID',
+            'u.name as Evaluator',
+            DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
+            DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
+            DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
+            DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
+            DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
+            DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+            DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
+        ])
+        ->groupBy('u.id', 'u.name')
+        ->orderBy('u.name', 'asc');
 
-            if (!empty($enddate)) {
-                $edate = explode('-', $enddate);
-                $enddate = date('Y-m-d', strtotime("{$edate[2]}-{$edate[1]}-{$edate[0]}"));
-                $query->whereDate('a.create_date', '<=', trim($enddate));
-            }
-            if (!empty($request->q)) {
-                $search = $request->q;
-                $query->where(function($q) use ($search) {
-                    $q->where('b.business_name', 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%");
-                    });
-            }
+        $data = $query->get();
 
-        $data = $query->select(
-            'b.business_name as BusinessName',
-            'b.trustmark_id as SecurityNo',
-            'a.fee_name as PaymentDescription',
-            'c.transaction_id as TransactionID',
-            'a.amount as Amount',
-            'a.create_date as Date',
-            'd.name as PaymentBy',
-            'a.fee_id'
-        )->orderBy('b.trustmark_id', 'asc')->get();
-
-        return response()->json(['data' => $data]);
+        return response()->json([
+            'data' => $data
+        ]);
     }
+
 
     public function getEvaluatorKpiList(Request $request)
     {
@@ -85,17 +82,20 @@ class EvaluatorKpiController extends Controller
         ->select([
             'u.id as Evaluator_ID',
             'u.name as Evaluator',
-            'bp.busn_id',
             DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
             DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
             DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
             DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
             DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
             DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+            DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
         ])
         ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
         ->whereNotNull('bp.user_id')
-        ->groupBy('u.id', 'u.name', 'bp.busn_id');
+        ->groupBy('u.id', 'u.name');
+        if ($request->filled('user_id_filter')) {
+            $query->where('bp.user_id', $request->user_id_filter);
+        }
         if (!empty($startdate)) {
             $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
             $query->whereDate('bp.process_date', '>=', $sdate);
@@ -145,10 +145,11 @@ class EvaluatorKpiController extends Controller
                 'Returned'      => $row->Returned,
                 'Disapproved'   => $row->Disapproved,
                 'On-Hold'       => $row->{'On-Hold'},
+                'acrhived'  => $row->{'Archived'},
                 'Re-Activated'  => $row->{'Re-Activated'},
                 'action' => '<a href="#" 
                     class="mx-3 btn btn-sm align-items-center viewEvaluatorBtn"
-                    data-id="'.$row->busn_id.'"
+                    data-id="'.$row->Evaluator_ID.'"
                     title="View Business" 
                     style="background:#09325d;color:#fff;">
                     <i class="fas fa-search"></i>
@@ -174,7 +175,7 @@ public function getEvaluatorBusinessList($id)
             'b.business_name',
             'bp.process',
             'bp.process_date'])
-        ->where('bp.busn_id', $id)
+        ->where('bp.user_id', $id)
         ->orderBy('bp.process_date', 'DESC')
         ->get();
 

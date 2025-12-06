@@ -71,6 +71,7 @@
                                         <th>{{ __('Returned') }}</th>
                                         <th>{{ __('Disapproved') }}</th>
                                         <th>{{ __('On-Hold') }}</th>
+                                        <th>{{ __('Acrhived') }}</th>
                                         <th>{{ __('Re-Activated') }}</th>
                                         <th>{{ __('Action') }}</th>
                                     </tr>
@@ -136,7 +137,7 @@ function datatablefunction() {
         ajax: {
             url: "{{ route('EvaluatorKpi.getList') }}",
             data: function(d) {
-                d.fee_id = $('#fees_id_filter').val();
+                d.user_id_filter = $('#user_id_filter').val();
                 d.fromdate = $('#fromdate').val();
                 d.todate = $('#todate').val();
                 d.q = $('#q').val();
@@ -151,6 +152,7 @@ function datatablefunction() {
             { data: 'Returned' },
             { data: 'Disapproved' },
             { data: 'On-Hold' },
+            { data: 'acrhived' },
             { data: 'Re-Activated' },
             { data: 'action' }
         ]
@@ -163,15 +165,15 @@ async function loadDataForExcelSheet() {
     const q = $('#q').val();
 
     try {
-        const exportUrl = `{{ route('Income.exportAll') }}?fee_id=${fee_id}&fromdate=${fromdate}&todate=${todate}&q=${q}`;
+        const exportUrl = `{{ route('EvaluatorKpi.exportAll') }}?fee_id=${fee_id}&fromdate=${fromdate}&todate=${todate}&q=${q}`;
         const response = await fetch(exportUrl);
         const result = await response.json();
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Income Report");
+        const worksheet = workbook.addWorksheet("Evaluator Kpi Report");
         const headerRow = worksheet.addRow([
-            "No.", "Business Name", "Security No.", "Payment Description",
-            "Transaction ID", "Amount", "Date", "Payment By"
+            "No.", "Evaluator", "Date", "Approved",
+            "Returned", "Disapproved", "On-Hold", "Acrhived", "Re-Activated"
         ]);
         headerRow.eachCell((cell) => {
             cell.fill = {
@@ -194,13 +196,14 @@ async function loadDataForExcelSheet() {
         result.data.forEach((row, index) => {
             const newRow = worksheet.addRow([
                 index + 1,
-                row.BusinessName,
-                row.SecurityNo,
-                row.PaymentDescription,
-                row.TransactionID,
-                row.Amount,
-                row.Date,
-                row.PaymentBy
+                row.Evaluator,
+                row.LastDate,
+                row.Approved,
+                row.Returned,
+                row.Disapproved,
+                row['On-Hold'],        
+                row['Archived'],   
+                row['Re-Activated']
             ]);
             newRow.eachCell(cell => {
                 cell.border = {
@@ -225,7 +228,7 @@ async function loadDataForExcelSheet() {
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = "Income_Report.xlsx";
+        a.download = "Evaluator_KIP_Report.xlsx";
         a.click();
         window.URL.revokeObjectURL(url);
     } catch (error) {
