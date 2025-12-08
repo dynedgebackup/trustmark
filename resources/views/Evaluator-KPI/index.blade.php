@@ -417,13 +417,11 @@ $(document).on("click", ".viewEvaluatorBtn", function (e) {
     $("#evaluatorModal").data('evaluator-id', id);
     loadEvaluatorData(id);
 });
-$("#viewbtn_clear").on("click", function () {
-    $("#status").val("");
+$(document).on("click", "#viewbtn_clear", function (e) {
+    e.preventDefault();
     $("#viewq").val("");
-    $("#viewfromdate").val("");
-    $("#viewtodate").val("");
-
-    let id = $(".viewEvaluatorBtn").data("id");
+    let id = $("#evaluatorModal").data('evaluator-id');
+    
     loadEvaluatorData(id);
 });
 $(document).on("click", "#viewbtn_search", function (e) {
