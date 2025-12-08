@@ -139,7 +139,7 @@ class IncomeController extends Controller
             'a.fee_name as PaymentDescription',
             'c.transaction_id as TransactionID',
             'a.amount as Amount',
-            'a.date as Date',
+            'c.date as Date',
             'd.name as PaymentBy',
             'a.fee_id'
         ])
@@ -154,13 +154,13 @@ class IncomeController extends Controller
         if (!empty($startdate)) {
             $sdate = explode('-', $startdate);
             $startdate = date('Y-m-d', strtotime("{$sdate[2]}-{$sdate[1]}-{$sdate[0]}"));
-            $query->whereDate('a.date', '>=', trim($startdate));
+            $query->whereDate('c.date', '>=', trim($startdate));
         }
 
         if (!empty($enddate)) {
             $edate = explode('-', $enddate);
             $enddate = date('Y-m-d', strtotime("{$edate[2]}-{$edate[1]}-{$edate[0]}"));
-            $query->whereDate('a.date', '<=', trim($enddate));
+            $query->whereDate('c.date', '<=', trim($enddate));
         }
         if (!empty($request->q)) {
             $search = $request->q;
