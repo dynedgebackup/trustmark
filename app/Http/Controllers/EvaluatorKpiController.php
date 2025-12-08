@@ -166,34 +166,104 @@ class EvaluatorKpiController extends Controller
     }
 
 
-public function getEvaluatorBusinessList($id)
-{
-    $rows = DB::table('business_performance as bp')
-        ->leftJoin('businesses as b', 'b.id', '=', 'bp.busn_id')
-        ->select([
-            'b.trustmark_id',
-            'b.business_name',
-            'bp.process',
-            'bp.process_date'])
-        ->where('bp.user_id', $id)
-        ->orderBy('bp.process_date', 'DESC')
-        ->get();
+    public function getEvaluatorBusinessList(Request $request, $id)
+    {
+        $query = DB::table('business_performance as bp')
+            ->leftJoin('businesses as b', 'b.id', '=', 'bp.busn_id')
+            ->select([
+                'b.trustmark_id',
+                'b.business_name',
+                'bp.process',
+                'bp.process_date',
+            ])
+            ->where('bp.user_id', $id);
+        if (!empty($request->status)) {
+            $query->where('bp.process', $request->status);
+        }
 
-    $html = '';
-    $i = 1;
+        if (!empty($request->viewfromdate)) {
+            $query->whereDate('bp.process_date', '>=', $request->viewfromdate);
+        }
 
-    foreach ($rows as $row) {
-        $html .= '<tr>
-            <td>'.$i++.'</td>
-            <td>'.$row->trustmark_id.'</td>
-            <td>'.$row->business_name.'</td>
-            <td>'.$row->process.'</td>
-            <td>'.date("Y-m-d", strtotime($row->process_date)).'</td>
-        </tr>';
+        if (!empty($request->viewtodate)) {
+            $query->whereDate('bp.process_date', '<=', $request->viewtodate);
+        }
+
+        if (!empty($request->viewq)) {
+            $search = strtolower($request->viewq);
+            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%");
+        }
+        $totalFiltered = $query->count();
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $query->skip($start)->take($limit);
+        $orderColumnIndex = $request->input('order.0.column');
+        $orderDirection   = $request->input('order.0.dir', 'asc');
+
+        $columns = [
+            0 => 'b.trustmark_id',
+            1 => 'b.business_name',
+            2 => 'bp.process',
+            3 => 'bp.process_date',
+        ];
+
+        if (!empty($columns[$orderColumnIndex])) {
+            $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+        }
+        $rows = $query->get();
+        $data = [];
+        $i = $start + 1;
+
+        foreach ($rows as $row) {
+            $data[] = [
+                'no'      => $i++,
+                'trustmark_id' => $row->trustmark_id,
+                'business_name' => $row->business_name,
+                'process' => $row->process,
+                'process_date' => date('Y-m-d', strtotime($row->process_date)),
+            ];
+        }
+
+        return response()->json([
+            'draw'            => intval($request->input('draw')),
+            'recordsTotal'    => $totalFiltered,
+            'recordsFiltered' => $totalFiltered,
+            'data'            => $data,
+        ]);
     }
+    public function viewexportAll(Request $request)
+    {   
+        $id = $request->id;
+        $query = DB::table('business_performance as bp')
+            ->leftJoin('businesses as b', 'b.id', '=', 'bp.busn_id')
+            ->select([
+                'b.trustmark_id',
+                'b.business_name',
+                'bp.process',
+                'bp.process_date',
+            ])
+            ->where('bp.user_id', $id);
+        if (!empty($request->status)) {
+            $query->where('bp.process', $request->status);
+        }
 
-    return response()->json(['html' => $html]);
-}
+        if (!empty($request->viewfromdate)) {
+            $query->whereDate('bp.process_date', '>=', $request->viewfromdate);
+        }
 
-    
+        if (!empty($request->viewtodate)) {
+            $query->whereDate('bp.process_date', '<=', $request->viewtodate);
+        }
+
+        if (!empty($request->viewq)) {
+            $search = strtolower($request->viewq);
+            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%");
+        }
+
+        $data = $query->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
 }

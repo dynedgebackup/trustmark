@@ -626,11 +626,13 @@ Route::middleware(['auth','role.access'])->group(function () {
     Route::get('/report/Income', [IncomeController::class, 'index'])->name('Income.index');
     Route::get('/report/Income/getList', [IncomeController::class, 'getList'])->name('Income.getList');
     Route::get('/income/export', [IncomeController::class, 'exportAll'])->name('Income.exportAll');
+    
 
     // -----------Evaluator KPI  ------------
     Route::get('/report/Evaluator-KPI', [EvaluatorKpiController::class, 'index'])->name('EvaluatorKpi.index');
     Route::get('/report/Evaluator-KPI/getList', [EvaluatorKpiController::class, 'getEvaluatorKpiList'])->name('EvaluatorKpi.getList');
     Route::get('/Evaluator-KPI/export', [EvaluatorKpiController::class, 'exportAll'])->name('EvaluatorKpi.exportAll');
+    Route::get('/Evaluator-KPI/view/export', [EvaluatorKpiController::class, 'viewexportAll'])->name('EvaluatorKpi.viewexportAll');
     Route::get('/evaluator/business-list/{id}', [EvaluatorKpiController::class, 'getEvaluatorBusinessList'])->name('EvaluatorKpi.getEvaluatorBusinessList');
     // -----------report- Daily  ------------
     Route::get('/report/daily', [DailyReportController::class, 'index'])->name('dailyreport.index');
