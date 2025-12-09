@@ -21,7 +21,14 @@ class EvaluatorKpiController extends Controller
     }
     public function index()
     {
-        return view('Evaluator-KPI.index');
+        $user = DB::table('user_admins')
+        ->where('user_id', Auth::id())
+        ->select('is_evaluator', 'is_admin')
+        ->first();
+
+        $is_evaluator = (int) ($user->is_evaluator ?? 0);
+        $is_admin     = (int) ($user->is_admin ?? 0);
+        return view('Evaluator-KPI.index', compact('is_evaluator','is_admin'));
     }
     
     public function exportAll(Request $request)
@@ -40,9 +47,7 @@ class EvaluatorKpiController extends Controller
             $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
             $query->whereDate('bp.process_date', '<=', $edate);
         }
-        if ($request->filled('user_id_filter')) {
-            $query->where('bp.user_id', $request->user_id_filter);
-        }
+        
         if (!empty($request->q)) {
             $search = strtolower($request->q);
             $query->where(function ($q) use ($search) {
@@ -50,6 +55,19 @@ class EvaluatorKpiController extends Controller
                     ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
                     ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
             });
+        }
+
+        $user = DB::table('user_admins')
+        ->where('user_id', Auth::id())
+        ->select('is_evaluator', 'is_admin')
+        ->first();
+        if ($user && $user->is_evaluator == 1 && $user->is_admin == 0) {
+            $query->where('bp.user_id', Auth::id());
+        }
+        else {
+            if ($request->filled('user_id_filter')) {
+                $query->where('bp.user_id', $request->user_id_filter);
+            }
         }
         $query->select([
             'u.id as Evaluator_ID',
@@ -93,8 +111,17 @@ class EvaluatorKpiController extends Controller
         ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
         ->whereNotNull('bp.user_id')
         ->groupBy('u.id', 'u.name');
-        if ($request->filled('user_id_filter')) {
-            $query->where('bp.user_id', $request->user_id_filter);
+        $user = DB::table('user_admins')
+        ->where('user_id', Auth::id())
+        ->select('is_evaluator', 'is_admin')
+        ->first();
+        if ($user && $user->is_evaluator == 1 && $user->is_admin == 0) {
+            $query->where('bp.user_id', Auth::id());
+        }
+        else {
+            if ($request->filled('user_id_filter')) {
+                $query->where('bp.user_id', $request->user_id_filter);
+            }
         }
         if (!empty($startdate)) {
             $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
@@ -124,7 +151,14 @@ class EvaluatorKpiController extends Controller
         $columns = [
             0 => 'u.id',
             1 => 'u.name',
-            2 => null, 
+            2 => 'bp.process_date',
+            3 => 'Approved',
+            4 => 'Returned',
+            5 => 'Disapproved', 
+            6 => 'On-Hold',
+            7 => 'Archived',
+            8 => 'Re-Activated',
+            9 => null,
         ];
 
         if (!empty($columns[$orderColumnIndex])) {
@@ -191,7 +225,8 @@ class EvaluatorKpiController extends Controller
 
         if (!empty($request->viewq)) {
             $search = strtolower($request->viewq);
-            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%");
+            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%")
+            ->orWhere(DB::raw('LOWER(b.trustmark_id)'), 'like', "%{$search}%");
         }
         $totalFiltered = $query->count();
         $limit = $request->input('length');
@@ -201,10 +236,10 @@ class EvaluatorKpiController extends Controller
         $orderDirection   = $request->input('order.0.dir', 'asc');
 
         $columns = [
-            0 => 'b.trustmark_id',
-            1 => 'b.business_name',
-            2 => 'bp.process',
-            3 => 'bp.process_date',
+            1 => 'b.trustmark_id',
+            2 => 'b.business_name',
+            3 => 'bp.process',
+            4 => 'bp.process_date',
         ];
 
         if (!empty($columns[$orderColumnIndex])) {
@@ -257,7 +292,8 @@ class EvaluatorKpiController extends Controller
 
         if (!empty($request->viewq)) {
             $search = strtolower($request->viewq);
-            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%");
+            $query->where(DB::raw('LOWER(b.business_name)'), 'like', "%{$search}%")
+            ->orWhere(DB::raw('LOWER(b.trustmark_id)'), 'like', "%{$search}%");
         }
 
         $data = $query->get();
