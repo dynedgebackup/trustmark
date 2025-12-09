@@ -11,6 +11,7 @@
 
 </div>
 <div class="row d-flex align-items-center justify-content-end" style="padding-bottom: 20px;">
+        @if( ($is_evaluator ?? 0) == 1 && ($is_admin ?? 0) == 1 )
             <div class="col-md-3">
                 <div class="form-group" id="parrent_reg_no">
                     <label for="user_id_filter" class="form-label">{{ __('Evaluator') }}</label>
@@ -24,7 +25,7 @@
                     <span class="validate-err" id="err_app_code"></span>
                 </div>
             </div>
-            
+            @endif
             
             <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 col-12">
                 <div class="btn-box">
@@ -156,7 +157,7 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Trustmark ID</th>
+                            <th>Security No.</th>
                             <th>Business Name</th>
                             <th>Process</th>
                             <th>Process Date</th>
@@ -396,11 +397,12 @@ async function loadEvaluatorDataloadDataForExcelSheet() {
         const blob = new Blob([buffer], {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         });
-
+        let username = "{{ Auth::user()->name }}";  
+        username = username.replace(/\s+/g, '_');
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "Evaluator_KPI_View_Report.xlsx";
+        a.download = username + "_Evaluator_KPI_Report.xlsx";
         a.click();
         window.URL.revokeObjectURL(url);
 
@@ -420,6 +422,9 @@ $(document).on("click", ".viewEvaluatorBtn", function (e) {
 $(document).on("click", "#viewbtn_clear", function (e) {
     e.preventDefault();
     $("#viewq").val("");
+    $("#status").val("");
+    $("#viewfromdate").val("");
+    $("#viewtodate").val("");
     let id = $("#evaluatorModal").data('evaluator-id');
     
     loadEvaluatorData(id);
