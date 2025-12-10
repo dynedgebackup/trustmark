@@ -629,6 +629,7 @@ Route::middleware(['auth','role.access'])->group(function () {
     
 
     // -----------Evaluator KPI  ------------
+    Route::post('kpiuserAjaxList', [EvaluatorKpiController::class, 'userAjaxList']);
     Route::get('/report/Evaluator-KPI', [EvaluatorKpiController::class, 'index'])->name('EvaluatorKpi.index');
     Route::get('/report/Evaluator-KPI/getList', [EvaluatorKpiController::class, 'getEvaluatorKpiList'])->name('EvaluatorKpi.getList');
     Route::get('/Evaluator-KPI/export', [EvaluatorKpiController::class, 'exportAll'])->name('EvaluatorKpi.exportAll');

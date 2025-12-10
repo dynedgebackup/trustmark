@@ -17,7 +17,7 @@ class EvaluatorKpiController extends Controller
     public $arrapp_code = array(""=>"");
     public $arrfee_id = array(""=>"");
     public function __construct(){
-		$this->MenuGroup = new EvaluatorKpi(); 
+		$this->EvaluatorKpi = new EvaluatorKpi(); 
     }
     public function index()
     {
@@ -30,7 +30,17 @@ class EvaluatorKpiController extends Controller
         $is_admin     = (int) ($user->is_admin ?? 0);
         return view('Evaluator-KPI.index', compact('is_evaluator','is_admin'));
     }
-    
+    public function userAjaxList(Request $request){
+        $search = $request->input('search');
+        $arrRes = $this->EvaluatorKpi->userAjaxList($search);
+        $arr = array();
+        foreach ($arrRes['data'] as $key=>$val) {
+            $arr['data'][$key]['id']=$val->id;
+            $arr['data'][$key]['text']=$val->name;
+        }
+        $arr['data_cnt']=$arrRes['data_cnt'];
+        echo json_encode($arr);
+    }
     public function exportAll(Request $request)
     {
         $startdate = $request->input('fromdate');
