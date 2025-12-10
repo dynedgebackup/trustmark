@@ -383,8 +383,7 @@ class CronJobController extends Controller
                     ? Carbon::parse($item->last_returned_email_at)
                     : Carbon::parse($item->date_returned);
                 $days = abs(Carbon::now()->diffInRealDays($referenceDate));
-                //$days>=$diffDay
-                if ($days == $diffDay) {
+                if ($days>=$diffDay) {
                     $totalCnt++;
                     $json_data = json_encode([
                         'pic_name'=>$item->pic_name,
