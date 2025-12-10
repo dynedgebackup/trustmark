@@ -177,7 +177,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    select3Ajax("user_id_filter","parrent_reg_no","userAjaxList");
+    select3Ajax("user_id_filter","parrent_reg_no","kpiuserAjaxList");
     datatablefunction();
     $("#btn_search").click(function(){
  		datatablefunction();
