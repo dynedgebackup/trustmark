@@ -2592,7 +2592,7 @@ class BusinessController extends Controller
         $business->updated_by = Auth::id();
         $business->updated_at = Carbon::now();
         $business->admin_status = null;
-
+        $business->app_status_id = null;
         $business->save();
         $this->AdditionalPermitsstore($request, $id);
         DB::table('user_logs')->updateOrInsert(
