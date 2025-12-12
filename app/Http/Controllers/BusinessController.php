@@ -2594,7 +2594,6 @@ class BusinessController extends Controller
         $business->admin_status = null;
         $business->app_status_id = null;
         $business->app_canned_id = null;
-        $business->admin_remarks = null;
         $business->save();
         $this->AdditionalPermitsstore($request, $id);
         DB::table('user_logs')->updateOrInsert(
