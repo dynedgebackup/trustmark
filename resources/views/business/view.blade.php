@@ -1711,7 +1711,14 @@
             if (!statusValue) return;
 
             actionBtn.textContent = statusName;
-
+            const allStatusButtons = document.querySelectorAll('.status-action-btn'); 
+            allStatusButtons.forEach(btn => {
+                if (btn !== actionBtn) {
+                    btn.style.display = 'none';
+                } else {
+                    btn.style.display = 'inline-block';
+                }
+            });
             if (statusName === 'RETURNED') {
                 checkReturnedStatus();
             } else {
@@ -1721,7 +1728,8 @@
             
             
         }
-
+        document.addEventListener('DOMContentLoaded', updateButtonLabel);
+        document.getElementById('status_id').addEventListener('change', updateButtonLabel);
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.getElementById('status_id');
             const actionBtn = document.getElementById('status-action-btn');
