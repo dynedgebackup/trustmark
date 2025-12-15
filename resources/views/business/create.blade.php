@@ -2249,7 +2249,7 @@
         const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
         const maxSize = 10 * 1024 * 1024; // 10MB in bytes
 
-        const fileInputs = ['business_reg', 'bir_2303', 'internal_redress'];
+        const fileInputs = ['business_reg', 'bir_2303', 'internal_redress','bmbe_doc', 'busn_valuation_doc'];
 
         fileInputs.forEach(function(inputId) {
             const input = document.getElementById(inputId);
