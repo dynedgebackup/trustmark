@@ -1439,7 +1439,10 @@ class BusinessController extends Controller
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -3275,7 +3278,10 @@ class BusinessController extends Controller
         // $filePath = storage_path('app/public/document-upload/internal_redress/SAMPLE.TRUSTMARK.INTERNAL REDRESS MECHANISM.250709.BID.docx');
         $filePath = storage_path('app/public/'.$document->path_url);
         if (! file_exists($filePath)) {
-            abort(404);
+            $filePath = public_path('storage/'.$document->path_url);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         return response()->download($filePath);
@@ -4262,12 +4268,21 @@ class BusinessController extends Controller
         $now = now();
         $timestamp = $now->format('ymdHis').substr((string) $now->micro, 0, 2);
         $fileName = 'TMKQR_'.$timestamp.'.png';
-        $tempPath = storage_path('app/public/tmp/'.$fileName);
+        /*$tempPath = storage_path('app/public/tmp/'.$fileName);
+
+        // Ensure the tmp directory exists
+        if (! file_exists(dirname($tempPath))) {
+            mkdir(dirname($tempPath), 0755, true);
+        }*/
+
+        $tempPath = public_path('storage/tmp/'.$fileName);
 
         // Ensure the tmp directory exists
         if (! file_exists(dirname($tempPath))) {
             mkdir(dirname($tempPath), 0755, true);
         }
+
+
 
         // Generate PNG using Browsershot
         Browsershot::html($html)
@@ -4291,7 +4306,10 @@ class BusinessController extends Controller
         $filePath = storage_path('app/public/'.str_replace('storage/', '', $business->certificate));
 
         if (! file_exists($filePath)) {
-            return abort(404, 'Certificate file not found');
+            $filePath = public_path('storage/'.$business->certificate);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         // Force refresh
@@ -5086,7 +5104,10 @@ class BusinessController extends Controller
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -5123,7 +5144,10 @@ class BusinessController extends Controller
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -5160,7 +5184,10 @@ class BusinessController extends Controller
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -5195,9 +5222,11 @@ class BusinessController extends Controller
 
         $fileRelativePath = str_replace('storage/', '', $business->docs_internal_redress);
         $filePath = storage_path('app/public/'.$fileRelativePath);
-
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -5231,9 +5260,11 @@ class BusinessController extends Controller
 
         $fileRelativePath = str_replace('storage/', '', $business->bmbe_doc);
         $filePath = storage_path('app/public/' . $fileRelativePath);
-
-        if (!file_exists($filePath)) {
-            abort(404, 'File not found on server');
+        if (! file_exists($filePath)) {
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -5262,9 +5293,11 @@ class BusinessController extends Controller
 
         $fileRelativePath = str_replace('storage/', '', $business->busn_valuation_doc);
         $filePath = storage_path('app/public/' . $fileRelativePath);
-
-        if (!file_exists($filePath)) {
-            abort(404, 'File not found on server');
+        if (! file_exists($filePath)) {
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -5355,9 +5388,6 @@ class BusinessController extends Controller
 
         $fileRelativePath = str_replace('storage/', '', $file);
         $filePath = storage_path('app/public/'.$fileRelativePath);
-
-        $fullPath = realpath(public_path('storage/'.$fileRelativePath));
-        dd($fullPath);
         if (! file_exists($filePath)) {
             $filePath = public_path('storage/'.$file);
             if (! file_exists($filePath)) {
