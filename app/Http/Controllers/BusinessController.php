@@ -5354,11 +5354,12 @@ class BusinessController extends Controller
 
 
         $fileRelativePath = str_replace('storage/', '', $file);
-        //$filePath = storage_path('app/public/'.$fileRelativePath);
-        $filePath = public_path('storage/'.$file);
-
+        $filePath = storage_path('app/public/'.$fileRelativePath);
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$file);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
