@@ -5356,8 +5356,8 @@ class BusinessController extends Controller
         $fileRelativePath = str_replace('storage/', '', $file);
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
-        $fullPath = Storage::disk('public')->path($fileRelativePath);
-        echo $fullPath;exit;
+        $fullPath = realpath(public_path('storage/'.$fileRelativePath));
+        dd($fullPath);
         if (! file_exists($filePath)) {
             $filePath = public_path('storage/'.$file);
             if (! file_exists($filePath)) {
