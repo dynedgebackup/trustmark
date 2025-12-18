@@ -517,7 +517,10 @@ class UserController extends Controller
         $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            abort(404, 'File not found on server');
+            $filePath = public_path('storage/'.$fileRelativePath);
+            if (! file_exists($filePath)) {
+                abort(404, 'File not found on server');
+            }
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
