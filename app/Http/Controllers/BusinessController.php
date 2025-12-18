@@ -5352,8 +5352,10 @@ class BusinessController extends Controller
             abort(404, 'File not found');
         }
 
+
         $fileRelativePath = str_replace('storage/', '', $file);
-        $filePath = storage_path('app/public/'.$fileRelativePath);
+        //$filePath = storage_path('app/public/'.$fileRelativePath);
+        $filePath = public_path($file);
 
         if (! file_exists($filePath)) {
             abort(404, 'File not found on server');
