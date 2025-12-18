@@ -5347,26 +5347,23 @@ class BusinessController extends Controller
 
         $field = $fields[$type];
         $file = $business->$field;
+
         if (! $file) {
             abort(404, 'File not found');
         }
 
 
         $fileRelativePath = str_replace('storage/', '', $file);
-<<<<<<< HEAD
-        $filePath = storage_path('app/public/'.$fileRelativePath);
-        echo $filePath;exit;
-=======
         //$filePath = storage_path('app/public/'.$fileRelativePath);
         $filePath = public_path($file);
-
->>>>>>> b33d5176bb6aeda2e226752e375e567ffe85f838
+        echo $filePath;exit;
         if (! file_exists($filePath)) {
             abort(404, 'File not found on server');
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
         $originalFilename = basename($file);
+
         $mimeTypes = [
             'pdf' => 'application/pdf',
             'jpg' => 'image/jpeg',
