@@ -961,14 +961,27 @@ class BusinessController extends Controller
         $business->requirement_expired = $validated['expired_date'];
 
         if ($request->hasFile('req_upload')) {
-            $file = $request->file('req_upload');
-            $fileName = time().'_'.pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'.'.$file->getClientOriginalExtension();
-            $req_upload_path = $file->storeAs('document-upload/requirement_reps', $fileName, 'public');
-
-            if ($business->requirement_upload) {
+            if (!empty($business->requirement_upload) && Storage::disk('public')->exists($business->requirement_upload)) {
                 Storage::disk('public')->delete($business->requirement_upload);
             }
-
+        
+            $file = $request->file('req_upload');
+            $originalName = $file->getClientOriginalName();
+            $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+        
+            $uploadDir = "document-upload/requirement_reps/{$year}/{$month}";
+        
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir);
+            }
+        
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+        
+            $req_upload_path = $file->storeAs($uploadDir, $fileName, 'public');
+        
             $business->requirement_upload = $req_upload_path;
         }
 
@@ -1102,121 +1115,154 @@ class BusinessController extends Controller
 
             $data = [];
 
+            $now = now();
+            $year  = $now->format('Y');
+            $month = $now->format('M');
+
+            /* ================= BUSINESS REG ================= */
             if ($request->hasFile('business_reg')) {
+
                 $file = $request->file('business_reg');
                 $originalName = $file->getClientOriginalName();
 
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-                $business_reg_path = $file->storeAs('document-upload/business_registration', $fileName, 'public');
+                $business_reg_path = $file->storeAs(
+                    "document-upload/business_registration/{$year}/{$month}",
+                    $fileName,
+                    'public'
+                );
+
                 $data['docs_business_reg'] = $business_reg_path;
 
                 if ($business->docs_business_reg) {
                     Storage::disk('public')->delete($business->docs_business_reg);
                 }
+
             } else {
-                // Keep existing file path
                 $data['docs_business_reg'] = $business->docs_business_reg;
             }
 
+            /* ================= BIR 2303 ================= */
             if ($request->hasFile('bir_2303')) {
+
                 $file = $request->file('bir_2303');
                 $originalName = $file->getClientOriginalName();
 
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-                $bir_2303_path = $file->storeAs('document-upload/bir_2303', $fileName, 'public');
+                $bir_2303_path = $file->storeAs(
+                    "document-upload/bir_2303/{$year}/{$month}",
+                    $fileName,
+                    'public'
+                );
+
                 $data['docs_bir_2303'] = $bir_2303_path;
 
                 if ($business->docs_bir_2303) {
                     Storage::disk('public')->delete($business->docs_bir_2303);
                 }
+
             } else {
-                // Keep existing file path
                 $data['docs_bir_2303'] = $business->docs_bir_2303;
             }
 
+            /* ================= INTERNAL REDRESS ================= */
             if ($request->hasFile('internal_redress')) {
+
                 $file = $request->file('internal_redress');
                 $originalName = $file->getClientOriginalName();
 
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-                $internal_redress_path = $file->storeAs('document-upload/internal_redress', $fileName, 'public');
+                $internal_redress_path = $file->storeAs(
+                    "document-upload/internal_redress/{$year}/{$month}",
+                    $fileName,
+                    'public'
+                );
+
                 $data['docs_internal_redress'] = $internal_redress_path;
 
                 if ($business->docs_internal_redress) {
                     Storage::disk('public')->delete($business->docs_internal_redress);
                 }
+
             } else {
-                // Keep existing file path
                 $data['docs_internal_redress'] = $business->docs_internal_redress;
             }
+
             $data['is_bmbe'] = $request->input('is_bmbe');
 
+            /* ================= BMBE DOC ================= */
             if ($request->hasFile('bmbe_doc')) {
+
                 $file = $request->file('bmbe_doc');
                 $originalName = $file->getClientOriginalName();
 
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-                $uploadDir = 'document-upload/bmbe_doc';
-                if (! Storage::disk('public')->exists($uploadDir)) {
-                    Storage::disk('public')->makeDirectory($uploadDir);
-                }
-                $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
+                $bmbe_doc_path = $file->storeAs(
+                    "document-upload/bmbe_doc/{$year}/{$month}",
+                    $fileName,
+                    'public'
+                );
+
                 $data['bmbe_doc'] = $bmbe_doc_path;
+
                 if ($business->bmbe_doc) {
                     Storage::disk('public')->delete($business->bmbe_doc);
                 }
+
             } else {
                 $data['bmbe_doc'] = $business->bmbe_doc;
             }
-            
+
             $data['busn_category_id'] = $request->input('busn_category_id');
+
+            /* ================= BUSINESS VALUATION ================= */
             if ($request->hasFile('busn_valuation_doc')) {
+
                 $file = $request->file('busn_valuation_doc');
                 $originalName = $file->getClientOriginalName();
 
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
 
-                $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-                $uploadDir = 'document-upload/busn_valuation_doc';
-                if (! Storage::disk('public')->exists($uploadDir)) {
-                    Storage::disk('public')->makeDirectory($uploadDir);
-                }
-                $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
+                $busn_valuation_doc_path = $file->storeAs(
+                    "document-upload/busn_valuation_doc/{$year}/{$month}",
+                    $fileName,
+                    'public'
+                );
+
                 $data['busn_valuation_doc'] = $busn_valuation_doc_path;
+
                 if ($business->busn_valuation_doc) {
                     Storage::disk('public')->delete($business->busn_valuation_doc);
                 }
+
             } else {
                 $data['busn_valuation_doc'] = $business->busn_valuation_doc;
             }
+
             if ($request->input('is_bmbe') == 0) {
                 $data['bmbe_doc'] = null;
                 if ($business->bmbe_doc) {
@@ -1271,87 +1317,91 @@ class BusinessController extends Controller
 
     public function AdditionalPermitsstore(Request $request, $id)
     {
-        $uploadDir = 'document-upload/additional_permit';
+        $now   = now();
+        $year  = $now->format('Y');
+        $month = $now->format('M');
+        $uploadDir = "document-upload/additional_permit/{$year}/{$month}";
 
-        if (! Storage::disk('public')->exists($uploadDir)) {
+        if (!Storage::disk('public')->exists($uploadDir)) {
             Storage::disk('public')->makeDirectory($uploadDir);
         }
 
         $request->validate([
-            // 'document_name.*' => 'required|string',
             'attachment.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
         ], [
-            'attachment.*.file' => 'The uploaded file must be a valid file.',
-            'attachment.*.mimes' => 'Only jpg, jpeg, png, and pdf files are allowed.',
-            'attachment.*.max' => 'Each file must not be larger than 10MB.',
+            'attachment.*.file'  => 'The uploaded file must be a valid file.',
+            'attachment.*.mimes'=> 'Only jpg, jpeg, png, and pdf files are allowed.',
+            'attachment.*.max'  => 'Each file must not be larger than 10MB.',
         ]);
 
         $names = $request->input('document_name', []);
         $files = $request->file('attachment', []);
-        // dd([
-        //     'names' => $request->document_name,
-        //     'files' => $request->file('attachment'),
-        // ]);
+
         foreach ($names as $index => $name) {
+
             $file = $files[$index] ?? null;
 
             if ($file && $file->isValid()) {
+
                 $extension = $file->getClientOriginalExtension();
-                $filename = now()->format('YmdHis').'_'.Str::random(5).'.'.$extension;
+                $filename  = $now->format('YmdHis') . '_' . Str::random(5) . '.' . $extension;
                 $path = $file->storeAs($uploadDir, $filename, 'public');
 
                 DB::table('business_documents')->insert([
-                    'busn_id' => $id,
-                    'year' => now()->year,
-                    'name' => $name,
-                    'attachment' => $path,
-                    'created_by' => Auth::id(),
-                    'created_date' => now(),
+                    'busn_id'      => $id,
+                    'year'         => $now->year,
+                    'name'         => $name,
+                    'attachment'   => $path,
+                    'created_by'   => Auth::id(),
+                    'created_date' => $now,
                 ]);
             }
         }
-        
+
         // return back()->with('success', 'Documents uploaded successfully.');
     }
+
     public function AdditionalPermitsstoreView(Request $request, $id)
     {
         $business = Business::find($id);
-        $uploadDir = 'document-upload/additional_permit';
-       
-        if (! Storage::disk('public')->exists($uploadDir)) {
+
+        $now   = now();
+        $year  = $now->format('Y');
+        $month = $now->format('M');
+        $uploadDir = "document-upload/additional_permit/{$year}/{$month}";
+
+        if (!Storage::disk('public')->exists($uploadDir)) {
             Storage::disk('public')->makeDirectory($uploadDir);
         }
 
         $request->validate([
-            // 'document_name.*' => 'required|string',
             'attachment.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
         ], [
-            'attachment.*.file' => 'The uploaded file must be a valid file.',
+            'attachment.*.file'  => 'The uploaded file must be a valid file.',
             'attachment.*.mimes' => 'Only jpg, jpeg, png, and pdf files are allowed.',
-            'attachment.*.max' => 'Each file must not be larger than 10MB.',
+            'attachment.*.max'   => 'Each file must not be larger than 10MB.',
         ]);
 
         $names = $request->input('document_name', []);
         $files = $request->file('attachment', []);
-        // dd([
-        //     'names' => $request->document_name,
-        //     'files' => $request->file('attachment'),
-        // ]);
+
         foreach ($names as $index => $name) {
+
             $file = $files[$index] ?? null;
 
             if ($file && $file->isValid()) {
+
                 $extension = $file->getClientOriginalExtension();
-                $filename = now()->format('YmdHis').'_'.Str::random(5).'.'.$extension;
+                $filename  = $now->format('YmdHis') . '_' . Str::random(5) . '.' . $extension;
                 $path = $file->storeAs($uploadDir, $filename, 'public');
 
                 DB::table('business_documents')->insert([
-                    'busn_id' => $id,
-                    'year' => now()->year,
-                    'name' => $name,
-                    'attachment' => $path,
-                    'created_by' => Auth::id(),
-                    'created_date' => now(),
+                    'busn_id'      => $id,
+                    'year'         => $now->year,
+                    'name'         => $name,
+                    'attachment'   => $path,
+                    'created_by'   => Auth::id(),
+                    'created_date' => $now,
                 ]);
             }
         }
@@ -2062,7 +2112,26 @@ class BusinessController extends Controller
 
         // certificate
         $fileName2 = $this->business->generateCertificate($business);
-        $business->certificate = 'storage/document-upload/certificate/'.$fileName2;
+        $year  = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('M');
+
+        $uploadDir = "document-upload/certificate/{$year}/{$month}";
+        if (!Storage::disk('public')->exists($uploadDir)) {
+            Storage::disk('public')->makeDirectory($uploadDir);
+        }
+        $oldPath = "document-upload/certificate/{$fileName2}";
+        $newPath = "{$uploadDir}/{$fileName2}";
+
+        if (Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->move($oldPath, $newPath);
+        }
+        if (!empty($business->certificate)) {
+            $oldCert = str_replace('storage/', '', $business->certificate);
+            if (Storage::disk('public')->exists($oldCert)) {
+                Storage::disk('public')->delete($oldCert);
+            }
+        }
+        $business->certificate = "storage/{$newPath}";
         $business->save();
 
         return response()->json([
@@ -2079,9 +2148,29 @@ class BusinessController extends Controller
         // qr
         $fileName = $this->business->qr($business);
         $business->qr_code = 'storage/document-upload/qr_code/'.$fileName;
+        // certificate
         $fileName2 = $this->business->generateCertificate($business);
 
-        $business->certificate = 'storage/document-upload/certificate/'.$fileName2;
+        $year  = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('M');
+
+        $uploadDir = "document-upload/certificate/{$year}/{$month}";
+        if (!Storage::disk('public')->exists($uploadDir)) {
+            Storage::disk('public')->makeDirectory($uploadDir);
+        }
+        $oldPath = "document-upload/certificate/{$fileName2}";
+        $newPath = "{$uploadDir}/{$fileName2}";
+
+        if (Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->move($oldPath, $newPath);
+        }
+        if (!empty($business->certificate)) {
+            $oldCert = str_replace('storage/', '', $business->certificate);
+            if (Storage::disk('public')->exists($oldCert)) {
+                Storage::disk('public')->delete($oldCert);
+            }
+        }
+        $business->certificate = "storage/{$newPath}";
         $business->save();
 
         return response()->json([
@@ -2093,9 +2182,28 @@ class BusinessController extends Controller
     public function certReGenerate($id)
     {
         $business = Business::findOrFail($id);
-        $fileName2 = $this->business->generateCertificate($business);
+        $fileName = $this->business->generateCertificate($business);
 
-        $business->certificate = 'storage/document-upload/certificate/'.$fileName2;
+        $year  = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('M');
+        
+        $uploadDir = "document-upload/certificate/{$year}/{$month}";
+        if (!Storage::disk('public')->exists($uploadDir)) {
+            Storage::disk('public')->makeDirectory($uploadDir);
+        }
+        $oldPath = "document-upload/certificate/{$fileName}";
+        $newPath = "{$uploadDir}/{$fileName}";
+        
+        if (Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->move($oldPath, $newPath);
+        }
+        if (!empty($business->certificate)) {
+            $oldCert = str_replace('storage/', '', $business->certificate);
+            if (Storage::disk('public')->exists($oldCert)) {
+                Storage::disk('public')->delete($oldCert);
+            }
+        }
+        $business->certificate = "storage/{$newPath}";
         $business->save();
 
         return back()->with('success', 'Certificate regenerated successfully.');
@@ -2333,14 +2441,25 @@ class BusinessController extends Controller
         $business->barangay_id = $validated['barangay'];
         $business->complete_address = $validated['address'];
 
+        $now   = now();
+        $year  = $now->format('Y');
+        $month = $now->format('M');
+
+        /* ============ REQUIREMENT UPLOAD ============ */
         if ($request->hasFile('req_upload')) {
+
             $file = $request->file('req_upload');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $req_upload_path = $file->storeAs('document-upload/requirement_reps', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $req_upload_path = $file->storeAs(
+                "document-upload/requirement_reps/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->requirement_upload) {
                 Storage::disk('public')->delete($business->requirement_upload);
@@ -2349,14 +2468,21 @@ class BusinessController extends Controller
             $business->requirement_upload = $req_upload_path;
         }
 
+        /* ============ BUSINESS REGISTRATION ============ */
         if ($request->hasFile('business_reg')) {
+
             $file = $request->file('business_reg');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $business_reg_path = $file->storeAs('document-upload/business_registration', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $business_reg_path = $file->storeAs(
+                "document-upload/business_registration/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_business_reg) {
                 Storage::disk('public')->delete($business->docs_business_reg);
@@ -2365,14 +2491,21 @@ class BusinessController extends Controller
             $business->docs_business_reg = $business_reg_path;
         }
 
+        /* ============ BIR 2303 ============ */
         if ($request->hasFile('bir_2303')) {
+
             $file = $request->file('bir_2303');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $bir_2303_path = $file->storeAs('document-upload/bir_2303', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $bir_2303_path = $file->storeAs(
+                "document-upload/bir_2303/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_bir_2303) {
                 Storage::disk('public')->delete($business->docs_bir_2303);
@@ -2381,14 +2514,21 @@ class BusinessController extends Controller
             $business->docs_bir_2303 = $bir_2303_path;
         }
 
+        /* ============ INTERNAL REDRESS ============ */
         if ($request->hasFile('internal_redress')) {
+
             $file = $request->file('internal_redress');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $internal_redress_path = $file->storeAs('document-upload/docs_internal_redress', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $internal_redress_path = $file->storeAs(
+                "document-upload/docs_internal_redress/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_internal_redress) {
                 Storage::disk('public')->delete($business->docs_internal_redress);
@@ -2396,31 +2536,35 @@ class BusinessController extends Controller
 
             $business->docs_internal_redress = $internal_redress_path;
         }
+
         $business->is_bmbe = $request->input('is_bmbe');
 
+        /* ============ BMBE DOC ============ */
         if ($request->hasFile('bmbe_doc')) {
+
             $file = $request->file('bmbe_doc');
             $originalName = $file->getClientOriginalName();
-
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $now = now();
             $timestamp = $now->format('YmdHis');
-            $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
+            $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
 
-            $uploadDir = 'document-upload/bmbe_doc';
-            if (! Storage::disk('public')->exists($uploadDir)) {
+            $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
+
+            if (!Storage::disk('public')->exists($uploadDir)) {
                 Storage::disk('public')->makeDirectory($uploadDir);
             }
+
             $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
-            $business->bmbe_doc = $bmbe_doc_path;
+
             if ($business->bmbe_doc) {
                 Storage::disk('public')->delete($business->bmbe_doc);
             }
-        } else {
-            $business->bmbe_doc = $business->bmbe_doc;
+
+            $business->bmbe_doc = $bmbe_doc_path;
         }
+
         if ($request->input('is_bmbe') == 0) {
             $business->bmbe_doc = null;
             if ($business->bmbe_doc) {
@@ -2476,14 +2620,25 @@ class BusinessController extends Controller
         ];
 
 
+        $now   = now();
+        $year  = $now->format('Y');
+        $month = $now->format('M');
+
+        /* ================= BUSINESS REG ================= */
         if ($request->hasFile('business_reg')) {
+
             $file = $request->file('business_reg');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $business_reg_path = $file->storeAs('document-upload/business_registration', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $business_reg_path = $file->storeAs(
+                "document-upload/business_registration/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_business_reg) {
                 Storage::disk('public')->delete($business->docs_business_reg);
@@ -2492,14 +2647,21 @@ class BusinessController extends Controller
             $business->docs_business_reg = $business_reg_path;
         }
 
+        /* ================= BIR 2303 ================= */
         if ($request->hasFile('bir_2303')) {
+
             $file = $request->file('bir_2303');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $bir_2303_path = $file->storeAs('document-upload/bir_2303', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $bir_2303_path = $file->storeAs(
+                "document-upload/bir_2303/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_bir_2303) {
                 Storage::disk('public')->delete($business->docs_bir_2303);
@@ -2508,14 +2670,21 @@ class BusinessController extends Controller
             $business->docs_bir_2303 = $bir_2303_path;
         }
 
+        /* ================= INTERNAL REDRESS ================= */
         if ($request->hasFile('internal_redress')) {
+
             $file = $request->file('internal_redress');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $internal_redress_path = $file->storeAs('document-upload/docs_internal_redress', $fileName, 'public');
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $internal_redress_path = $file->storeAs(
+                "document-upload/docs_internal_redress/{$year}/{$month}",
+                $fileName,
+                'public'
+            );
 
             if ($business->docs_internal_redress) {
                 Storage::disk('public')->delete($business->docs_internal_redress);
@@ -2523,76 +2692,86 @@ class BusinessController extends Controller
 
             $business->docs_internal_redress = $internal_redress_path;
         }
+
         $business->is_bmbe = $request->input('is_bmbe');
 
+        /* ================= BMBE DOC ================= */
         if ($request->hasFile('bmbe_doc')) {
+
             if (!empty($business->bmbe_doc) && Storage::disk('public')->exists($business->bmbe_doc)) {
                 Storage::disk('public')->delete($business->bmbe_doc);
             }
-        
+
             $file = $request->file('bmbe_doc');
             $originalName = $file->getClientOriginalName();
-        
+
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-        
-            $now = now();
+
             $timestamp = $now->format('YmdHis');
             $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
-        
-            $uploadDir = 'document-upload/bmbe_doc';
-            if (! Storage::disk('public')->exists($uploadDir)) {
+
+            $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
+
+            if (!Storage::disk('public')->exists($uploadDir)) {
                 Storage::disk('public')->makeDirectory($uploadDir);
             }
-        
+
             $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
             $business->bmbe_doc = $bmbe_doc_path;
-        } else {
-            $business->bmbe_doc = $business->bmbe_doc;
         }
+
         $business->busn_category_id = $request->input('busn_category_id');
-            if ($request->hasFile('busn_valuation_doc')) {
-                if (!empty($business->busn_valuation_doc) && Storage::disk('public')->exists($business->busn_valuation_doc)) {
-                    Storage::disk('public')->delete($business->busn_valuation_doc);
-                }
-            
-                $file = $request->file('busn_valuation_doc');
-                $originalName = $file->getClientOriginalName();
-            
-                $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-            
-                $now = now();
-                $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
-            
-                $uploadDir = 'document-upload/busn_valuation_doc';
-                if (! Storage::disk('public')->exists($uploadDir)) {
-                    Storage::disk('public')->makeDirectory($uploadDir);
-                }
-            
-                $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
-                $business->busn_valuation_doc = $busn_valuation_doc_path;
-            } else {
-                $business->busn_valuation_doc = $business->busn_valuation_doc;
+
+        /* ================= BUSINESS VALUATION ================= */
+        if ($request->hasFile('busn_valuation_doc')) {
+
+            if (!empty($business->busn_valuation_doc) && Storage::disk('public')->exists($business->busn_valuation_doc)) {
+                Storage::disk('public')->delete($business->busn_valuation_doc);
             }
-            if ($request->input('is_bmbe') == 0) {
-                if (!empty($business->bmbe_doc) && Storage::disk('public')->exists($business->bmbe_doc)) {
-                    Storage::disk('public')->delete($business->bmbe_doc);
-                }
-                $business->bmbe_doc = null;
-            }else{
-                if (!empty($business->busn_valuation_doc) && Storage::disk('public')->exists($business->busn_valuation_doc)) {
-                    Storage::disk('public')->delete($business->busn_valuation_doc);
-                }
-                $business->busn_valuation_doc = null;
-                $business->busn_category_id = null;
+
+            $file = $request->file('busn_valuation_doc');
+            $originalName = $file->getClientOriginalName();
+
+            $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+
+            $timestamp = $now->format('YmdHis');
+            $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
+
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir);
             }
+
+            $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
+            $business->busn_valuation_doc = $busn_valuation_doc_path;
+        }
+
+        /* ================= CONDITIONAL DELETE ================= */
+        if ($request->input('is_bmbe') == 0) {
+
+            if (!empty($business->bmbe_doc) && Storage::disk('public')->exists($business->bmbe_doc)) {
+                Storage::disk('public')->delete($business->bmbe_doc);
+            }
+            $business->bmbe_doc = null;
+
+        } else {
+
+            if (!empty($business->busn_valuation_doc) && Storage::disk('public')->exists($business->busn_valuation_doc)) {
+                Storage::disk('public')->delete($business->busn_valuation_doc);
+            }
+
+            $business->busn_valuation_doc = null;
+            $business->busn_category_id = null;
+        }
+
         
         $business->updated_by = Auth::id();
         $business->updated_at = Carbon::now();
         $business->admin_status = null;
-
+        $business->app_status_id = null;
         $business->save();
         $this->AdditionalPermitsstore($request, $id);
         DB::table('user_logs')->updateOrInsert(
@@ -2804,18 +2983,27 @@ class BusinessController extends Controller
         
 
         if ($request->hasFile('req_upload')) {
+            if (!empty($business->requirement_upload) && Storage::disk('public')->exists($business->requirement_upload)) {
+                Storage::disk('public')->delete($business->requirement_upload);
+            }
+        
             $file = $request->file('req_upload');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $req_upload_path = $file->storeAs('document-upload/requirement_reps', $fileName, 'public');
-
-            if ($business->requirement_upload) {
-                Storage::disk('public')->delete($business->requirement_upload);
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+        
+            $uploadDir = "document-upload/requirement_reps/{$year}/{$month}";
+        
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir);
             }
-
+        
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+        
+            $req_upload_path = $file->storeAs($uploadDir, $fileName, 'public');
+        
             $business->requirement_upload = $req_upload_path;
         }
 
@@ -2947,73 +3135,94 @@ class BusinessController extends Controller
             'internal_redress' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ];
 
-
+        /* ================= BUSINESS REG ================= */
         if ($request->hasFile('business_reg')) {
+
             $file = $request->file('business_reg');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $business_reg_path = $file->storeAs('document-upload/business_registration', $fileName, 'public');
-
-            if ($business->docs_business_reg) {
+        
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+            $directory = "document-upload/business_registration/{$year}/{$month}";
+        
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+            $business_reg_path = $file->storeAs($directory, $fileName, 'public');
+        
+            if (!empty($business->docs_business_reg)) {
                 Storage::disk('public')->delete($business->docs_business_reg);
             }
-
+        
             $business->docs_business_reg = $business_reg_path;
         }
-
+        
+        /* ================= BIR 2303 (already correct) ================= */
         if ($request->hasFile('bir_2303')) {
+        
             $file = $request->file('bir_2303');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $bir_2303_path = $file->storeAs('document-upload/bir_2303', $fileName, 'public');
-
-            if ($business->docs_bir_2303) {
+        
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+            $directory = "document-upload/bir_2303/{$year}/{$month}";
+        
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+            $bir_2303_path = $file->storeAs($directory, $fileName, 'public');
+        
+            if (!empty($business->docs_bir_2303)) {
                 Storage::disk('public')->delete($business->docs_bir_2303);
             }
-
+        
             $business->docs_bir_2303 = $bir_2303_path;
         }
-
+        
+        /* ================= INTERNAL REDRESS ================= */
         if ($request->hasFile('internal_redress')) {
+        
             $file = $request->file('internal_redress');
             $originalName = $file->getClientOriginalName();
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-
-            $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
-            $internal_redress_path = $file->storeAs('document-upload/docs_internal_redress', $fileName, 'public');
-
-            if ($business->docs_internal_redress) {
+        
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+            $directory = "document-upload/docs_internal_redress/{$year}/{$month}";
+        
+            $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+            $internal_redress_path = $file->storeAs($directory, $fileName, 'public');
+        
+            if (!empty($business->docs_internal_redress)) {
                 Storage::disk('public')->delete($business->docs_internal_redress);
             }
-
+        
             $business->docs_internal_redress = $internal_redress_path;
         }
+        
         $business->is_bmbe = $request->input('is_bmbe');
-
+        
+        /* ================= BMBE DOC ================= */
         if ($request->hasFile('bmbe_doc')) {
+        
             if (!empty($business->bmbe_doc) && Storage::disk('public')->exists($business->bmbe_doc)) {
                 Storage::disk('public')->delete($business->bmbe_doc);
             }
         
             $file = $request->file('bmbe_doc');
             $originalName = $file->getClientOriginalName();
-        
             $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
         
-            $now = now();
-            $timestamp = $now->format('YmdHis');
+            $year  = Carbon::now()->format('Y');
+            $month = Carbon::now()->format('M');
+            $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
+        
+            $timestamp = now()->format('YmdHis');
             $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
         
-            $uploadDir = 'document-upload/bmbe_doc';
-            if (! Storage::disk('public')->exists($uploadDir)) {
+            if (!Storage::disk('public')->exists($uploadDir)) {
                 Storage::disk('public')->makeDirectory($uploadDir);
             }
         
@@ -5142,9 +5351,16 @@ class BusinessController extends Controller
             abort(404, 'File not found');
         }
 
+
         $fileRelativePath = str_replace('storage/', '', $file);
+<<<<<<< HEAD
         $filePath = storage_path('app/public/'.$fileRelativePath);
         echo $filePath;exit;
+=======
+        //$filePath = storage_path('app/public/'.$fileRelativePath);
+        $filePath = public_path($file);
+
+>>>>>>> b33d5176bb6aeda2e226752e375e567ffe85f838
         if (! file_exists($filePath)) {
             abort(404, 'File not found on server');
         }
@@ -5424,66 +5640,76 @@ class BusinessController extends Controller
             $data = [];
 
             if ($request->hasFile('business_reg')) {
+
                 $file = $request->file('business_reg');
                 $originalName = $file->getClientOriginalName();
-
+            
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-
+            
                 $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
-
-                $business_reg_path = $file->storeAs('document-upload/business_registration', $fileName, 'public');
+                $year  = $now->format('Y');   // 2025
+                $month = $now->format('M');   // Dec
+            
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+                $directory = "document-upload/business_registration/{$year}/{$month}";
+                $business_reg_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_business_reg'] = $business_reg_path;
-
-                if ($business->docs_business_reg) {
+                if (!empty($business->docs_business_reg)) {
                     Storage::disk('public')->delete($business->docs_business_reg);
                 }
+            
             } else {
                 // Keep existing file path
                 $data['docs_business_reg'] = $business->docs_business_reg;
             }
-
             if ($request->hasFile('bir_2303')) {
+
                 $file = $request->file('bir_2303');
                 $originalName = $file->getClientOriginalName();
-
+            
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-
+            
                 $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
-
-                $bir_2303_path = $file->storeAs('document-upload/bir_2303', $fileName, 'public');
+                $year  = $now->format('Y');   
+                $month = $now->format('M'); 
+            
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+                $directory = "document-upload/bir_2303/{$year}/{$month}";
+                $bir_2303_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_bir_2303'] = $bir_2303_path;
-
-                if ($business->docs_bir_2303) {
+                if (!empty($business->docs_bir_2303)) {
                     Storage::disk('public')->delete($business->docs_bir_2303);
                 }
+            
             } else {
                 // Keep existing file path
                 $data['docs_bir_2303'] = $business->docs_bir_2303;
             }
-
             if ($request->hasFile('internal_redress')) {
+
                 $file = $request->file('internal_redress');
                 $originalName = $file->getClientOriginalName();
-
+            
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-
+            
                 $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
-
-                $internal_redress_path = $file->storeAs('document-upload/internal_redress', $fileName, 'public');
+                $year  = $now->format('Y');   // 2025
+                $month = $now->format('M');   // Dec
+            
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+                $directory = "document-upload/internal_redress/{$year}/{$month}";
+                $internal_redress_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_internal_redress'] = $internal_redress_path;
-
-                if ($business->docs_internal_redress) {
+                if (!empty($business->docs_internal_redress)) {
                     Storage::disk('public')->delete($business->docs_internal_redress);
                 }
+            
             } else {
                 // Keep existing file path
                 $data['docs_internal_redress'] = $business->docs_internal_redress;
@@ -5491,26 +5717,31 @@ class BusinessController extends Controller
             $data['is_bmbe'] = $request->input('is_bmbe');
             
             if ($request->hasFile('bmbe_doc')) {
+
                 $file = $request->file('bmbe_doc');
                 $originalName = $file->getClientOriginalName();
-
+            
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-
+            
                 $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
-
-                $uploadDir = 'document-upload/bmbe_doc';
-                if (! Storage::disk('public')->exists($uploadDir)) {
+                $year  = $now->format('Y');   // 2025
+                $month = $now->format('M');   // Dec
+            
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+                $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
+                if (!Storage::disk('public')->exists($uploadDir)) {
                     Storage::disk('public')->makeDirectory($uploadDir);
                 }
                 $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
                 $data['bmbe_doc'] = $bmbe_doc_path;
-                if ($business->bmbe_doc) {
+                if (!empty($business->bmbe_doc)) {
                     Storage::disk('public')->delete($business->bmbe_doc);
                 }
+            
             } else {
+                // Keep existing file
                 $data['bmbe_doc'] = $business->bmbe_doc;
             }
             if ($request->input('is_bmbe') == 0) {
@@ -5568,26 +5799,31 @@ class BusinessController extends Controller
             }
             $data['busn_category_id'] = $request->input('busn_category_id');
             if ($request->hasFile('busn_valuation_doc')) {
+
                 $file = $request->file('busn_valuation_doc');
                 $originalName = $file->getClientOriginalName();
-
+            
                 $fileNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-
+            
                 $now = now();
                 $timestamp = $now->format('YmdHis');
-                $fileName = $timestamp.'_'.$fileNameWithoutExt.'.'.$extension;
-
-                $uploadDir = 'document-upload/busn_valuation_doc';
-                if (! Storage::disk('public')->exists($uploadDir)) {
+                $year  = $now->format('Y');   // 2025
+                $month = $now->format('M');   // Dec
+            
+                $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
+                $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
+                if (!Storage::disk('public')->exists($uploadDir)) {
                     Storage::disk('public')->makeDirectory($uploadDir);
                 }
                 $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
                 $data['busn_valuation_doc'] = $busn_valuation_doc_path;
-                if ($business->busn_valuation_doc) {
+                if (!empty($business->busn_valuation_doc)) {
                     Storage::disk('public')->delete($business->busn_valuation_doc);
                 }
+            
             } else {
+                // Keep existing file
                 $data['busn_valuation_doc'] = $business->busn_valuation_doc;
             }
             if ($request->input('is_bmbe') == 1) {
