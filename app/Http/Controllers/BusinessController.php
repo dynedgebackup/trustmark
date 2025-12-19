@@ -4307,7 +4307,7 @@ class BusinessController extends Controller
 
         if (! file_exists($filePath)) {
             $filePath = public_path('storage/'.$business->certificate);
-            echo $filepath;exit;
+            echo $filePath;exit;
             if (! file_exists($filePath)) {
                 abort(404, 'File not found on server');
             }
