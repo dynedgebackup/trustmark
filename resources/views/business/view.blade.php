@@ -338,6 +338,11 @@
                                             @php
                                                 $certificate = str_replace('storage/', '', $business->certificate);
                                                 $filePathCertificate = asset('storage/app/public/' . $certificate);
+
+                                                $fileSystemPath = public_path('storage/' . $certificate);
+                                                if(file_exists($fileSystemPath)){
+                                                    $filePathCertificate = asset('storage/' . $certificate);
+                                                }
                                             @endphp
                                             <iframe src="{{ $filePathCertificate }}" width="100%" height="1200px"
                                                 style="border:none;margin-top: -14px;">
