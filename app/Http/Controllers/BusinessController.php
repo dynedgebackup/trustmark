@@ -4303,10 +4303,11 @@ class BusinessController extends Controller
             return abort(404, 'Certificate not found');
         }
 
-        $filePath = storage_path('app/public/'.str_replace('storage/', '', $business->certificate));
+        $fileRelativePath = str_replace('storage/', '', $business->certificate);
+        $filePath = storage_path('app/public/'.$fileRelativePath);
 
         if (! file_exists($filePath)) {
-            $filePath = public_path('storage/'.$business->certificate);
+            $filePath = public_path('storage/'.$fileRelativePath);
             echo $filePath;exit;
             if (! file_exists($filePath)) {
                 abort(404, 'File not found on server');
