@@ -3276,9 +3276,10 @@ class BusinessController extends Controller
     {
         $document = DB::table('setting_documents')->first();
         // $filePath = storage_path('app/public/document-upload/internal_redress/SAMPLE.TRUSTMARK.INTERNAL REDRESS MECHANISM.250709.BID.docx');
+        $fileRelativePath = str_replace('storage/', '', $document->path_url);
         $filePath = storage_path('app/public/'.$document->path_url);
         if (! file_exists($filePath)) {
-            $filePath = public_path('storage/'.$document->path_url);
+            $filePath = public_path('storage/'.$fileRelativePath);
             if (! file_exists($filePath)) {
                 abort(404, 'File not found on server');
             }
@@ -5390,7 +5391,7 @@ class BusinessController extends Controller
         $fileRelativePath = str_replace('storage/', '', $file);
         $filePath = storage_path('app/public/'.$fileRelativePath);
         if (! file_exists($filePath)) {
-            $filePath = public_path('storage/'.$file);
+            $filePath = public_path('storage/'.$fileRelativePath);
             if (! file_exists($filePath)) {
                 abort(404, 'File not found on server');
             }
