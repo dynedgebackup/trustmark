@@ -2111,11 +2111,13 @@ class BusinessController extends Controller
 
         // qr
         $fileName = $this->business->qr($business);
-        $business->qr_code = 'storage/document-upload/qr_code/'.$fileName;
+        $business->qr_code = $fileName;
+        //$business->qr_code = 'storage/document-upload/qr_code/'.$fileName;
 
         // certificate
         $fileName2 = $this->business->generateCertificate($business);
-        $year  = Carbon::now()->format('Y');
+
+        /*$year  = Carbon::now()->format('Y');
         $month = Carbon::now()->format('M');
 
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
@@ -2133,8 +2135,10 @@ class BusinessController extends Controller
             if (Storage::disk('public')->exists($oldCert)) {
                 Storage::disk('public')->delete($oldCert);
             }
-        }
-        $business->certificate = "storage/{$newPath}";
+        }*/
+
+        $business->certificate = $fileName2;
+        //$business->certificate = "storage/{$newPath}";
         $business->save();
 
         return response()->json([
@@ -2150,11 +2154,12 @@ class BusinessController extends Controller
         $business = Business::find($id);
         // qr
         $fileName = $this->business->qr($business);
-        $business->qr_code = 'storage/document-upload/qr_code/'.$fileName;
+        $business->qr_code = $fileName;
+        //$business->qr_code = 'storage/document-upload/qr_code/'.$fileName;
         // certificate
         $fileName2 = $this->business->generateCertificate($business);
 
-        $year  = Carbon::now()->format('Y');
+        /*$year  = Carbon::now()->format('Y');
         $month = Carbon::now()->format('M');
 
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
@@ -2172,8 +2177,10 @@ class BusinessController extends Controller
             if (Storage::disk('public')->exists($oldCert)) {
                 Storage::disk('public')->delete($oldCert);
             }
-        }
-        $business->certificate = "storage/{$newPath}";
+        }*/ 
+
+        $business->certificate = $fileName2;
+        //$business->certificate = "storage/{$newPath}";
         $business->save();
 
         return response()->json([
@@ -2187,7 +2194,7 @@ class BusinessController extends Controller
         $business = Business::findOrFail($id);
         $fileName = $this->business->generateCertificate($business);
 
-        $year  = Carbon::now()->format('Y');
+        /*$year  = Carbon::now()->format('Y');
         $month = Carbon::now()->format('M');
         
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
@@ -2205,8 +2212,10 @@ class BusinessController extends Controller
             if (Storage::disk('public')->exists($oldCert)) {
                 Storage::disk('public')->delete($oldCert);
             }
-        }
-        $business->certificate = "storage/{$newPath}";
+        }*/
+        //$business->certificate = "storage/{$newPath}";
+
+        $business->certificate = $fileName;
         $business->save();
 
         return back()->with('success', 'Certificate regenerated successfully.');

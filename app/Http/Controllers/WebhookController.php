@@ -90,10 +90,12 @@ class WebhookController extends Controller
                        
                         // qr
                         $fileName = $_business->qr($business);
-                        $business->qr_code = 'storage/document-upload/qr_code/' . $fileName;
+                        $business->qr_code = $fileName;
+                        //$business->qr_code = 'storage/document-upload/qr_code/' . $fileName;
                         // certificate
                         $fileName2 = $_business->generateCertificate($business);
-                        $business->certificate = 'storage/document-upload/certificate/' . $fileName2;
+                        $business->certificate = $fileName2;
+                        //$business->certificate = 'storage/document-upload/certificate/' . $fileName2;
                         $business->save();
                     }
                 }
@@ -395,10 +397,12 @@ class WebhookController extends Controller
                 $_business = new Business();
                 // qr
                 $fileName = $_business->qr($business);
-                $business->qr_code = 'storage/document-upload/qr_code/' . $fileName;
+                $business->qr_code = $fileName;
+                //$business->qr_code = 'storage/document-upload/qr_code/' . $fileName;
                 // certificate
                 $fileName2 = $_business->generateCertificate($business);
-                $business->certificate = 'storage/document-upload/certificate/' . $fileName2;
+                $business->certificate = $fileName2;
+                //$business->certificate = 'storage/document-upload/certificate/' . $fileName2;
                 $business->save();
                 echo "Certificate generated.";
             }else{
