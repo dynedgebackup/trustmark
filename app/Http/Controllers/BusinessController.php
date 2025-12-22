@@ -975,7 +975,7 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/requirement_reps/{$year}/{$month}";
         
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
         
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
@@ -1323,7 +1323,7 @@ class BusinessController extends Controller
         $uploadDir = "document-upload/additional_permit/{$year}/{$month}";
 
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
 
         $request->validate([
@@ -1371,7 +1371,7 @@ class BusinessController extends Controller
         $uploadDir = "document-upload/additional_permit/{$year}/{$month}";
 
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
 
         $request->validate([
@@ -2122,7 +2122,7 @@ class BusinessController extends Controller
 
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
         $oldPath = "document-upload/certificate/{$fileName2}";
         $newPath = "{$uploadDir}/{$fileName2}";
@@ -2164,7 +2164,7 @@ class BusinessController extends Controller
 
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
         $oldPath = "document-upload/certificate/{$fileName2}";
         $newPath = "{$uploadDir}/{$fileName2}";
@@ -2199,7 +2199,7 @@ class BusinessController extends Controller
         
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
         $oldPath = "document-upload/certificate/{$fileName}";
         $newPath = "{$uploadDir}/{$fileName}";
@@ -2566,7 +2566,8 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
 
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
 
             $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
@@ -2727,7 +2728,7 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
 
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
 
             $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
@@ -2755,7 +2756,7 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
 
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
 
             $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
@@ -3010,7 +3011,7 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/requirement_reps/{$year}/{$month}";
         
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
         
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
@@ -3236,7 +3237,7 @@ class BusinessController extends Controller
             $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
         
             if (!Storage::disk('public')->exists($uploadDir)) {
-                Storage::disk('public')->makeDirectory($uploadDir);
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
         
             $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
@@ -5775,7 +5776,7 @@ class BusinessController extends Controller
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
                 $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
                 if (!Storage::disk('public')->exists($uploadDir)) {
-                    Storage::disk('public')->makeDirectory($uploadDir);
+                    Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
                 }
                 $bmbe_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
                 $data['bmbe_doc'] = $bmbe_doc_path;
@@ -5857,7 +5858,7 @@ class BusinessController extends Controller
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
                 $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
                 if (!Storage::disk('public')->exists($uploadDir)) {
-                    Storage::disk('public')->makeDirectory($uploadDir);
+                    Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
                 }
                 $busn_valuation_doc_path = $file->storeAs($uploadDir, $fileName, 'public');
                 $data['busn_valuation_doc'] = $busn_valuation_doc_path;

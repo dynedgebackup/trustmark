@@ -35,7 +35,7 @@ class DocumentsController extends Controller
             $filename = $file->getClientOriginalName();
 
             if (!Storage::disk('public')->exists('setting-documents')) {
-                Storage::disk('public')->makeDirectory('setting-documents');
+                Storage::disk('public')->makeDirectory('setting-documents', 0755, true);
             }
 
             $file->storeAs('setting-documents', $filename, 'public');

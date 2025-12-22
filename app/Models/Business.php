@@ -155,7 +155,7 @@ class Business extends Model
 
         $uploadDir = "document-upload/qr_code/{$year}/{$month}";
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
         $filename = $uploadDir.'/'.$fileName;
         Storage::disk('public')->put($filename, $result->getString());
@@ -250,7 +250,7 @@ class Business extends Model
 
         $uploadDir = "document-upload/certificate/{$year}/{$month}";
         if (!Storage::disk('public')->exists($uploadDir)) {
-            Storage::disk('public')->makeDirectory($uploadDir);
+            Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
         $filename = $uploadDir.'/Trustmark_' . $business->trustmark_id . '.pdf';
         Storage::disk('public')->put($filename, file_get_contents($tempPath));
