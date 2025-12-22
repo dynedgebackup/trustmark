@@ -75,8 +75,17 @@
                 <div class="d-flex justify-content-center align-items-start gap-3">
                     <div class="text-center"><img src="{{ public_path('assets/img/TRUSTMARK-SHIELD.png') }}" width="106"
                             height="126" /></div>
+                    @php
+                        $qr_code = str_replace('storage/', '', $business->qr_code);
+                        $filePath = asset('storage/app/public/' . $qr_code);
+
+                        $fileSystemPath = public_path('storage/' . $qr_code);
+                        if(file_exists($filePath)){
+                            $qr_code = asset('storage/' . $qr_code);
+                        }
+                    @endphp
                     <div class="text-center d-flex flex-column align-items-center"><img
-                            src="{{ public_path($business->qr_code) }}" width="95" height="95" /><img class="mt-0"
+                            src="{{ $qr_code }}" width="95" height="95" /><img class="mt-0"
                             src="{{ public_path('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}" width="87" height="21"
                             style="margin-top: -15px;" />
                         <p class="mb-0" style="font-size: 12px;">{{ $business->trustmark_id }}</p>

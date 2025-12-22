@@ -194,7 +194,16 @@
                                                                     </div>
                                                                     <div
                                                                         class="text-center d-flex flex-column align-items-center">
-                                                                        <img src="{{ asset($business->qr_code) }}"
+                                                                        @php
+                                                                            $qr_code = str_replace('storage/', '', $business->qr_code);
+                                                                            $filePath = asset('storage/app/public/' . $qr_code);
+
+                                                                            $fileSystemPath = public_path('storage/' . $qr_code);
+                                                                            if(file_exists($filePath)){
+                                                                                $qr_code = asset('storage/' . $qr_code);
+                                                                            }
+                                                                        @endphp
+                                                                        <img src="{{ $qr_code }}"
                                                                             width="145" height="145">
                                                                         <img class="mt-0"
                                                                             src="{{ asset('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}"
@@ -1606,7 +1615,16 @@
                                     height="126" />
                             </div>
                             <div class="text-center d-flex flex-column align-items-center">
-                                <img src="{{ asset($business->qr_code) }}" width="95" height="95" />
+                                @php
+                                    $qr_code = str_replace('storage/', '', $business->qr_code);
+                                    $filePath = asset('storage/app/public/' . $qr_code);
+
+                                    $fileSystemPath = public_path('storage/' . $qr_code);
+                                    if(file_exists($filePath)){
+                                        $qr_code = asset('storage/' . $qr_code);
+                                    }
+                                @endphp
+                                <img src="{{ $qr_code }}" width="95" height="95" />
                                 <!-- <img src="{{ asset('assets/img/qr_1_25072013313523.png') }}" width="95" height="95" /> -->
                                 <img class="mt-0" src="{{ asset('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}"
                                     width="87" height="21" />
