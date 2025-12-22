@@ -141,7 +141,7 @@ class Business extends Model
 
         $now = now();
         $timestamp = $now->format('ymdHis') . substr((string) $now->micro, 0, 2);
-        $fileName = 'qr_' . $business->id . '_' . $timestamp . '.png';
+        $filename = 'qr_' . $business->id . '_' . $timestamp . '.png';
 
         $result = Builder::create()
             ->writer(new PngWriter())
@@ -157,10 +157,10 @@ class Business extends Model
         if (!Storage::disk('public')->exists($uploadDir)) {
             Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
         }
-        $filename = $uploadDir.'/'.$fileName;
+        $filename = $uploadDir.'/'.$filename;
         Storage::disk('public')->put($filename, $result->getString());
 
-        return $fileName;
+        return $filename;
     }
     
 
