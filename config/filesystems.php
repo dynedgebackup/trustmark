@@ -37,15 +37,25 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
+        
+        // This is very important
         'public' => [
+            'driver' => 'local',
+            'root' => '/data/trustmark/public-storage',
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        /*'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
-        ],
+        ],*/
 
         's3' => [
             'driver' => 's3',
