@@ -2216,7 +2216,7 @@ class BusinessController extends Controller
         //$business->certificate = "storage/{$newPath}";
 
         $business->certificate = $fileName;
-        echo $business->certificate;exit;
+        //echo $business->certificate;exit;
         $business->save();
 
         return back()->with('success', 'Certificate regenerated successfully.');
