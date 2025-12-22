@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use TCPDF;
 use TCPDF_FONTS;
 use DB;
+use Carbon\Carbon;
+
 class Business extends Model
 {
     use HasFactory;
@@ -148,7 +150,15 @@ class Business extends Model
             ->foregroundColor(new Color(13, 45, 156))
             ->build();
 
-        Storage::disk('public')->put('document-upload/qr_code/' . $fileName, $result->getString());
+        $year  = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('M');
+
+        $uploadDir = "document-upload/qr_code/{$year}/{$month}";
+        if (!Storage::disk('public')->exists($uploadDir)) {
+            Storage::disk('public')->makeDirectory($uploadDir);
+        }
+        $filename = $uploadDir.'/'.$fileName;
+        Storage::disk('public')->put($filename, $result->getString());
 
         return $fileName;
     }
@@ -235,8 +245,16 @@ class Business extends Model
         $tempPath = storage_path('app/temp_certificate.pdf');
         $pdf->Output($tempPath, 'F');
 
-        $filename = 'Trustmark_' . $business->trustmark_id . '.pdf';
-        Storage::disk('public')->put('document-upload/certificate/' . $filename, file_get_contents($tempPath));
+        $year  = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('M');
+
+        $uploadDir = "document-upload/certificate/{$year}/{$month}";
+        if (!Storage::disk('public')->exists($uploadDir)) {
+            Storage::disk('public')->makeDirectory($uploadDir);
+        }
+        $filename = $uploadDir.'/Trustmark_' . $business->trustmark_id . '.pdf';
+
+        Storage::disk('public')->put($filename, file_get_contents($tempPath));
         @unlink($tempPath);
 
         return $filename;
