@@ -253,10 +253,13 @@ class Business extends Model
             Storage::disk('public')->makeDirectory($uploadDir);
         }
         $filename = $uploadDir.'/Trustmark_' . $business->trustmark_id . '.pdf';
-
-        $fullPath = Storage::disk('public')->put($filename, file_get_contents($tempPath));
+        
+        $fullPath = Storage::disk('public')->path($filename);
         dd($fullPath);
 
+
+
+        Storage::disk('public')->put($filename, file_get_contents($tempPath));
         @unlink($tempPath);
 
         return $filename;
