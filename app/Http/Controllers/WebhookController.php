@@ -397,6 +397,7 @@ class WebhookController extends Controller
                 $_business = new Business();
                 // qr
                 $fileName = $_business->qr($business);
+                echo $fileName;exit;
                 $business->qr_code = $fileName;
                 //$business->qr_code = 'storage/document-upload/qr_code/' . $fileName;
                 // certificate
