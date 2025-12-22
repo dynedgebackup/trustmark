@@ -254,7 +254,9 @@ class Business extends Model
         }
         $filename = $uploadDir.'/Trustmark_' . $business->trustmark_id . '.pdf';
 
-        Storage::disk('public')->put($filename, file_get_contents($tempPath));
+        $fullPath = Storage::disk('public')->put($filename, file_get_contents($tempPath));
+        dd($fullPath);
+
         @unlink($tempPath);
 
         return $filename;
