@@ -91,15 +91,15 @@
                                 
                                 <td align="left" style="padding:0px;" left="10">
                                     @php
-                                        $qr_code = str_replace('storage/', '', $business->qr_code);
-                                        $filePath = asset('storage/app/public/' . $qr_code);
+                                        $filename = str_replace('storage/', '', $business->qr_code);
+                                        $filepath = asset('storage/app/public/' . $filename);
 
-                                        $fileSystemPath = public_path('storage/' . $qr_code);
-                                        if(file_exists($filePath)){
-                                            $qr_code = asset('storage/' . $qr_code);
+                                        $fileSystemPath = public_path('storage/' . $filename);
+                                        if(file_exists($fileSystemPath)){
+                                            $filepath = asset('storage/' . $filename);
                                         }
                                     @endphp
-                                    <img src="{{ $qr_code }}" width="85" />
+                                    <img src="{{ $filepath }}" width="85" />
                                    <!-- <img src="http://localhost/trustmark/storage/app/public/document-upload/qr_code/qr_1_25072013325498.png" width="85"/> -->
                                 </td>
                             </tr>

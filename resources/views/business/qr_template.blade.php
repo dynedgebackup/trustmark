@@ -31,15 +31,16 @@
                     </div>
                     <div class="text-center d-flex flex-column align-items-center">
                         @php
-                            $qr_code = str_replace('storage/', '', $business->qr_code);
-                            $filePath = asset('storage/app/public/' . $qr_code);
+                            $filename = str_replace('storage/', '', $business->qr_code);
+                            $filepath = asset('storage/app/public/' . $filename);
 
-                            $fileSystemPath = public_path('storage/' . $qr_code);
-                            if(file_exists($filePath)){
-                                $qr_code = asset('storage/' . $qr_code);
+                            $fileSystemPath = public_path('storage/' . $filename);
+                            if(file_exists($fileSystemPath)){
+                                $filepath = asset('storage/' . $filename);
                             }
                         @endphp
-                        <img src="{{ $qr_code }}" width="95" height="95" />
+                        
+                        <img src="{{ $filepath }}" width="95" height="95" />
                         <!-- <img src="{{ asset('assets/img/qr_1_25072013313523.png') }}" width="95" height="95" /> -->
                         <img class="mt-0" src="{{ asset('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}" width="87" height="21" />
                         <p class="mb-0" style="font-size: 12px;">{{ $business->trustmark_id }}</p>
