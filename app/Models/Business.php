@@ -201,13 +201,8 @@ class Business extends Model
         $montserrat = \TCPDF_FONTS::addTTFfont(public_path('fonts/montserrat/Montserrat-Regular.ttf'), 'TrueTypeUnicode', '', 32);
         $pdf->SetFont($montserrat, '', 10);
         
+        echo public_path('assets/img/DTI-BP-transparent.png');exit;
         $html = view('business.certificate', compact('business'))->render();
-        dd(
-            public_path('assets/img/DTI-BP-transparent.png'),
-            file_exists(public_path('assets/img/DTI-BP-transparent.png')),
-            is_readable(public_path('assets/img/DTI-BP-transparent.png'))
-        );
-        echo $html;exit;
         $pdf->writeHTML($html, true, false, true, false, '');
         $nameLength = strlen($business->business_name);
         // print_r($nameLength); 
