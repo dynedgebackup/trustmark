@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Trustmark</title>
-    <link rel="stylesheet" href="{{ public_path('assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/bootstrap/css/bootstrap.min.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 </head>
 
@@ -14,7 +14,7 @@
     
     @font-face {
         font-family: 'Montserrat';
-        src: url('{{ public_path('fonts/montserrat/Montserrat-Regular.ttf') }}') format('truetype');
+        src: url('{{ url('fonts/montserrat/Montserrat-Regular.ttf') }}') format('truetype');
         font-weight: normal;
         font-style: normal;
         color:#4a4444;
@@ -22,7 +22,7 @@
 
     @font-face {
         font-family: 'Baskerville';
-        src: url('{{ public_path('fonts/baskerville/Baskerville-Regular.ttf') }}') format('truetype');
+        src: url('{{ url('fonts/baskerville/Baskerville-Regular.ttf') }}') format('truetype');
         font-weight: normal;
         font-style: normal;
         color:#4a4444;
@@ -80,7 +80,7 @@
             <tr>
                 <td align="right" width="52%" style="padding:0px;">
                 <br /><br />
-                    <img src="{{ public_path('assets/img/TRUSTMARK-SHIELD.png') }}" width="100" height="126" style="margin-top: 50px;" />
+                    <img src="{{ url('assets/img/TRUSTMARK-SHIELD.png') }}" width="100" height="126" style="margin-top: 50px;" />
                 
                 </td>
                 <td align="left" width="48%;" style="padding:0px;">
@@ -105,7 +105,7 @@
                             </tr>
                             <tr>
                                <td style="padding:0px;margin-left:20px;">
-                                   <img src="{{ public_path('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}" width="80" 
+                                   <img src="{{ url('assets/img/TRUSTMARK-REGISTERED-ONLY.png') }}" width="80" 
                                             /><br />
                                         {{ $business->trustmark_id }}
                                 </td>
