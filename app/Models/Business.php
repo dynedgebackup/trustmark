@@ -225,6 +225,8 @@ class Business extends Model
         // exit;
         
         if(!empty($users)){
+            echo public_path('storage/' . $users->profile_photos);
+            echo url('storage/' . $users->profile_photos);exit;
             $pdf->Image(public_path('storage/' . $users->profile_photos), $x, $y, 40, 20, '', '', '', true, 300);
             // $pdf->Image(public_path('assets/img/signature_1752930308.png'), $x, $y, 40, 20, '', '', '', true, 300);
             $pdf->SetXY($x, $y + 17);
