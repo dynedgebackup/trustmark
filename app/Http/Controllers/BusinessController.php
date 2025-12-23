@@ -1082,6 +1082,7 @@ class BusinessController extends Controller
 
     public function save_document(Request $request)
     {
+        echo "saveeeeeeee";
         $businessId = $request->input('business_id');
         $business = Business::find($businessId);
 
@@ -5641,6 +5642,7 @@ class BusinessController extends Controller
 
     public function save_documentattachments(Request $request, $businessId)
     { 
+        echo "dfdfd";
         $business = Business::find($businessId);
         // dd($request->input('is_bmbe'));exit;
         if (! $business) {
