@@ -202,7 +202,7 @@ class Business extends Model
         $pdf->SetFont($montserrat, '', 10);
         
         $html = view('business.certificate', compact('business'))->render();
-        
+        echo $html;exit;
         $pdf->writeHTML($html, true, false, true, false, '');
         $nameLength = strlen($business->business_name);
         // print_r($nameLength); 
