@@ -202,6 +202,11 @@ class Business extends Model
         $pdf->SetFont($montserrat, '', 10);
         
         $html = view('business.certificate', compact('business'))->render();
+        dd(
+            public_path('assets/img/DTI-BP-transparent.png'),
+            file_exists(public_path('assets/img/DTI-BP-transparent.png')),
+            is_readable(public_path('assets/img/DTI-BP-transparent.png'))
+        );
         echo $html;exit;
         $pdf->writeHTML($html, true, false, true, false, '');
         $nameLength = strlen($business->business_name);
