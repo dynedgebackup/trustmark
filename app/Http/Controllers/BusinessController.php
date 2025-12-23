@@ -1266,7 +1266,7 @@ class BusinessController extends Controller
 
                 $timestamp = $now->format('YmdHis');
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
-                
+
                 $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
                 if (!Storage::disk('public')->exists($uploadDir)) {
                     Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
@@ -2493,6 +2493,11 @@ class BusinessController extends Controller
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
 
+            $uploadDir = "document-upload/busn_valuation_doc/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
+
             $req_upload_path = $file->storeAs(
                 "document-upload/requirement_reps/{$year}/{$month}",
                 $fileName,
@@ -2515,6 +2520,11 @@ class BusinessController extends Controller
             $extension = $file->getClientOriginalExtension();
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $uploadDir = "document-upload/business_registration/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
 
             $business_reg_path = $file->storeAs(
                 "document-upload/business_registration/{$year}/{$month}",
@@ -2539,6 +2549,11 @@ class BusinessController extends Controller
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
 
+            $uploadDir = "document-upload/bir_2303/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
+
             $bir_2303_path = $file->storeAs(
                 "document-upload/bir_2303/{$year}/{$month}",
                 $fileName,
@@ -2561,6 +2576,11 @@ class BusinessController extends Controller
             $extension = $file->getClientOriginalExtension();
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
+            $uploadDir = "document-upload/docs_internal_redress/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
 
             $internal_redress_path = $file->storeAs(
                 "document-upload/docs_internal_redress/{$year}/{$month}",
@@ -2591,7 +2611,6 @@ class BusinessController extends Controller
             $uploadDir = "document-upload/bmbe_doc/{$year}/{$month}";
 
             if (!Storage::disk('public')->exists($uploadDir)) {
-                
                 Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
             }
 
@@ -2673,6 +2692,11 @@ class BusinessController extends Controller
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
 
+            $uploadDir = "document-upload/business_registration/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
+
             $business_reg_path = $file->storeAs(
                 "document-upload/business_registration/{$year}/{$month}",
                 $fileName,
@@ -2695,6 +2719,10 @@ class BusinessController extends Controller
             $extension = $file->getClientOriginalExtension();
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+            $uploadDir = "document-upload/bir_2303/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
 
             $bir_2303_path = $file->storeAs(
                 "document-upload/bir_2303/{$year}/{$month}",
@@ -2718,6 +2746,10 @@ class BusinessController extends Controller
             $extension = $file->getClientOriginalExtension();
 
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+            $uploadDir = "document-upload/docs_internal_redress/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($uploadDir)) {
+                Storage::disk('public')->makeDirectory($uploadDir, 0755, true);
+            }
 
             $internal_redress_path = $file->storeAs(
                 "document-upload/docs_internal_redress/{$year}/{$month}",
@@ -3185,8 +3217,12 @@ class BusinessController extends Controller
             $year  = Carbon::now()->format('Y');
             $month = Carbon::now()->format('M');
             $directory = "document-upload/business_registration/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
         
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
+
             $business_reg_path = $file->storeAs($directory, $fileName, 'public');
         
             if (!empty($business->docs_business_reg)) {
@@ -3207,6 +3243,9 @@ class BusinessController extends Controller
             $year  = Carbon::now()->format('Y');
             $month = Carbon::now()->format('M');
             $directory = "document-upload/bir_2303/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
         
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
             $bir_2303_path = $file->storeAs($directory, $fileName, 'public');
@@ -3229,6 +3268,9 @@ class BusinessController extends Controller
             $year  = Carbon::now()->format('Y');
             $month = Carbon::now()->format('M');
             $directory = "document-upload/docs_internal_redress/{$year}/{$month}";
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
         
             $fileName = time() . '_' . $fileNameWithoutExt . '.' . $extension;
             $internal_redress_path = $file->storeAs($directory, $fileName, 'public');
@@ -5572,6 +5614,7 @@ class BusinessController extends Controller
             $extension = $file->getClientOriginalExtension();
 
             $fileName = time().'_'.$fileNameWithoutExt.'.'.$extension;
+
             $req_upload_path = $file->storeAs('document-upload/requirement_reps', $fileName, 'public');
 
             if ($business->requirement_upload) {
@@ -5723,6 +5766,10 @@ class BusinessController extends Controller
             
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
                 $directory = "document-upload/business_registration/{$year}/{$month}";
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory, 0755, true);
+                }
+
                 $business_reg_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_business_reg'] = $business_reg_path;
                 if (!empty($business->docs_business_reg)) {
@@ -5748,6 +5795,10 @@ class BusinessController extends Controller
             
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
                 $directory = "document-upload/bir_2303/{$year}/{$month}";
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory, 0755, true);
+                }
+
                 $bir_2303_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_bir_2303'] = $bir_2303_path;
                 if (!empty($business->docs_bir_2303)) {
@@ -5773,6 +5824,10 @@ class BusinessController extends Controller
             
                 $fileName = $timestamp . '_' . $fileNameWithoutExt . '.' . $extension;
                 $directory = "document-upload/internal_redress/{$year}/{$month}";
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory, 0755, true);
+                }
+
                 $internal_redress_path = $file->storeAs($directory, $fileName, 'public');
                 $data['docs_internal_redress'] = $internal_redress_path;
                 if (!empty($business->docs_internal_redress)) {
