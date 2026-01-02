@@ -1892,7 +1892,7 @@ class BusinessController extends Controller
         $channelFile = 'GCash.php';
         $formula = '';
         $amount = floatval($arr['amount']);
-        $amount = 10;
+        $amount = 1;
         $merchantReturnUrl = $arr['merchantReturnUrl'];
 
         $arrUser = $arrChannel = DB::table('users')->select('name', 'email', 'ctc_no', 'first_name', 'last_name')->where('id', $arr['user_id'])->first(); 
