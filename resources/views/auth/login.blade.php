@@ -202,11 +202,14 @@
             --}}
             @if(optional($activate_registration)->value == 1)
             <!-- @if ($userBaseUrl !== 'https://trustmark.bahayko.app') -->
-                 <!-- <a href="{{ route('register.create') }}" class="forgot-password d-block text-center">Register</a> -->
+                @if($isMaintainace!=1)
+                    <a href="{{ route('register.create') }}" class="forgot-password d-block text-center">Register</a> 
+                @endif
             <!-- @endif -->
             @endif
-
-            <!--  <a href="{{ route('login.forgot_password') }}" class="forgot-password d-block text-center">Forgot your password?</a>  -->
+            @if($isMaintainace!=1)
+                <a href="{{ route('login.forgot_password') }}" class="forgot-password d-block text-center">Forgot your password?</a> 
+            @endif
 
             <div class="my-3">
                 {{-- <a href="{{ env('GOOGLE_REDIRECT') }}" class="btn btn-light w-100 mb-2" style="border: 1px solid #ddd;">

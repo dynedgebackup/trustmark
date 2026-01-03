@@ -33,7 +33,13 @@ class AuthenticatedSessionController extends Controller
         $activate_registration = DB::connection('mysql')
             ->table('settings')->where('name', 'activate_registration')->first();
 
-        return view('auth.login', compact('activate_registration') + [
+        $isMaintainace = 0;
+        $setting = DB::connection('mysql')->table('settings')->where('name', 'maintenance_mode')->first();
+        if ($setting && $setting->value == 1) {
+            $isMaintainace = 1;
+        }
+
+        return view('auth.login', compact('activate_registration','isMaintainace') + [
             'project1_url' => config('sso.project1.url'),
         ]);
     }
