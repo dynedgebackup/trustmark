@@ -853,7 +853,7 @@ class BusinessController extends Controller
         $requirements = RequirementReps::where('status', 'Active')->get();
         $AdditionalDocuments = DB::table('business_documents')
             ->where('busn_id', $business_id)
-            ->where('year', now()->year)
+            //->where('year', now()->year)
             ->get();
         $user = Auth::user();
         $businessCatName  = DB::table('application_fee_category')->where('busn_category_id',$business->busn_category_id)->first();
@@ -2281,7 +2281,7 @@ class BusinessController extends Controller
             ->pluck('name', 'id');
         $AdditionalDocuments = DB::table('business_documents')
             ->where('busn_id', $business->id)
-            ->where('year', now()->year)
+            //->where('year', now()->year)
             ->get();
         $business_category = DB::table('application_fee_category')
         // ->orderByDesc('is_default') 
@@ -2333,7 +2333,7 @@ class BusinessController extends Controller
             ->first();
         $AdditionalDocuments = DB::table('business_documents')
             ->where('busn_id', $business->id)
-            ->where('year', now()->year)
+            //->where('year', now()->year)
             ->get();
         $business_category = DB::table('application_fee_category')
         // ->orderByDesc('is_default') 
@@ -2378,7 +2378,7 @@ class BusinessController extends Controller
         $requirements = RequirementReps::where('status', 'Active')->get();
         $AdditionalDocuments = DB::table('business_documents')
             ->where('busn_id', $business->id)
-            ->where('year', now()->year)
+            //->where('year', now()->year)
             ->get();
         $business_category = DB::table('application_fee_category')
         // ->orderByDesc('is_default') 
@@ -6713,7 +6713,7 @@ class BusinessController extends Controller
             ->first();
         $AdditionalDocuments = DB::table('business_documents')
         ->where('busn_id', $business->id)
-        ->where('year', now()->year)
+        //->where('year', now()->year)
         ->get();
         $business_category = DB::table('business_category')
         ->get();
