@@ -122,7 +122,8 @@ class IncomeController extends Controller
             'a.amount as Amount',
             'a.create_date as Date',
             'd.name as PaymentBy',
-            'a.fee_id'
+            'a.fee_id',
+            'b.payment_channel'
         )->orderBy('b.trustmark_id', 'asc')->get();
 
         return response()->json(['data' => $data]);
@@ -141,7 +142,8 @@ class IncomeController extends Controller
             'a.amount as Amount',
             'c.date as Date',
             'd.name as PaymentBy',
-            'a.fee_id'
+            'a.fee_id',
+            'b.payment_channel'
         ])
         ->join('businesses as b', 'a.busn_id', '=', 'b.id')
         ->join('payments as c', 'a.payment_id', '=', 'c.id')
@@ -171,7 +173,8 @@ class IncomeController extends Controller
                 ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
-                ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%");
+                ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(b.payment_channel)'),'like',"%".strtolower($search)."%");
                 });
         }
         $totalRecords = DB::table('business_fees as a')->count();
@@ -211,6 +214,7 @@ class IncomeController extends Controller
                     'TransactionID' => $row->TransactionID ?? ' ',
                     'Amount' => $row->Amount ?? ' ',
                     'Date' => $row->Date ?? ' ',
+                    'payment_channel' => $row->payment_channel ?? ' ',
                     'PaymentBy' => $row->PaymentBy ?? ' '
             ];
         }
