@@ -401,27 +401,28 @@ Route::middleware(['auth','role.access'])->group(function () {
     // Route::get('/business/create/{business_id}', [BusinessController::class, 'create'])->name('business.create');
 
     // save draft when submit first form
-    Route::get('/businesss/store', [BusinessController::class, 'auto_store'])->name('business.auto_store');
-    Route::get('/businesss/create/{business_id}', [BusinessController::class, 'create'])->name('business.create');
-
-    Route::post('/business/save-corporation', [BusinessController::class, 'save_corporation'])->name('business.save_corporation');
-    Route::post('/business/save-details', [BusinessController::class, 'save_detail'])->name('business.save_detail');
-    Route::post('/business/save_document', [BusinessController::class, 'save_document'])->name('business.save_document');
-    Route::post('/business/submit_form', [BusinessController::class, 'submit_form'])->name('business.submit_form');
-    Route::get('/business/view/{id}', [BusinessController::class, 'view'])->name('business.view');
-    Route::get('/business/disapproved-view/{id}', [BusinessController::class, 'disapproved_view'])->name('business.disapproved_view');
-    Route::post('/business/confidential', [BusinessController::class, 'confidential'])->name('business.confidential');
-    Route::get('/business/edit/{id}', [BusinessController::class, 'edit'])->name('business.edit');
-    Route::put('/business/admin-update/{id}', [BusinessController::class, 'admin_update'])->name('business.admin_update');
-    Route::put('/business/update/{id}', [BusinessController::class, 'update'])->name('business.update');
+    Route::middleware(['auth', 'business.owner'])->group(function () {
+        Route::get('/business/view/{id}', [BusinessController::class, 'view'])->name('business.view');
+        Route::get('/businesss/create/{business_id}', [BusinessController::class, 'create'])->name('business.create');
+        Route::put('/business/update/{id}', [BusinessController::class, 'update'])->name('business.update');
+        Route::get('/business/edit/{id}', [BusinessController::class, 'edit'])->name('business.edit');
+    });
+        Route::get('/businesss/store', [BusinessController::class, 'auto_store'])->name('business.auto_store');
+        Route::post('/business/save-corporation', [BusinessController::class, 'save_corporation'])->name('business.save_corporation');
+        Route::post('/business/save-details', [BusinessController::class, 'save_detail'])->name('business.save_detail');
+        Route::post('/business/save_document', [BusinessController::class, 'save_document'])->name('business.save_document');
+        Route::post('/business/submit_form', [BusinessController::class, 'submit_form'])->name('business.submit_form');
+        Route::get('/business/disapproved-view/{id}', [BusinessController::class, 'disapproved_view'])->name('business.disapproved_view');
+        Route::post('/business/confidential', [BusinessController::class, 'confidential'])->name('business.confidential');
+        Route::put('/business/admin-update/{id}', [BusinessController::class, 'admin_update'])->name('business.admin_update');
+        Route::any('/business/updateEditOnly/{id}', [BusinessController::class, 'updateEditOnly'])->name('business.updateEditOnly');
+        Route::any('/business/updateEditOnly2/{id}', [BusinessController::class, 'updateEditOnly2'])->name('business.updateEditOnly2');
+        Route::any('/business/updateEditOnly3/{id}', [BusinessController::class, 'updateEditOnly3'])->name('business.updateEditOnly3');
+        Route::any('/business/updateEditOnly4/{id}', [BusinessController::class, 'updateEditOnly4'])->name('business.updateEditOnly4');
+        Route::any('/business/updateEditMail/{id}', [BusinessController::class, 'updateEditMail'])->name('business.updateEditMail');
+        Route::delete('/business/{id}', [BusinessController::class, 'destroy'])->name('business.destroy');
+        Route::post('/business-draft/{id}', [BusinessController::class, 'destroy'])->name('business.destroydraft');
     
-    Route::any('/business/updateEditOnly/{id}', [BusinessController::class, 'updateEditOnly'])->name('business.updateEditOnly');
-    Route::any('/business/updateEditOnly2/{id}', [BusinessController::class, 'updateEditOnly2'])->name('business.updateEditOnly2');
-    Route::any('/business/updateEditOnly3/{id}', [BusinessController::class, 'updateEditOnly3'])->name('business.updateEditOnly3');
-    Route::any('/business/updateEditOnly4/{id}', [BusinessController::class, 'updateEditOnly4'])->name('business.updateEditOnly4');
-    Route::any('/business/updateEditMail/{id}', [BusinessController::class, 'updateEditMail'])->name('business.updateEditMail');
-    Route::delete('/business/{id}', [BusinessController::class, 'destroy'])->name('business.destroy');
-    Route::post('/business-draft/{id}', [BusinessController::class, 'destroy'])->name('business.destroydraft');
     Route::post('/check-tin', [BusinessController::class, 'check_tin_num'])->name('check.tin');
     
     
