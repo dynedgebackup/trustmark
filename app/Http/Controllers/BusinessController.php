@@ -6906,7 +6906,7 @@ class BusinessController extends Controller
         $html = view('business.certificate_statement', compact('business','type_corporations','busines_fee','logo','complete_address'))->render();
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        return response($pdf->Output('STATEMENT_CERTIFICATE.pdf', 'I'))
+        return response($pdf->Output('Statement of Account.pdf', 'I'))
             ->header('Content-Type', 'application/pdf');
     }
     public function performance(Request $request){
