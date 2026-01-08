@@ -90,7 +90,7 @@ class Email extends Model
                     $pdf->writeHTML($html, true, false, true, false, '');
 
                     // PDF as a string (important!)
-                    $pdfString = $pdf->Output('STATEMENT_CERTIFICATE.pdf', 'S');
+                    $pdfString = $pdf->Output('Statement of Account.pdf', 'S');
                     $message['html'] = View::make('emails.approved', compact('business'))->render();
 
                     $message['to'][] = [
@@ -101,7 +101,7 @@ class Email extends Model
                     $message['attachments'][] = [
                         'content' => base64_encode($pdfString),
                         'type'    => 'application/pdf',
-                        'name'    => 'STATEMENT_CERTIFICATE.pdf',
+                        'name'    => 'Statement of Account.pdf',
                     ];
                     break;
 
