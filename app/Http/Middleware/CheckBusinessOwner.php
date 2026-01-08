@@ -24,10 +24,15 @@ class CheckBusinessOwner
             $businessId = $decoded[0];
 
             $business = Business::find($businessId);
-            if (!$business || Auth::id() !== $business->user_id) {
-                return redirect()->route('dashboard')
-                    ->with('error', 'Unauthorized access');
+            if(Auth::user()->role == 1){
+                if (!$business ||
+                    Auth::id() !== $business->user_id 
+                    ) {
+                        return redirect()->route('dashboard')
+                            ->with('error', 'Unauthorized access');
+                }
             }
+            
 
         } catch (\Exception $e) {
             return redirect()->route('dashboard');
