@@ -207,7 +207,6 @@ class IncomeController extends Controller
         }
 
         $fees = $query->get();
-        dd($fees);
         $data = [];
         $i = $start + 1;
 
@@ -218,7 +217,7 @@ class IncomeController extends Controller
                     'SecurityNo' => $row->SecurityNo ?? ' ',
                     'PaymentDescription' => $row->PaymentDescription ?? ' ',
                     'TransactionID' => $row->TransactionID ?? ' ',
-                    'OR_Number' => $row->or_number ?? ' ',
+                    'OR_Number' => $row->OR_Number ?? ' ',
                     'Amount' => $row->Amount ?? ' ',
                     'Date' => $row->Date ?? ' ',
                     'payment_channel' => $row->payment_channel ?? ' ',
