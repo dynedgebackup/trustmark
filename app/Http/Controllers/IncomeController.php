@@ -151,8 +151,7 @@ class IncomeController extends Controller
         ->join('businesses as b', 'a.busn_id', '=', 'b.id')
         ->join('payments as c', 'a.payment_id', '=', 'c.id')
         ->join('users as d', 'b.user_id', '=', 'd.id')
-        ->where('a.payment_id', '>', 0)
-        ->orderBy('b.trustmark_id', 'asc');
+        ->where('a.payment_id', '>', 0);
         if ($request->filled('fee_id')) {
             $query->where('a.fee_id', $request->fee_id);
         }
@@ -204,6 +203,8 @@ class IncomeController extends Controller
 
         if (!empty($orderColumn)) {
             $query->orderBy($orderColumn, $orderDirection);
+        }else{
+            $query->orderBy('c.or_serial_number', 'desc');
         }
 
         $fees = $query->get();
