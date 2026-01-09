@@ -174,7 +174,7 @@ class IncomeController extends Controller
                 ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
-                ->orWhere(DB::raw('LOWER(a.or_number)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(c.or_number)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%")
