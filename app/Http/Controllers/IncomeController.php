@@ -80,41 +80,42 @@ class IncomeController extends Controller
     {
         $startdate = $request->input('fromdate');
         $enddate = $request->input('todate');
+        
         $query = DB::table('business_fees as a')
-            
-            ->join('businesses as b', 'a.busn_id', '=', 'b.id')
-            ->join('payments as c', 'a.payment_id', '=', 'c.id')
-            ->join('users as d', 'b.user_id', '=', 'd.id')
-            ->where('c.payment_status', 1);
-            //->where('a.payment_id', '>', 0);
+        ->join('businesses as b', 'a.busn_id', '=', 'b.id')
+        ->join('payments as c', 'a.payment_id', '=', 'c.id')
+        ->join('users as d', 'b.user_id', '=', 'd.id')
+        ->where('c.payment_status', 1);
+        //->where('a.payment_id', '>', 0);
 
-            if ($request->filled('fee_id')) {
-                $query->where('a.fee_id', $request->fee_id);
-            }
-            if (!empty($startdate)) {
-                $sdate = explode('-', $startdate);
-                $startdate = date('Y-m-d', strtotime("{$sdate[2]}-{$sdate[1]}-{$sdate[0]}"));
-                $query->whereDate('a.create_date', '>=', trim($startdate));
-            }
+        if ($request->filled('fee_id')) {
+            $query->where('a.fee_id', $request->fee_id);
+        }
+        if (!empty($startdate)) {
+            $sdate = explode('-', $startdate);
+            $startdate = date('Y-m-d', strtotime("{$sdate[2]}-{$sdate[1]}-{$sdate[0]}"));
+            $query->whereDate('c.date', '>=', trim($startdate));
+        }
 
-            if (!empty($enddate)) {
-                $edate = explode('-', $enddate);
-                $enddate = date('Y-m-d', strtotime("{$edate[2]}-{$edate[1]}-{$edate[0]}"));
-                $query->whereDate('a.create_date', '<=', trim($enddate));
-            }
-            if (!empty($request->q)) {
-                $search = $request->q;
-                $query->where(function($q) use ($search) {
-                    $q->where('b.business_name', 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(c.or_number)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
-                    ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%");
-                    });
-            }
+        if (!empty($enddate)) {
+            $edate = explode('-', $enddate);
+            $enddate = date('Y-m-d', strtotime("{$edate[2]}-{$edate[1]}-{$edate[0]}"));
+            $query->whereDate('c.date', '<=', trim($enddate));
+        }
+        if (!empty($request->q)) {
+            $search = $request->q;
+            $query->where(function($q) use ($search) {
+                $q->where('b.business_name', 'like', "%{$search}%")
+                ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(c.or_number)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(b.payment_channel)'),'like',"%".strtolower($search)."%");
+                });
+        }
 
         $data = $query->select(
             'b.business_name as BusinessName',
