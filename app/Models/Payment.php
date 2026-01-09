@@ -13,6 +13,8 @@ class Payment extends Model
         'id',
         'business_id',
         'transaction_id',
+        'or_serial_number',
+        'or_number',
         'amount',
         'currency',
         'payment_method',
