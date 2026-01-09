@@ -257,7 +257,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = $row->status;
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             if ($role == 1) {
                 if (in_array($status, ['UNDER EVALUATION', 'APPROVED', 'ON-HOLD'])) {
@@ -674,7 +674,7 @@ class BusinessController extends Controller
             $status = $row->status;
             $sr_no = $sr_no + 1;
             $id = encrypt($row->id);
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             // $id = substr(encrypt($row->id), 0, 10);
             $actions = '';
@@ -829,7 +829,7 @@ class BusinessController extends Controller
     public function create($business_id)
     {
         try {
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $business_id = $hashids->decode($business_id)[0];
             // $business_id = Crypt::decrypt($business_id);
         } catch (DecryptException $e) {
@@ -1045,7 +1045,7 @@ class BusinessController extends Controller
             'created_by_name'  => Auth::user()->name,
             'created_date'     => now(),
         ]);
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $ids = $hashids->encode($business->id);
         return redirect()->route('business.create', ['business_id' => $ids])
             ->with('go_to_details', true);
@@ -1070,7 +1070,7 @@ class BusinessController extends Controller
         $business->complete_address = $validated['address'];
 
         $business->save();
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $busn_id = $hashids->encode($request->business_id);
         // $busn_id = encrypt($request->business_id);
 
@@ -1315,7 +1315,7 @@ class BusinessController extends Controller
             //     ->with('go_to_confirmations', true)
             //     ->with('business_id', $request->business_id)
             //     ->with('business', $business);
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $busn_id = $hashids->encode($request->business_id);
             return redirect()->route('business.create', ['business_id' => $busn_id])
                 ->with('go_to_confirmations', true)
@@ -1664,7 +1664,7 @@ class BusinessController extends Controller
 
     public function paymentMothod($business_id)
     {
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $busn_id = $hashids->decode($business_id)[0];
         // $busn_id = Crypt::decrypt($business_id);
         $total_amount = '0.00';
@@ -1740,7 +1740,7 @@ class BusinessController extends Controller
     {
         $channel_code = $request->input('channel_code');
         $business_id = $request->input('business_id');
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $business_id = $hashids->decode($business_id)[0];
         // $business_id = Crypt::decrypt($business_id);
         $amount = BusinessFees::where('busn_id', $business_id)->sum('amount');
@@ -2043,7 +2043,7 @@ class BusinessController extends Controller
                 $payment_status = $arrPayment->payment_status;
             }
         }
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $busn_id = $hashids->encode($business_id);
         // $busn_id = encrypt($business_id);
         $redirectUrl = url('/business/view/'.$busn_id);
@@ -2065,7 +2065,7 @@ class BusinessController extends Controller
     public function checkPaymentResponse(Request $request)
     {
         $business_id = $request->input('business_id');
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $business_id = $hashids->decode($business_id)[0];
         // $business_id = Crypt::decrypt($business_id);
         $arrPayment = DB::table('payments')->where('business_id', $business_id)->select('payment_status', 'id')->orderBy('id', 'DESC')->first();
@@ -2250,7 +2250,7 @@ class BusinessController extends Controller
     public function view($id)
     {
         // 
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $id = $hashids->decode($id)[0];
         // dd($id);exit;
         $business = Business::findOrFail($id);
@@ -2314,7 +2314,7 @@ class BusinessController extends Controller
 
     public function disapproved_view($id)
     {
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $id = $hashids->decode($id)[0];
         // $id = Crypt::decrypt($id);
         $business = Business::findOrFail($id);
@@ -2365,7 +2365,7 @@ class BusinessController extends Controller
     public function edit($id)
     {
         $user = Auth::user();
-        $hashids = new Hashids(env('APP_KEY'), 10);
+        $hashids = new Hashids(config('app.key'), 10);
         $id = $hashids->decode($id)[0];
         // $id = Crypt::decrypt($id);
         $business = Business::findOrFail($id);
@@ -3856,7 +3856,7 @@ class BusinessController extends Controller
         $role = Auth::user()->role;
 
         foreach ($data as $row) {
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $status = $row->status;
             $sr_no = $sr_no + 1;
@@ -4009,7 +4009,7 @@ class BusinessController extends Controller
         $role = Auth::user()->role;
 
         foreach ($data as $row) {
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $status = $row->status;
             $sr_no = $sr_no + 1;
@@ -4223,7 +4223,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = $row->status;
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $actions = '<a href="'.route('business.view', $ids).'" 
                             data-bs-toggle="tooltip" data-bs-placement="bottom" 
@@ -4558,7 +4558,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = $row->status;
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $actions = '<a href="'.route('business.view', $ids).'" 
                             data-bs-toggle="tooltip" data-bs-placement="bottom" 
@@ -4755,7 +4755,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = 'PAID';
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $actions = '<a href="'.route('business.view', $ids).'" 
                             data-bs-toggle="tooltip" data-bs-placement="bottom" 
@@ -4951,7 +4951,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = $row->status;
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $busn_id = $hashids->encode($row->id);
             $actions = '<a href="' . route('business.edit', $busn_id) . '" 
                                     data-bs-toggle="tooltip" data-bs-placement="bottom" 
@@ -5135,7 +5135,7 @@ class BusinessController extends Controller
         foreach ($data as $row) {
             $status = $row->status;
             $sr_no = $sr_no + 1;
-            $hashids = new Hashids(env('APP_KEY'), 10);
+            $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             $actions = '<a href="'.route('business.view', $ids).'" 
                             data-bs-toggle="tooltip" data-bs-placement="bottom" 
@@ -5171,7 +5171,7 @@ class BusinessController extends Controller
 
     public function download_authorized($id)
     {
-        // $hashids = new Hashids(env('APP_KEY'), 10);
+        // $hashids = new Hashids(config('app.key'), 10);
         // $id = $hashids->decode($id)[0];
         $id = Crypt::decrypt($id);
         $business = Business::findOrFail($id);
