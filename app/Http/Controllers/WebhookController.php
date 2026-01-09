@@ -67,6 +67,11 @@ class WebhookController extends Controller
                 $data['payment_status'] = 1;
                 $data['total_paid_amount'] = $amount;
                 $data['tranID'] = $tranID;
+                $or_serial_number = $this->getPrevORNumber();
+                $or_number = str_pad($or_serial_number, 6, '0', STR_PAD_LEFT);
+                $data['or_number'] = "TMK-".$or_number;
+                $data['or_serial_number'] = $or_serial_number;
+
                 DB::table('payments')->where('transaction_id', $transactionId)->update($data);
                 if (isset($arrPayment)) {
                     $_business = new Business();
@@ -412,5 +417,14 @@ class WebhookController extends Controller
             echo "Business not found.";
         }
     }
+    public function getPrevORNumber(){
+        $number=1;
+        $arrPrev = DB::table('payments')->select('or_serial_number')->orderby('id','DESC')->first(); 
+        if(isset($arrPrev)){
+            $number = (int)$arrPrev->or_serial_number+1;
+        }
+        return $number;
+    }
+
 
 }

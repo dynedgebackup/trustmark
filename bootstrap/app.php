@@ -28,7 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->alias([
             'sso.session' => \App\Http\Middleware\SsoSessionMiddleware::class,
-            'role.access' => \App\Http\Middleware\RoleAccessMiddleware::class
+            'role.access' => \App\Http\Middleware\RoleAccessMiddleware::class,
+            'business.owner' => \App\Http\Middleware\CheckBusinessOwner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

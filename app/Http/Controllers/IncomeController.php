@@ -108,6 +108,7 @@ class IncomeController extends Controller
                     ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
                     ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
                     ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
+                    ->orWhere(DB::raw('LOWER(c.or_number)'),'like',"%".strtolower($search)."%")
                     ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
                     ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
                     ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%");
@@ -119,10 +120,12 @@ class IncomeController extends Controller
             'b.trustmark_id as SecurityNo',
             'a.fee_name as PaymentDescription',
             'c.transaction_id as TransactionID',
+            'c.or_number as OR_Number',
             'a.amount as Amount',
             'a.create_date as Date',
             'd.name as PaymentBy',
-            'a.fee_id'
+            'a.fee_id',
+            'b.payment_channel'
         )->orderBy('b.trustmark_id', 'asc')->get();
 
         return response()->json(['data' => $data]);
@@ -138,10 +141,12 @@ class IncomeController extends Controller
             'b.trustmark_id as SecurityNo',
             'a.fee_name as PaymentDescription',
             'c.transaction_id as TransactionID',
+            'c.or_number as OR_Number',
             'a.amount as Amount',
             'c.date as Date',
             'd.name as PaymentBy',
-            'a.fee_id'
+            'a.fee_id',
+            'b.payment_channel'
         ])
         ->join('businesses as b', 'a.busn_id', '=', 'b.id')
         ->join('payments as c', 'a.payment_id', '=', 'c.id')
@@ -169,9 +174,11 @@ class IncomeController extends Controller
                 ->orWhere(DB::raw('LOWER(b.trustmark_id)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.fee_name)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(c.transaction_id)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(c.or_number)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.amount)'),'like',"%".strtolower($search)."%")
                 ->orWhere(DB::raw('LOWER(a.create_date)'),'like',"%".strtolower($search)."%")
-                ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%");
+                ->orWhere(DB::raw('LOWER(d.name)'),'like',"%".strtolower($search)."%")
+                ->orWhere(DB::raw('LOWER(b.payment_channel)'),'like',"%".strtolower($search)."%");
                 });
         }
         $totalRecords = DB::table('business_fees as a')->count();
@@ -188,9 +195,10 @@ class IncomeController extends Controller
             2 => 'b.trustmark_id',
             3 => 'a.fee_name',
             4 => 'c.transaction_id',
-            5 => 'a.amount',
-            6 => 'a.create_date',
-            7 => 'd.name'                   
+            5 => 'c.or_serial_number',
+            6 => 'a.amount',
+            7 => 'a.create_date',
+            8 => 'd.name'                   
         ];
         $orderColumn = $columns[$orderColumnIndex] ?? null;
 
@@ -209,8 +217,10 @@ class IncomeController extends Controller
                     'SecurityNo' => $row->SecurityNo ?? ' ',
                     'PaymentDescription' => $row->PaymentDescription ?? ' ',
                     'TransactionID' => $row->TransactionID ?? ' ',
+                    'OR_Number' => $row->OR_Number ?? ' ',
                     'Amount' => $row->Amount ?? ' ',
                     'Date' => $row->Date ?? ' ',
+                    'payment_channel' => $row->payment_channel ?? ' ',
                     'PaymentBy' => $row->PaymentBy ?? ' '
             ];
         }

@@ -69,7 +69,9 @@
                                         <th>{{ __('Security No.') }}</th>
                                         <th>{{ __('Payment Descpription') }}</th>
                                         <th>{{ __('Transaction ID') }}</th>
+                                        <th>{{ __('OR Number') }}</th>
                                         <th>{{ __('Amount') }}</th>
+                                        <th>{{ __('Payment Channel') }}</th>
                                         <th>{{ __('Date') }}</th>
                                         <th>{{ __('Payment By') }}</th>
                                     </tr>
@@ -118,7 +120,9 @@ function datatablefunction() {
             { data: 'SecurityNo' },
             { data: 'PaymentDescription' },
             { data: 'TransactionID' },
+            { data: 'OR_Number' },
             { data: 'Amount' },
+            { data: 'payment_channel' },
             { data: 'Date' },
             { data: 'PaymentBy' }
         ]
@@ -139,7 +143,7 @@ async function loadDataForExcelSheet() {
         const worksheet = workbook.addWorksheet("Income Report");
         const headerRow = worksheet.addRow([
             "No.", "Business Name", "Security No.", "Payment Description",
-            "Transaction ID", "Amount", "Date", "Payment By"
+            "Transaction ID", "OR Number", "Amount", "Payment Channel", "Date", "Payment By"
         ]);
         headerRow.eachCell((cell) => {
             cell.fill = {
@@ -166,7 +170,9 @@ async function loadDataForExcelSheet() {
                 row.SecurityNo,
                 row.PaymentDescription,
                 row.TransactionID,
+                row.OR_Number,
                 row.Amount,
+                row.payment_channel,
                 row.Date,
                 row.PaymentBy
             ]);
