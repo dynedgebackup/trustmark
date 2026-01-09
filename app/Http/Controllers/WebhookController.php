@@ -70,6 +70,7 @@ class WebhookController extends Controller
                 $or_serial_number = $this->getPrevORNumber();
                 $or_number = str_pad($or_serial_number, 6, '0', STR_PAD_LEFT);
                 $data['or_number'] = "TMK-".$or_number;
+                $data['or_serial_number'] = $or_serial_number;
 
                 DB::table('payments')->where('transaction_id', $transactionId)->update($data);
                 if (isset($arrPayment)) {
