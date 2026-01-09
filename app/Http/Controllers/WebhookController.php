@@ -419,7 +419,13 @@ class WebhookController extends Controller
     }
     public function getPrevORNumber(){
         $number=1;
-        $arrPrev = DB::table('payments')->select('or_serial_number')->orderby('id','DESC')->first(); 
+        $arrPrev = DB::table('payments')
+        ->select('or_serial_number')
+        ->where('payment_status', '1')
+        ->where('or_serial_number', '<>', 0) 
+        ->orderBy('id', 'DESC')
+        ->first();
+        
         if(isset($arrPrev)){
             $number = (int)$arrPrev->or_serial_number+1;
         }
