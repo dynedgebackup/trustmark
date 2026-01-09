@@ -195,7 +195,7 @@ class IncomeController extends Controller
             2 => 'b.trustmark_id',
             3 => 'a.fee_name',
             4 => 'c.transaction_id',
-            5 => 'c.or_number',
+            5 => 'c.or_serial_number',
             6 => 'a.amount',
             7 => 'a.create_date',
             8 => 'd.name'                   
