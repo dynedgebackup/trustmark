@@ -207,6 +207,7 @@ class IncomeController extends Controller
         }
 
         $fees = $query->get();
+        dd($fees);
         $data = [];
         $i = $start + 1;
 
