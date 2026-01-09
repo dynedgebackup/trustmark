@@ -126,7 +126,7 @@ class IncomeController extends Controller
             'd.name as PaymentBy',
             'a.fee_id',
             'b.payment_channel'
-        )->orderBy('b.trustmark_id', 'asc')->get();
+        )->orderBy('c.or_serial_number', 'asc')->get();
 
         return response()->json(['data' => $data]);
     }
@@ -204,7 +204,7 @@ class IncomeController extends Controller
         if (!empty($orderColumn)) {
             $query->orderBy($orderColumn, $orderDirection);
         }else{
-            $query->orderBy('c.or_serial_number', 'desc');
+            $query->orderBy('c.or_serial_number', 'asc');
         }
 
         $fees = $query->get();
