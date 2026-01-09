@@ -551,9 +551,10 @@
 
                                             <div>
                                                 @php
-                                                use Hashids\Hashids;
-                                                 $hashids = new Hashids(env('APP_KEY'), 10);
-                                                 $ids = $hashids->encode((int)$business->id);@endphp
+                                                    use Hashids\Hashids;
+                                                    $hashids = new Hashids(config('app.key'), 10);
+                                                    $ids = $hashids->encode((int) $business->id);
+                                                @endphp
                                                 <button class="btn btn-danger me-2" type="button" title="Previous"
                                                     style="font-family:sans-serif;font-size:14px;"
                                                     onclick="window.location.href='{{ route('business.create', ['business_id' => $ids]) }}'">
