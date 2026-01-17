@@ -406,13 +406,14 @@ Route::middleware(['auth','role.access'])->group(function () {
         Route::get('/businesss/create/{business_id}', [BusinessController::class, 'create'])->name('business.create');
         Route::put('/business/update/{id}', [BusinessController::class, 'update'])->name('business.update');
         Route::get('/business/edit/{id}', [BusinessController::class, 'edit'])->name('business.edit');
+        Route::get('/business/disapproved-view/{id}', [BusinessController::class, 'disapproved_view'])->name('business.disapproved_view');
     });
         Route::get('/businesss/store', [BusinessController::class, 'auto_store'])->name('business.auto_store');
         Route::post('/business/save-corporation', [BusinessController::class, 'save_corporation'])->name('business.save_corporation');
         Route::post('/business/save-details', [BusinessController::class, 'save_detail'])->name('business.save_detail');
         Route::post('/business/save_document', [BusinessController::class, 'save_document'])->name('business.save_document');
         Route::post('/business/submit_form', [BusinessController::class, 'submit_form'])->name('business.submit_form');
-        Route::get('/business/disapproved-view/{id}', [BusinessController::class, 'disapproved_view'])->name('business.disapproved_view');
+        
         Route::post('/business/confidential', [BusinessController::class, 'confidential'])->name('business.confidential');
         Route::put('/business/admin-update/{id}', [BusinessController::class, 'admin_update'])->name('business.admin_update');
         Route::any('/business/updateEditOnly/{id}', [BusinessController::class, 'updateEditOnly'])->name('business.updateEditOnly');

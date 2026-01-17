@@ -37,19 +37,26 @@ class CheckBusinessOwner
 
                 $routeName = $request->route()->getName();
                 $status    = $business->status;
-                if (
-                    $routeName === 'business.edit' &&
-                    !in_array($status, ['DRAFT', 'RETURNED', 'RETURNED'])
-                ) {
+                if ($routeName === 'business.disapproved_view') {
+                    if ($status !== 'DISAPPROVED') {
+                        return redirect()->route('business.view', $encodedId)
+                        ->with('error', 'You cannot edit this business');
+                    }
+                    return $next($request);
+                }
+                if ($routeName === 'business.edit' && !in_array($status, ['DRAFT', 'RETURNED'])) {
                     return redirect()->route('business.view', $encodedId)
                         ->with('error', 'You cannot edit this business');
                 }
-                if (
-                    $routeName === 'business.view' &&
-                    in_array($status, ['DRAFT', 'RETURNED', 'RETURNED'])
-                ) {
+                if ($routeName === 'business.view' && in_array($status, ['DRAFT', 'RETURNED'])) {
                     return redirect()->route('business.edit', $encodedId)
                         ->with('error', 'Please complete and submit the business');
+                }
+            }
+            
+            if (Auth::user()->role == 2) {
+                if ($request->route()?->getName() === 'business.create') {
+                    abort(403, 'Unauthorized');
                 }
             }
 
