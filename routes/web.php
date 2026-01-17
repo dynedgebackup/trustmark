@@ -614,7 +614,7 @@ Route::middleware(['auth','role.access'])->group(function () {
     Route::any('/setting/MenuModule/store', [MenuModuleController::class, 'store'])->name('MenuModule.store');
 
     // ----------- Cron-job  ------------
-    Route::any('getmenuGroupAjaxList', [CronJobController::class, 'getmenuGroupAjaxList']);
+    // Route::any('getmenuGroupAjaxList', [CronJobController::class, 'getmenuGroupAjaxList']);
     Route::get('/setting/cron-job', [CronJobController::class, 'index'])->name('cron-job.index');
     Route::get('/setting/cron-job/getList', [CronJobController::class, 'getList'])->name('cron-job.getList');
     Route::any('/setting/cron-job/store', [CronJobController::class, 'store'])->name('cron-job.store');
