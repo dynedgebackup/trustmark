@@ -212,39 +212,75 @@
 
                                 <div class="container">
                                     <div class="row">
-                                        @foreach ($modules as $groupId => $items)
-                                            @php $groupName = $items->first()->group_name; @endphp
-                                            @php
-                                                $anyChecked = $items->contains(fn($module) => in_array($module->id, $assignedModuleIds));
-                                            @endphp
-                                            <div class="col-md-4 mb-3 group-wrapper">
-                                                <div class="card h-100" data-group-id="{{ $groupId }}">
-                                                    <div class="card-header d-flex align-items-center justify-content-between group-toggle" style="cursor: pointer;">
-                                                        <div class="d-flex align-items-center">
-                                                        <input type="checkbox"
+                                    @foreach ($modules as $groupId => $items)
+                                        @php
+                                            $groupName = $items->first()->group_name;
+                                            $validModules = $items->whereNotNull('module_id');
+                                            $hasModules = $validModules->count() > 0;
+
+                                            // all modules checked
+                                            $allChecked = $hasModules
+                                                ? $validModules->every(fn ($m) => in_array($m->module_id, $assignedModuleIds))
+                                                : false;
+
+                                            // at least one module checked
+                                            $anyChecked = $hasModules
+                                                ? $validModules->contains(fn ($m) => in_array($m->module_id, $assignedModuleIds))
+                                                : false;
+
+                                            // group checkbox logic
+                                            $groupChecked = $hasModules
+                                                ? ($allChecked || $anyChecked)
+                                                : in_array($groupId, $assignedGroupIdsWithoutModules);
+                                        @endphp
+
+
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card">
+                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                    <div class="d-flex align-items-center">
+                                                    <input type="checkbox"
                                                         class="group-checkbox allcode me-2"
                                                         data-group-id="{{ $groupId }}"
-                                                        {{ $anyChecked ? 'checked' : '' }}>
-                                                            <span class="group-title">{{ $groupName }}</span>
-                                                        </div>
-                                                        <span class="toggle-icon">▼</span>
+                                                        {{ $groupChecked ? 'checked' : '' }}>
+                                                    
+                                                            <strong>{{ $groupName }} </strong>
+                                                           
+                                                        
                                                     </div>
-                                                    <div class="card-bodyMenu" style="display: none;padding-left: 13px;">
-                                                        @foreach ($items as $module)
+                                                    @if($hasModules)
+                                                        <span class="toggle-icon">▼</span>
+                                                    @endif
+                                                </div>
+
+                                                {{-- MODULES --}}
+                                                @if($hasModules)
+                                                    <div class="card-bodyMenu" style="display:none; padding-left:13px;">
+                                                        @foreach ($validModules as $module)
                                                             <div class="form-check">
                                                                 <input type="checkbox"
-                                                                    class="form-check-input allcode module-checkbox"
+                                                                    class="form-check-input module-checkbox allcode"
                                                                     data-group-id="{{ $groupId }}"
                                                                     name="modules[]"
-                                                                    value="{{ $module->id }}"
-                                                                    {{ in_array($module->id, $assignedModuleIds) ? 'checked' : '' }}>
-                                                                <label class="form-check-label">{{ $module->module_name }}</label>
+                                                                    value="{{ $module->module_id }}"
+                                                                    {{ in_array($module->module_id, $assignedModuleIds) ? 'checked' : '' }}>
+                                                                <label class="form-check-label">
+                                                                    {{ $module->module_name }}
+                                                                </label>
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                </div>
+                                                @else
+                                                   
+                                                @endif
+
                                             </div>
-                                        @endforeach
+                                        </div>
+                                    @endforeach
+
+
+
+
                                     </div>
                                 </div>
 
@@ -265,7 +301,7 @@
         const userId = {{ $user->id }}; 
 
         let permissions = [];
-
+        let groupsWithModules = {};
         $('.module-checkbox:checked').each(function () {
             const groupId = $(this).data('group-id');
             const moduleId = $(this).val();
@@ -275,64 +311,85 @@
                 menu_group_id: groupId,
                 menu_module_id: moduleId
             });
-        });
 
-        $.ajax({
-            url: '{{ route("permissions.save") }}',
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                permissions: permissions
-            },
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Permissions saved successfully.',
-                    confirmButtonColor: '#3085d6'
-                });
-            },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong while saving permissions.',
-                    confirmButtonColor: '#d33'
+            groupsWithModules[groupId] = true;
+        });
+        $('.group-checkbox:checked').each(function () {
+            const groupId = $(this).data('group-id');
+            if (!groupsWithModules[groupId]) {
+                permissions.push({
+                    user_id: userId,
+                    menu_group_id: groupId,
+                    menu_module_id: 0 
                 });
             }
-
         });
+
+    console.log('Permissions to send:', permissions); 
+    $.ajax({
+        url: '{{ route("permissions.save") }}',
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            permissions: permissions
+        },
+        success: function (response) {
+            // Swal.fire({
+            //     icon: 'success',
+            //     title: 'Success!',
+            //     text: 'Permissions saved successfully.',
+            //     confirmButtonColor: '#3085d6'
+            // });
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong while saving permissions.',
+                confirmButtonColor: '#d33'
+            });
+        }
     });
+});
 </script>
 
-    <script>
+
+<script>
 $(document).ready(function () {
     $('.card-header').on('click', function (e) {
         if ($(e.target).is('input[type="checkbox"]')) return;
 
         const $cardBody = $(this).next('.card-bodyMenu');
         const $icon = $(this).find('.toggle-icon');
+
+        if (!$cardBody.length) return; 
+
         $cardBody.slideToggle();
         $icon.text($icon.text() === '▼' ? '▲' : '▼');
     });
+
+    /* Group checkbox */
     $('.group-checkbox').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        const $card = $(this).closest('.card');
-        $card.find('.module-checkbox').prop('checked', isChecked);
-    });
-    $('.module-checkbox').on('change', function () {
         const $card = $(this).closest('.card');
         const $modules = $card.find('.module-checkbox');
-        const $groupCheckbox = $card.find('.group-checkbox');
 
-        const total = $modules.length;
-        const checked = $modules.filter(':checked').length;
-        if (checked === 0) {
-            $groupCheckbox.prop('checked', false);
-        } else {
-            $groupCheckbox.prop('checked', true);
+        // only toggle modules if exist
+        if ($modules.length) {
+            $modules.prop('checked', this.checked);
         }
     });
+
+    /* Module checkbox → group checkbox (ALL) */
+    // $('.module-checkbox').on('change', function () {
+    //     const $card = $(this).closest('.card');
+    //     const $modules = $card.find('.module-checkbox');
+    //     const $group = $card.find('.group-checkbox');
+
+    //     const allChecked = $modules.length === $modules.filter(':checked').length;
+    //     $group.prop('checked', allChecked);
+    // });
+
+    /* Check All */
     $('#checkAll').click(function (e) {
         e.preventDefault();
         $('.allcode').prop('checked', true);
@@ -340,14 +397,18 @@ $(document).ready(function () {
         $('.toggle-icon').text('▲');
     });
 
+    /* Uncheck All */
     $('#uncheckAll').click(function (e) {
         e.preventDefault();
         $('.allcode').prop('checked', false);
         $('.card-bodyMenu').slideUp();
         $('.toggle-icon').text('▼');
     });
+
 });
 </script>
+
+
 
 
     {{-- save prefix for mobile no --}}
