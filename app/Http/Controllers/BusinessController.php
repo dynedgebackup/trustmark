@@ -2843,6 +2843,8 @@ class BusinessController extends Controller
         $business->updated_at = Carbon::now();
         $business->admin_status = null;
         $business->app_status_id = null;
+        $business->last_returned_email_at = null;
+        $business->total_returned_sent_email = 0;
         $business->save();
         $this->AdditionalPermitsstore($request, $id);
         DB::table('user_logs')->updateOrInsert(
@@ -2870,7 +2872,7 @@ class BusinessController extends Controller
         //$trustmarkId = $now->format('ymd-His').substr((string) $now->micro, 0, 2);
         $business->update([
             'status' => 'UNDER EVALUATION',
-            'last_returned_email_at' => $now,
+            'last_returned_email_at' =>null,
             'total_returned_sent_email' => 0,
             //'trustmark_id' => $trustmarkId,
             // 'date_issued' => $now,
@@ -3408,7 +3410,8 @@ class BusinessController extends Controller
             $business->date_approved = date('Y-m-d H:i:s');
             // $business->date_returned = null;
             // $business->date_disapproved = null;
-
+            $business->last_returned_email_at = null;
+            $business->total_returned_sent_email = 0;
             $now = Carbon::now();
 
             // $business->date_issued = $now;
@@ -3543,6 +3546,8 @@ class BusinessController extends Controller
 
             } elseif ($request->input('status_id') == 4) {
                 $business->date_disapproved = date('Y-m-d H:i:s');
+                $business->last_returned_email_at = null;
+                $business->total_returned_sent_email = 0;
                 // $business->date_approved = null;
                 // $business->date_returned = null;
 
@@ -3589,7 +3594,7 @@ class BusinessController extends Controller
             ->where('id', $business->id)
             ->update([
                 'status'       => 'UNDER EVALUATION',
-                'last_returned_email_at' => $now,
+                'last_returned_email_at' => null,
                 'total_returned_sent_email' => 0,
                 'admin_status' => '',
                 'on_hold'      => 1
