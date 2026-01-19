@@ -2870,6 +2870,8 @@ class BusinessController extends Controller
         //$trustmarkId = $now->format('ymd-His').substr((string) $now->micro, 0, 2);
         $business->update([
             'status' => 'UNDER EVALUATION',
+            'last_returned_email_at' => $now,
+            'total_returned_sent_email' => 0,
             //'trustmark_id' => $trustmarkId,
             // 'date_issued' => $now,
             //'submit_date' => $now,
@@ -3506,6 +3508,8 @@ class BusinessController extends Controller
             }
             if ($request->input('status_id') == 2) {
                 $business->date_returned = date('Y-m-d H:i:s');
+                $business->last_returned_email_at = date('Y-m-d H:i:s');
+                $business->total_returned_sent_email = ($business->total_returned_sent_email ?? 0) + 1;
                 // $business->date_approved = null;
                 // $business->date_disapproved = null;
 
@@ -3585,6 +3589,8 @@ class BusinessController extends Controller
             ->where('id', $business->id)
             ->update([
                 'status'       => 'UNDER EVALUATION',
+                'last_returned_email_at' => $now,
+                'total_returned_sent_email' => 0,
                 'admin_status' => '',
                 'on_hold'      => 1
             ]);
