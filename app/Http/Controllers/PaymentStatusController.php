@@ -34,7 +34,7 @@ class PaymentStatusController extends Controller
     public function updatePaymentStatus(Request $request)
     {
         $transId=$request->input('transId');   
-
+        sleep(10);
         $arrPayment = DB::table('payments')->where('tranID',$transId)->select('payment_status')->first();
         if(!isset($arrPayment)){
             $APP_ENV = app()->environment();
@@ -68,7 +68,6 @@ class PaymentStatusController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             $data = json_decode($response, true);            
-            sleep(10);
             if(isset($data['status']) && $data['status']==200){
                 if ($data['data']['status_code'] == 'OK.00.00') {
                     $arrHistory['transaction_reference_number']=$transId;
