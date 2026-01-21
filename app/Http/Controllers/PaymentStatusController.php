@@ -76,18 +76,10 @@ class PaymentStatusController extends Controller
                     $arrHistory['created_by']=Auth::id();
                     $arrHistory['updated_at']=now();
                     $arrHistory['updated_by']=Auth::id();
-                    $arrHistory['response_data'] = json_encode($data, JSON_INVALID_UTF8_IGNORE);
                     DB::table('payment_updated_history')->insert($arrHistory);
-                    sleep(5);
 
-                    $payment = DB::table('payments')->where('tranID', $transId)->select('payment_status')->first();
-                    if ($payment && $payment->payment_status == 1) {
-                        $arrReturn['message']=$data['data']['status_description'];
-                        $arrReturn['status']=true;
-                    } else {
-                        $arrReturn['message'] = 'We are unable to verify your payment at the moment. Please contact support.';
-                        $arrReturn['status'] = false;
-                    }
+                    $arrReturn['message']=$data['data']['status_description'];
+                    $arrReturn['status']=true;
                 }
             }else{
                 $arrReturn['message']= $data['data']['status_description'];

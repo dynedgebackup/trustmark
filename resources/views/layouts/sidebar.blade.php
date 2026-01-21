@@ -28,9 +28,6 @@
                 </a> -->
             </li>
 
-            
-
-            @if (Auth::check() && in_array(Auth::user()->role, [1]))
             <li class="custom-nav-item nav-item">
                 <a class="custom-nav-link nav-link d-flex align-items-center gap-2 {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                     href="{{ route('dashboard') }}">
@@ -38,6 +35,8 @@
                     <span class="custom-span">Dashboard</span>
                 </a>
             </li>
+
+            @if (Auth::check() && in_array(Auth::user()->role, [1]))
                 {{-- <li
                     class="custom-nav-item nav-item {{ request()->routeIs('business.create') || request()->routeIs('business.auto_store') ? 'd-none' : '' }}">
                     <button data-bs-toggle="modal" data-bs-target="#modal-1" type="button"
@@ -69,93 +68,379 @@
 
             @if (Auth::check() && in_array(Auth::user()->role, [2]))
             @php
-                $isAdmin = DB::table('user_admins')
-                    ->where('user_id', Auth::id())
-                    ->where('is_admin', 1)
-                    ->exists();
-
-                $menus = DB::table('menu_permissions as mp')
-                    ->join('menu_groups as mg', 'mg.id', '=', 'mp.menu_group_id')
-                    ->leftJoin('menu_modules as mm', 'mm.id', '=', 'mp.menu_module_id')
-                    ->where('mp.user_id', Auth::id())
-                    ->select(
-                        'mg.id as group_id',
-                        'mg.name as group_name',
-                        'mg.slug as group_slug',
-                        'mg.icon as group_icon',
-                        'mm.name as module_name',
-                        'mm.slug as module_slug',
-                        'mm.icon as module_icon',
-                        'mm.description'
-                    )
-                    ->orderBy('mg.id')
-                    ->get()
-                    ->groupBy('group_id');
-            @endphp
-
-           
-            @foreach ($menus as $groupId => $items)
-            @php
-                $group = $items->first();
-                $modules = $items->whereNotNull('module_slug');
-                $hasModules = $modules->count() > 0;
-
-                // active logic
-                $isGroupActive = $hasModules
-                    ? $modules->contains(fn ($m) => request()->is($m->module_slug.'*'))
-                    : request()->is($group->group_slug.'*');
-            @endphp
-            @if($hasModules)
-
+                $isApplicationsActive = request()->routeIs('business.*');
+               $adminUser = DB::table('user_admins')
+                ->select('id', 'is_admin')
+                ->where('user_id',Auth::user()->id)
+                ->where('is_admin',1)
+                ->count();
+            
+                @endphp
+            @if ($adminUser)
                 <li class="nav-item custom-nav-item">
-                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2
-                        {{ $isGroupActive ? '' : 'collapsed' }}"
-                        data-bs-toggle="collapse"
-                        href="#submenu-{{ $groupId }}"
-                        aria-expanded="{{ $isGroupActive ? 'true' : 'false' }}"
-                    >
-                        <i class="custom-icon {{ $group->group_icon }}"></i>
-                        <span class="custom-span">{{ $group->group_name }}</span>
-                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isGroupActive ? 'rotate' : '' }}"></i>
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isApplicationsActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#applicationsSubMenu" role="button"
+                        aria-expanded="{{ $isApplicationsActive ? 'true' : 'false' }}" aria-controls="applicationsSubMenu">
+                        <i class="custom-icon fa fa-book"></i>
+                        <span class="custom-span">Applications</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isApplicationsActive ? 'rotate' : '' }}"></i>
                     </a>
-
-                    <div class="collapse userSubMenu  {{ $isGroupActive ? 'show' : '' }}"  id="submenu-{{ $groupId }}" style="margin: 1px;">
+                    <div class="collapse {{ $isApplicationsActive ? 'show' : '' }}" id="applicationsSubMenu">
                         <ul class="nav flex-column ms-3">
-
-                            @foreach ($modules as $module)
-                                @php
-                                    $isActive = request()->is($module->module_slug)
-                                            || request()->is($module->module_slug.'/*');
-                                @endphp
-
-                                <li class="nav-item" style="padding-left: 2px;">
-                                    <a class="nav-link custom-nav-link {{ $isActive ? 'active' : '' }}"
-                                    href="{{ url($module->module_slug) }}">
-                                        <!-- <i class="{{ $module->module_icon }} me-2"></i> -->
-                                        {{ $module->module_name }}
-                                        @if($module->description)
-                                            <span class="desc">({{ $module->description }})</span>
-                                        @endif
-                                    </a>
-                                </li>
-                            @endforeach
-
+                            <li class="nav-item">
+                            <a class="custom-nav-link nav-link {{ request()->routeIs('business.index') ? 'active' : '' }}"
+                            href="{{ route('business.index') }}">
+                            Manage Pending
+                            </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
-                @else
-
-                    <li class="custom-nav-item nav-item">
-                        <a class="custom-nav-link nav-link d-flex align-items-center gap-2
-                            {{ $isGroupActive ? 'active' : '' }}"
-                            href="{{ url($group->group_slug) }}">
-                            <i class="custom-icon {{ $group->group_icon }}"></i>
-                            <span class="custom-span">{{ $group->group_name }}</span>
-                        </a>
-                    </li>
-
                 @endif
-            @endforeach
+                <li class="custom-nav-item nav-item">
+                    <a class="custom-nav-link nav-link d-flex align-items-center gap-2 {{ request()->routeIs('business.mytasklist') ? 'active' : '' }}"
+                        href="{{ route('business.mytasklist') }}">
+                        <i class="custom-icon fa fa-building"></i>
+                        <span class="custom-span">My TaskList</span>
+                    </a>
+                </li>
+
+                @php
+                    $isMasterActive = request()->routeIs('requirement.*') || request()->routeIs('ApplicationStatusCannedMessage.*')
+                     || request()->routeIs('scheduleFees.*') || request()->routeIs('businessCategory.*') || request()->routeIs('feesDescription.*') || request()->routeIs('onlineplatforms.*');
+                @endphp
+                @if ($adminUser)
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#masterSubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="masterSubMenu">
+                        <i class="custom-icon fa fa-book"></i>
+                        <span class="custom-span">Master Data</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="masterSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                            <a class="custom-nav-link nav-link {{ request()->routeIs('requirement.index') ? 'active' : '' }}"
+                            href="{{ route('requirement.index') }}">
+                                Requirements<span class="desc">(Authorized Representative)</span>
+                            </a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="custom-nav-link nav-link {{ request()->routeIs('ApplicationStatusCannedMessage.index') ? 'active' : '' }}"
+                            href="{{ route('ApplicationStatusCannedMessage.index') }}">
+                            Application Status<span class="desc">(Canned Message)</span>
+                            </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('scheduleFees.index') ? 'active' : '' }}"
+                                    href="{{ route('scheduleFees.index') }}">
+                                    Schedule of Fees
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('businessCategory.index') ? 'active' : '' }}"
+                                    href="{{ route('businessCategory.index') }}">
+                                    Business Category
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('feesDescription.index') ? 'active' : '' }}"
+                                    href="{{ route('feesDescription.index') }}">
+                                    Fees Description
+                                </a>
+                            </li>
+                              <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('onlineplatforms.index') ? 'active' : '' }}"
+                                    href="{{ route('onlineplatforms.index') }}">
+                                   Online Platforms
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                @endif
+                @php
+                    $isMasterActive = request()->routeIs('user.*') || $isMasterActive = request()->routeIs('audittrail.*') || $isMasterActive = request()->routeIs('evaluator.*') || $isMasterActive = request()->routeIs('CustomerProfile.*');
+                @endphp
+                @if ($adminUser)
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#userSubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="userSubMenu">
+                        <i class="custom-icon fas fa-user-shield"></i>
+                        <span class="custom-span">User</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="userSubMenu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('user.index') ? 'active' : '' }}"
+                                    href="{{ route('user.index') }}">
+                                    Manage
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="userSubMenu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('audittrail.index') ? 'active' : '' }}"
+                                    href="{{ route('audittrail.index') }}">
+                                    Audit Trail<span class="desc">(System Logs)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="userSubMenu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('evaluator.index') ? 'active' : '' }}"
+                                    href="{{ route('evaluator.index') }}">
+                                    Evaluator<span class="desc">(and Admins)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="userSubMenu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('CustomerProfile.index') ? 'active' : '' }}"
+                                    href="{{ route('CustomerProfile.index') }}">
+                                   Customers<span class="desc">(Profile)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                @endif
+                @php
+                    $isMasterActive = request()->routeIs('region.*') || $isMasterActive = request()->routeIs('provinces.*') || $isMasterActive = request()->routeIs('barangay.*') || $isMasterActive = request()->routeIs('municipality.*');
+                @endphp
+                @if ($adminUser)
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#locationSubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="locationSubMenu">
+                        <i class="custom-icon fa fa-map-marker"></i>
+                        <span class="custom-span">Location</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+                    
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="locationSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('barangay.index') ? 'active' : '' }}"
+                                    href="{{ route('barangay.index') }}">
+                                    Barangay
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="locationSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('municipality.index') ? 'active' : '' }}"
+                                    href="{{ route('municipality.index') }}">
+                                    Municipality | City
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="locationSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('provinces.index') ? 'active' : '' }}"
+                                    href="{{ route('provinces.index') }}">
+                                    Provinces
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="locationSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('region.index') ? 'active' : '' }}"
+                                    href="{{ route('region.index') }}">
+                                    Region
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    
+                    
+                    
+                </li>
+                @endif
+                @php
+                    $isMasterActive = request()->routeIs('department.*') || request()->routeIs('documents.*');
+                @endphp
+
+                @if ($adminUser)
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#securitySubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="securitySubMenu">
+                        <i class="custom-icon fa fa-key"></i>
+                        <span class="custom-span">Security</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+                    
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="securitySubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('department.index') ? 'active' : '' }}"
+                                    href="{{ route('department.index') }}">
+                                    Department
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="securitySubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('documents.index') ? 'active' : '' }}"
+                                    href="{{ route('documents.index') }}">
+                                    Documents
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    
+                </li>
+                @endif
+                @php
+                    $isMasterActive = request()->routeIs('MenuGroup.*') || request()->routeIs('MenuModule.*') || request()->routeIs('updatepaymet.*') || request()->routeIs('refund.*');
+                @endphp
+
+                @if ($adminUser)
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#SettingSubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="SettingSubMenu">
+                        <i class="custom-icon fa fa-cog"></i>
+                        <span class="custom-span">Setting</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+                    
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="SettingSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('MenuGroup.index') ? 'active' : '' }}"
+                                    href="{{ route('MenuGroup.index') }}">
+                                    Menu Group
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="SettingSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('MenuModule.index') ? 'active' : '' }}"
+                                    href="{{ route('MenuModule.index') }}">
+                                    Menu Module
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="SettingSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('cron-job.index') ? 'active' : '' }}"
+                                    href="{{ route('cron-job.index') }}">
+                                    Cron-Job
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                     <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="SettingSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('updatepaymet.index') ? 'active' : '' }}"
+                                    href="{{ route('updatepaymet.index') }}">
+                                    Payment Concerns
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="SettingSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('refund.index') ? 'active' : '' }}"
+                                    href="{{ route('refund.index') }}">
+                                    Payment Refund
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    
+                </li>
+                @endif
+                @php
+                    $isMasterActive = request()->routeIs('Income.*') || request()->routeIs('dailyreport.*') || request()->routeIs('archivedApplicationsReport.*') || request()->routeIs('returnedApplicationsReport.*') || request()->routeIs('EvaluatorKpi.*');
+                @endphp
+
+                
+                <li class="nav-item custom-nav-item">
+                    <a class="nav-link custom-nav-link d-flex justify-content-between align-items-center gap-2 {{ $isMasterActive ? '' : 'collapsed' }}"
+                        data-bs-toggle="collapse" href="#ReportSubMenu" role="button"
+                        aria-expanded="{{ $isMasterActive ? 'true' : 'false' }}" aria-controls="ReportSubMenu">
+                        <i class="custom-icon fa fa-file"></i>
+                        <span class="custom-span">Report</span>
+                        <i class="fas fa-caret-down toggle-arrow ms-auto {{ $isMasterActive ? 'rotate' : '' }}"></i>
+                    </a>
+                    
+                    <div class="collapse {{ $isMasterActive ? 'show' : '' }}" id="ReportSubMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('Income.index') ? 'active' : '' }}"
+                                    href="{{ route('Income.index') }}">
+                                    Income
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('dailyreport.index') ? 'active' : '' }}"
+                                    href="{{ route('dailyreport.index') }}">
+                                    Daily Report
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('returnedApplicationsReport.index') ? 'active' : '' }}"
+                                    href="{{ route('returnedApplicationsReport.index') }}">
+                                    Returned Applications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('archivedApplicationsReport.index') ? 'active' : '' }}"
+                                    href="{{ route('archivedApplicationsReport.index') }}">
+                                    Archived Applications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="custom-nav-link nav-link {{ request()->routeIs('EvaluatorKpi.index') ? 'active' : '' }}"
+                                    href="{{ route('EvaluatorKpi.index') }}">
+                                    Evaluator KPI
+                                </a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+                    
+                    
+                </li>
             @endif
 
         </ul>
@@ -165,16 +450,6 @@
 
 
 <style>
-    .sidebar-dark .nav-item .nav-link {
-        color: #000 !important;
-        padding: 10px;
-        font-size: 12px;
-    }
-    .sidebar .nav-item .nav-link.active {
-        font-weight: 700;
-        color: #fff !important;
-        padding: 10px
-    }
     .sidebar .nav-item:last-child {
         margin-bottom: 0rem !important;
     }

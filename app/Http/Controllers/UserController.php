@@ -89,100 +89,38 @@ class UserController extends Controller
             }
     }
 
-    // public function savePermission(Request $request)
-    // {
-    //     $permissions = $request->input('permissions');
-    //     $userId = $permissions[0]['user_id'] ?? null;
-
-    //     if (! $userId) {
-    //         return response()->json(['status' => 'error', 'message' => 'Missing user_id'], 400);
-    //     }
-    //     $selectedModuleIds = collect($permissions)->pluck('menu_module_id')->toArray();
-    //     DB::table('menu_permissions')
-    //         ->where('user_id', $userId)
-    //         ->whereNotIn('menu_module_id', $selectedModuleIds)
-    //         ->delete();
-
-    //     // 2. Insert or update the selected permissions
-    //     foreach ($permissions as $perm) {
-    //         DB::table('menu_permissions')->updateOrInsert(
-    //             [
-    //                 'user_id' => $perm['user_id'],
-    //                 'menu_group_id' => $perm['menu_group_id'],
-    //                 'menu_module_id' => $perm['menu_module_id'],
-    //             ],
-    //             ['created_at' => now(), 'updated_at' => now(), 'created_by' => Auth::id(), 'updated_by' => Auth::id()]
-    //         );
-    //     }
-
-    //     return response()->json(['status' => 'success']);
-    // }
-    
     public function savePermission(Request $request)
     {
-        $permissions = $request->input('permissions', []);
+        $permissions = $request->input('permissions');
         $userId = $permissions[0]['user_id'] ?? null;
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['status' => 'error', 'message' => 'Missing user_id'], 400);
         }
 
-        $groupedPermissions = collect($permissions)->groupBy('menu_group_id');
+        // Get only the selected menu_module_ids and group_ids
+        $selectedModuleIds = collect($permissions)->pluck('menu_module_id')->toArray();
 
-        $allModuleIds = []; 
-        $allGroupIdsWithNoModule = []; 
+        // 1. Delete permissions for user that are NOT in selected list
+        DB::table('menu_permissions')
+            ->where('user_id', $userId)
+            ->whereNotIn('menu_module_id', $selectedModuleIds)
+            ->delete();
 
-        foreach ($groupedPermissions as $groupId => $perms) {
-            $modules = collect($perms)->pluck('menu_module_id')->filter(fn($id) => $id != 0)->toArray();
-
-            if (empty($modules)) {
-                DB::table('menu_permissions')->updateOrInsert(
-                    [
-                        'user_id' => $userId,
-                        'menu_group_id' => $groupId,
-                        'menu_module_id' => 0,
-                    ],
-                    [
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                        'created_by' => Auth::id(),
-                        'updated_by' => Auth::id()
-                    ]
-                );
-                $allGroupIdsWithNoModule[] = $groupId;
-            } else {
-                foreach ($modules as $moduleId) {
-                    DB::table('menu_permissions')->updateOrInsert(
-                        [
-                            'user_id' => $userId,
-                            'menu_group_id' => $groupId,
-                            'menu_module_id' => $moduleId,
-                        ],
-                        [
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                            'created_by' => Auth::id(),
-                            'updated_by' => Auth::id()
-                        ]
-                    );
-                    $allModuleIds[] = $moduleId;
-                }
-            }
+        // 2. Insert or update the selected permissions
+        foreach ($permissions as $perm) {
+            DB::table('menu_permissions')->updateOrInsert(
+                [
+                    'user_id' => $perm['user_id'],
+                    'menu_group_id' => $perm['menu_group_id'],
+                    'menu_module_id' => $perm['menu_module_id'],
+                ],
+                ['created_at' => now(), 'updated_at' => now(), 'created_by' => Auth::id(), 'updated_by' => Auth::id()]
+            );
         }
-        DB::table('menu_permissions')
-            ->where('user_id', $userId)
-            ->where('menu_module_id', '!=', 0)
-            ->whereNotIn('menu_module_id', $allModuleIds)
-            ->delete();
-        DB::table('menu_permissions')
-            ->where('user_id', $userId)
-            ->where('menu_module_id', 0)
-            ->whereNotIn('menu_group_id', $allGroupIdsWithNoModule)
-            ->delete();
 
         return response()->json(['status' => 'success']);
     }
-
 
     public function profile(Request $request)
     {
@@ -203,42 +141,23 @@ class UserController extends Controller
     {
         $id = Crypt::decrypt($id);
         $user = User::findOrFail($id);
-        $modules = DB::table('menu_groups as mg')
-            ->leftJoin('menu_modules as mm', 'mm.menu_group_id', '=', 'mg.id')
-            ->select(
-                'mg.id as group_id',
-                'mg.name as group_name',
-                'mm.id as module_id',
-                'mm.name as module_name'
-            )
+        $modules = DB::table('menu_modules AS mm')
+            ->leftJoin('menu_groups AS mg', 'mg.id', '=', 'mm.menu_group_id')
+            ->select('mm.id', 'mm.name AS module_name', 'mg.name AS group_name', 'mg.id AS group_id')
             ->orderBy('mg.name')
-            ->orderBy('mm.name')
             ->get()
             ->groupBy('group_id');
         $assignedModuleIds = DB::table('menu_permissions')
             ->where('user_id', $id)
-            ->where('menu_module_id', '!=', 0)
             ->pluck('menu_module_id')
-            ->toArray();
-        $assignedGroupIdsWithoutModules = DB::table('menu_permissions')
-            ->where('user_id', $id)
-            ->where('menu_module_id', 0)
-            ->pluck('menu_group_id')
             ->toArray();
         $user_admins = DB::connection('mysql')
             ->table('user_admins')
             ->where('user_id', $id)
             ->first();
 
-        return view('user.view', compact(
-            'user', 
-            'modules', 
-            'assignedModuleIds', 
-            'assignedGroupIdsWithoutModules', 
-            'user_admins'
-        ));
+        return view('user.view', compact('user', 'modules', 'assignedModuleIds', 'user_admins'));
     }
-
 
     public function admin_update(Request $request, $id)
     {
