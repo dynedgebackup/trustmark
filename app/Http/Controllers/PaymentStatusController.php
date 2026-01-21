@@ -68,7 +68,7 @@ class PaymentStatusController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             $data = json_decode($response, true);            
-           
+            sleep(10);
             if(isset($data['status']) && $data['status']==200){
                 if ($data['data']['status_code'] == 'OK.00.00') {
                     $arrHistory['transaction_reference_number']=$transId;
