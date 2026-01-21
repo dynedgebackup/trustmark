@@ -281,7 +281,7 @@ class DashboardController extends Controller
             $status = $row->status;
             $sr_no=$sr_no+1;
              $id = encrypt($row->id);
-             $hashids = new Hashids(env('APP_KEY'), 10);
+             $hashids = new Hashids(config('app.key'), 10);
             $ids = $hashids->encode($row->id);
             if ($role == 1) {
                 if (in_array($status, ['UNDER EVALUATION', 'APPROVED'])) {

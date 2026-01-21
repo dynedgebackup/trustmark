@@ -34,7 +34,6 @@ class PaymentStatusController extends Controller
     public function updatePaymentStatus(Request $request)
     {
         $transId=$request->input('transId');   
-
         $arrPayment = DB::table('payments')->where('tranID',$transId)->select('payment_status')->first();
         if(!isset($arrPayment)){
             $APP_ENV = app()->environment();
@@ -68,7 +67,6 @@ class PaymentStatusController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             $data = json_decode($response, true);            
-           
             if(isset($data['status']) && $data['status']==200){
                 if ($data['data']['status_code'] == 'OK.00.00') {
                     $arrHistory['transaction_reference_number']=$transId;
@@ -76,10 +74,18 @@ class PaymentStatusController extends Controller
                     $arrHistory['created_by']=Auth::id();
                     $arrHistory['updated_at']=now();
                     $arrHistory['updated_by']=Auth::id();
+                    $arrHistory['response_data'] = json_encode($data, JSON_INVALID_UTF8_IGNORE);
                     DB::table('payment_updated_history')->insert($arrHistory);
+                    sleep(5);
 
-                    $arrReturn['message']=$data['data']['status_description'];
-                    $arrReturn['status']=true;
+                    $payment = DB::table('payments')->where('tranID', $transId)->select('payment_status')->first();
+                    if ($payment && $payment->payment_status == 1) {
+                        $arrReturn['message']=$data['data']['status_description'];
+                        $arrReturn['status']=true;
+                    } else {
+                        $arrReturn['message'] = 'We are unable to verify your payment at the moment. Please contact support.';
+                        $arrReturn['status'] = false;
+                    }
                 }
             }else{
                 $arrReturn['message']= $data['data']['status_description'];
