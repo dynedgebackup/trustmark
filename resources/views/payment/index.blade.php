@@ -231,7 +231,8 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-
+                $('#custom-loader').show();
+                $("#syncStatus").addClass("disabled");
                 var DIR =$("#DIR").val();
                 // showLoader();
                 $.ajax({
@@ -243,6 +244,8 @@
                         _token: $("#_csrf_token").val(),
                     },
                     success: function (data) {
+                        $('#custom-loader').hide();
+                        $("#syncStatus").removeClass("disabled");
                         if(data.status){
                             $("#transaction_id").val('');
                             // hideLoader();

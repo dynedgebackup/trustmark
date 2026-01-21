@@ -34,7 +34,6 @@ class PaymentStatusController extends Controller
     public function updatePaymentStatus(Request $request)
     {
         $transId=$request->input('transId');   
-        sleep(10);
         $arrPayment = DB::table('payments')->where('tranID',$transId)->select('payment_status')->first();
         if(!isset($arrPayment)){
             $APP_ENV = app()->environment();
