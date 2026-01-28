@@ -25,5 +25,10 @@ Route::prefix('email-tokens')->group(function () {
 Route::any('/payment/webhook', [WebhookApiController::class, 'handle'])->withoutMiddleware(['throttle:tlpe-webhook']);
 
 // php artisan queue:work --queue=default --memory=128
+// .env file ->   QUEUE_CONNECTION=database
+// php artisan config:clear
+// php artisan cache:clear
+// php artisan queue:restart
+
 
 

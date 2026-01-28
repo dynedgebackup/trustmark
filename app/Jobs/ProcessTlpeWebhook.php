@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Business;
 use App\Models\BusinessFees;
+use Illuminate\Support\Facades\Log;
+
 
 class ProcessTlpeWebhook implements ShouldQueue
 {
@@ -25,6 +27,8 @@ class ProcessTlpeWebhook implements ShouldQueue
 
     public function handle()
     {
+        Log::info('Job reached handle()');
+
         $response = $this->payload['data'] ?? [];
         $transactionId = $response['payment']['merchant_reference_id'] ?? '';
         $statusCode = $response['result']['status_code'] ?? '';
@@ -83,6 +87,7 @@ class ProcessTlpeWebhook implements ShouldQueue
                 $business->certificate = $_business->generateCertificate($business);
                 $business->save();
             }
+            Log::info('TLPE Webhook Success',$data);
         } elseif (in_array($statusCode, ['OK.02.00','OK.04.00'])) {
             $arrRefund = [
                 'payment_status' => ($statusCode == 'OK.02.00') ? 3 : 4,
