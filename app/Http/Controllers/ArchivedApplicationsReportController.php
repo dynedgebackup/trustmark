@@ -216,7 +216,8 @@ class ArchivedApplicationsReportController extends Controller
             [
             'busn_id'   => $id,
             'year'      => date('Y'),
-            'user_id'   => $business->evaluator_id,
+            'user_id'   => Auth::id(),
+            // 'user_id'   => $business->evaluator_id,
             'process'   => "RE-ACTIVATED",
             'process_date'     => now(),
         ]);
