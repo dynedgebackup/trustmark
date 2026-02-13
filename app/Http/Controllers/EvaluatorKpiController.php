@@ -53,32 +53,32 @@ class EvaluatorKpiController extends Controller
             $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
             $query->whereDate('bp.process_date', '>=', $sdate);
         }
+
         if (!empty($enddate)) {
             $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
             $query->whereDate('bp.process_date', '<=', $edate);
         }
-        
         if (!empty($request->q)) {
             $search = strtolower($request->q);
             $query->where(function ($q) use ($search) {
                 $q->where(DB::raw('LOWER(u.name)'), 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
+                ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
+                ->orWhere(DB::raw('DATE(bp.process_date)'), 'like', "%{$search}%");
             });
         }
-
         $user = DB::table('user_admins')
-        ->where('user_id', Auth::id())
-        ->select('is_evaluator', 'is_admin')
-        ->first();
+            ->where('user_id', Auth::id())
+            ->select('is_evaluator', 'is_admin')
+            ->first();
+
         if ($user && $user->is_evaluator == 1 && $user->is_admin == 0) {
             $query->where('bp.user_id', Auth::id());
-        }
-        else {
+        } else {
             if ($request->filled('user_id_filter')) {
                 $query->where('bp.user_id', $request->user_id_filter);
             }
         }
+
         $query->select([
             'u.id as Evaluator_ID',
             'u.name as Evaluator',
@@ -86,9 +86,10 @@ class EvaluatorKpiController extends Controller
             DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
             DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
             DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
-            DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
-            DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+            DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS OnHold"),
             DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
+            DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS ReActivated"),
+            DB::raw("COUNT(bp.id) as Total")
         ])
         ->groupBy('u.id', 'u.name')
         ->orderBy('u.name', 'asc');
@@ -101,81 +102,84 @@ class EvaluatorKpiController extends Controller
     }
 
 
+
     public function getEvaluatorKpiList(Request $request)
     {
         $startdate = $request->input('fromdate');
         $enddate   = $request->input('todate');
-
-        $query = DB::table('business_performance as bp')
-        ->select([
-            'u.id as Evaluator_ID',
-            'u.name as Evaluator',
-            DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
-            DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
-            DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
-            DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
-            DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
-            DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
-            DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
-        ])
-        ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
-        ->whereNotNull('bp.user_id')
-        ->groupBy('u.id', 'u.name');
+        $baseQuery = DB::table('business_performance as bp')
+            ->select([
+                'u.id as Evaluator_ID',
+                'u.name as Evaluator',
+                DB::raw("MAX(DATE(bp.process_date)) AS LastDate"),
+                DB::raw("SUM(CASE WHEN bp.process='APPROVED' THEN 1 ELSE 0 END) AS Approved"),
+                DB::raw("SUM(CASE WHEN bp.process='RETURNED' THEN 1 ELSE 0 END) AS Returned"),
+                DB::raw("SUM(CASE WHEN bp.process='DISAPPROVED' THEN 1 ELSE 0 END) AS Disapproved"),
+                DB::raw("SUM(CASE WHEN bp.process='ON-HOLD' THEN 1 ELSE 0 END) AS `On-Hold`"),
+                DB::raw("SUM(CASE WHEN bp.process='RE-ACTIVATED' THEN 1 ELSE 0 END) AS `Re-Activated`"),
+                DB::raw("SUM(CASE WHEN bp.process='ARCHIVED' THEN 1 ELSE 0 END) AS Archived"),
+                DB::raw("COUNT(bp.process) AS Total")
+            ])
+            ->leftJoin('users as u', 'u.id', '=', 'bp.user_id')
+            ->whereNotNull('bp.user_id')
+            ->groupBy('u.id', 'u.name');
         $user = DB::table('user_admins')
-        ->where('user_id', Auth::id())
-        ->select('is_evaluator', 'is_admin')
-        ->first();
+            ->where('user_id', Auth::id())
+            ->select('is_evaluator', 'is_admin')
+            ->first();
+
         if ($user && $user->is_evaluator == 1 && $user->is_admin == 0) {
-            $query->where('bp.user_id', Auth::id());
-        }
-        else {
+            $baseQuery->where('bp.user_id', Auth::id());
+        } else {
             if ($request->filled('user_id_filter')) {
-                $query->where('bp.user_id', $request->user_id_filter);
+                $baseQuery->where('bp.user_id', $request->user_id_filter);
             }
         }
         if (!empty($startdate)) {
             $sdate = date('Y-m-d', strtotime(str_replace('/', '-', $startdate)));
-            $query->whereDate('bp.process_date', '>=', $sdate);
+            $baseQuery->whereDate('bp.process_date', '>=', $sdate);
         }
+
         if (!empty($enddate)) {
             $edate = date('Y-m-d', strtotime(str_replace('/', '-', $enddate)));
-            $query->whereDate('bp.process_date', '<=', $edate);
+            $baseQuery->whereDate('bp.process_date', '<=', $edate);
         }
         if (!empty($request->q)) {
             $search = strtolower($request->q);
 
-            $query->where(function ($q) use ($search) {
+            $baseQuery->where(function ($q) use ($search) {
                 $q->where(DB::raw('LOWER(u.name)'), 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
-                    ->orWhere(DB::raw('LOWER(DATE(bp.process_date))'), 'like', "%{$search}%");
+                ->orWhere(DB::raw('LOWER(bp.process)'), 'like', "%{$search}%")
+                ->orWhere(DB::raw('DATE(bp.process_date)'), 'like', "%{$search}%");
             });
         }
-
-        $totalFiltered = $query->count();
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $query->skip($start)->take($limit);
+        $totalQuery = clone $baseQuery;
+        $totalFiltered = $totalQuery->get()->count();
         $orderColumnIndex = $request->input('order.0.column');
         $orderDirection   = $request->input('order.0.dir', 'asc');
 
         $columns = [
             0 => 'u.id',
             1 => 'u.name',
-            2 => 'bp.process_date',
+            2 => 'LastDate',
             3 => 'Approved',
             4 => 'Returned',
-            5 => 'Disapproved', 
+            5 => 'Disapproved',
             6 => 'On-Hold',
             7 => 'Archived',
             8 => 'Re-Activated',
-            9 => null,
+            9 => 'Total',
         ];
 
-        if (!empty($columns[$orderColumnIndex])) {
-            $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+        if (isset($columns[$orderColumnIndex])) {
+            $baseQuery->orderBy($columns[$orderColumnIndex], $orderDirection);
         }
+        $limit = $request->input('length');
+        $start = $request->input('start');
 
-        $rows = $query->get();
+        $baseQuery->skip($start)->take($limit);
+
+        $rows = $baseQuery->get();
         $data = [];
         $i = $start + 1;
 
@@ -184,30 +188,41 @@ class EvaluatorKpiController extends Controller
                 'no'            => $i++,
                 'Evaluator_ID'  => $row->Evaluator_ID,
                 'Evaluator'     => $row->Evaluator,
-                'Date'         => $row->LastDate,  
+                'Date'          => $row->LastDate,
                 'Approved'      => $row->Approved,
                 'Returned'      => $row->Returned,
                 'Disapproved'   => $row->Disapproved,
                 'On-Hold'       => $row->{'On-Hold'},
-                'acrhived'  => $row->{'Archived'},
+                'Archived'      => $row->Archived,
                 'Re-Activated'  => $row->{'Re-Activated'},
-                'action' => '<a href="#" 
-                    class="mx-3 btn btn-sm align-items-center viewEvaluatorBtn"
-                    data-id="'.$row->Evaluator_ID.'"
-                    title="View Business" 
-                    style="background:#09325d;color:#fff;">
-                    <i class="fas fa-search"></i>
-                </a>',
+                'Total'         => $row->Total,
+                'action'        => '<a href="#" class="mx-3 btn btn-sm viewEvaluatorBtn"
+                                    data-id="'.$row->Evaluator_ID.'"
+                                    style="background:#09325d;color:#fff;">
+                                    <i class="fas fa-search"></i>
+                                    </a>',
             ];
         }
+        $allRows = $totalQuery->get();
 
+        $totals = [
+            'Approved'     => $allRows->sum('Approved'),
+            'Returned'     => $allRows->sum('Returned'),
+            'Disapproved'  => $allRows->sum('Disapproved'),
+            'On-Hold'      => $allRows->sum('On-Hold'),
+            'Archived'     => $allRows->sum('Archived'),
+            'Re-Activated' => $allRows->sum('Re-Activated'),
+            'Total'        => $allRows->sum('Total'),
+        ];
         return response()->json([
             'draw'            => intval($request->input('draw')),
             'recordsTotal'    => $totalFiltered,
             'recordsFiltered' => $totalFiltered,
-            'data'            => $data
+            'data'            => $data,
+            'totals'          => $totals
         ]);
     }
+
 
 
     public function getEvaluatorBusinessList(Request $request, $id)
