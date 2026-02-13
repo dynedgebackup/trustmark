@@ -72,7 +72,7 @@
                                         <th>{{ __('Returned') }}</th>
                                         <th>{{ __('Disapproved') }}</th>
                                         <th>{{ __('On-Hold') }}</th>
-                                        <th>{{ __('Acrhived') }}</th>
+                                        <th>{{ __('Archived') }}</th>
                                         <th>{{ __('Re-Activated') }}</th>
                                         <th>{{ __('Total') }}</th>
                                         <th>{{ __('Action') }}</th>
