@@ -74,12 +74,26 @@
                                         <th>{{ __('On-Hold') }}</th>
                                         <th>{{ __('Acrhived') }}</th>
                                         <th>{{ __('Re-Activated') }}</th>
+                                        <th>{{ __('Total') }}</th>
                                         <th>{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th colspan="3" style="text-align:right;border-bottom:1px solid #ccc;">Total Overall</th>
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Approved -->
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Returned -->
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Disapproved -->
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- On-Hold -->
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Archived -->
+                                    <th style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Re-Activated -->
+                                    <th colspan="2" style="text-align:left;border-bottom:1px solid #ccc;"></th> <!-- Total -->
+                                    
+                                </tr>
+                            </tfoot>
             </table>
         </div>
     </div>
@@ -190,11 +204,11 @@ function datatablefunction() {
     if ($.fn.DataTable.isDataTable('#dataTable1')) {
         $('#dataTable1').DataTable().destroy();
     }
+
     $('#dataTable1').DataTable({
         processing: true,
         serverSide: true,
         searching: false,
-        dom: "<'row'<'col-sm-12'f>>" +"<'row'<'col-sm-3'l><'col-sm-9'p>>" +"<'row'<'col-sm-12'tr>>" +"<'row'<'col-sm-12'p>>",
         ajax: {
             url: "{{ route('EvaluatorKpi.getList') }}",
             data: function(d) {
@@ -204,7 +218,7 @@ function datatablefunction() {
                 d.q = $('#q').val();
             }
         },
-        pageLength: 10,
+
         columns: [
             { data: 'no', orderable: false },
             { data: 'Evaluator' },
@@ -213,90 +227,174 @@ function datatablefunction() {
             { data: 'Returned' },
             { data: 'Disapproved' },
             { data: 'On-Hold' },
-            { data: 'acrhived' },
+            { data: 'Archived' },   // fixed spelling
             { data: 'Re-Activated' },
+            { data: 'Total' },
             { data: 'action' }
-        ]
+        ],
+
+        drawCallback: function(settings) {
+
+            if (!settings.json || !settings.json.totals) return;
+
+            const totals = settings.json.totals;
+            const api = this.api();
+            const footer = $(api.table().footer());
+
+            footer.find('th').eq(1).html(totals.Approved ?? 0);
+            footer.find('th').eq(2).html(totals.Returned ?? 0);
+            footer.find('th').eq(3).html(totals.Disapproved ?? 0);
+            footer.find('th').eq(4).html(totals['On-Hold'] ?? 0);
+            footer.find('th').eq(5).html(totals.Archived ?? 0);
+            footer.find('th').eq(6).html(totals['Re-Activated'] ?? 0);
+            footer.find('th').eq(7).html(totals.Total ?? 0);
+        }
     });
 }
+
 async function loadDataForExcelSheet() {
-    const fee_id = $('#fees_id_filter').val();
-    const fromdate = $('#fromdate').val();
-    const todate = $('#todate').val();
-    const q = $('#q').val();
-    const id = $('#q').val();
-    try {
-        const exportUrl = `{{ route('EvaluatorKpi.exportAll') }}?fee_id=${fee_id}&fromdate=${fromdate}&todate=${todate}&q=${q}`;
-        const response = await fetch(exportUrl);
-        const result = await response.json();
 
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Evaluator Kpi Report");
-        const headerRow = worksheet.addRow([
-            "No.", "Evaluator", "Date", "Approved",
-            "Returned", "Disapproved", "On-Hold", "Acrhived", "Re-Activated"
+const fromdate = $('#fromdate').val();
+const todate = $('#todate').val();
+const q = $('#q').val();
+
+try {
+
+    const exportUrl = `{{ route('EvaluatorKpi.exportAll') }}?fromdate=${fromdate}&todate=${todate}&q=${q}`;
+    const response = await fetch(exportUrl);
+    const result = await response.json();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Evaluator KPI Report");
+    const headerRow = worksheet.addRow([
+        "No.",
+        "Evaluator",
+        "Last Date",
+        "Approved",
+        "Returned",
+        "Disapproved",
+        "On-Hold",
+        "Archived",
+        "Re-Activated",
+        "Total"
+    ]);
+
+    headerRow.eachCell((cell) => {
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '09325D' }
+        };
+        cell.font = { color: { argb: 'FFFFFF' }, bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+        };
+    });
+    let totalApproved = 0;
+    let totalReturned = 0;
+    let totalDisapproved = 0;
+    let totalOnHold = 0;
+    let totalArchived = 0;
+    let totalReActivated = 0;
+    let totalAll = 0;
+    result.data.forEach((row, index) => {
+
+        const Approved = Number(row.Approved) || 0;
+        const Returned = Number(row.Returned) || 0;
+        const Disapproved = Number(row.Disapproved) || 0;
+        const OnHold = Number(row.OnHold) || 0;
+        const Archived = Number(row.Archived) || 0;
+        const ReActivated = Number(row.ReActivated) || 0;
+        const Total = Number(row.Total) || 0;
+        totalApproved += Approved;
+        totalReturned += Returned;
+        totalDisapproved += Disapproved;
+        totalOnHold += OnHold;
+        totalArchived += Archived;
+        totalReActivated += ReActivated;
+        totalAll += Total;
+
+        const newRow = worksheet.addRow([
+            index + 1,
+            row.Evaluator,
+            row.LastDate ?? '',
+            Approved,
+            Returned,
+            Disapproved,
+            OnHold,
+            Archived,
+            ReActivated,
+            Total
         ]);
-        headerRow.eachCell((cell) => {
-            cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: '1E90FF' } 
-            };
-            cell.font = {
-                color: { argb: 'FFFFFF' },
-                bold: true
-            };
-            cell.border = {
-                top:    { style: 'thin' },
-                left:   { style: 'thin' },
-                bottom: { style: 'thin' },
-                right:  { style: 'thin' }
-            };
-            cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        });
-        result.data.forEach((row, index) => {
-            const newRow = worksheet.addRow([
-                index + 1,
-                row.Evaluator,
-                row.LastDate,
-                row.Approved,
-                row.Returned,
-                row.Disapproved,
-                row['On-Hold'],        
-                row['Archived'],   
-                row['Re-Activated']
-            ]);
-            newRow.eachCell(cell => {
-                cell.border = {
-                    top:    { style: 'thin' },
-                    left:   { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right:  { style: 'thin' }
-                };
-            });
-        });
-        worksheet.columns.forEach(column => {
-            let maxLength = 10;
-            column.eachCell({ includeEmpty: true }, cell => {
-                const value = cell.value ? cell.value.toString() : '';
-                maxLength = Math.max(maxLength, value.length);
-            });
-            column.width = maxLength + 2;
-        });
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-        const url = window.URL.createObjectURL(blob);
 
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Evaluator_KIP_Report.xlsx";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error("Export failed:", error);
-        alert("Failed to export data.");
-    }
+        newRow.eachCell(cell => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+        });
+    });
+    const grandTotalRow = worksheet.addRow([
+        "",
+        "Total Overall",
+        "",
+        totalApproved,
+        totalReturned,
+        totalDisapproved,
+        totalOnHold,
+        totalArchived,
+        totalReActivated,
+        totalAll
+    ]);
+
+    grandTotalRow.eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'D9D9D9' }
+        };
+        cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+        };
+    });
+    worksheet.columns.forEach(column => {
+        let maxLength = 10;
+        column.eachCell({ includeEmpty: true }, cell => {
+            const value = cell.value ? cell.value.toString() : '';
+            maxLength = Math.max(maxLength, value.length);
+        });
+        column.width = maxLength + 2;
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob(
+        [buffer],
+        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    );
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Evaluator_KPI_Report.xlsx";
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+} catch (error) {
+    console.error("Export failed:", error);
+    alert("Failed to export data.");
 }
+}
+
+
 function loadEvaluatorData(id) {
     let url = "{{ route('EvaluatorKpi.getEvaluatorBusinessList', ':id') }}";
     url = url.replace(':id', id);
