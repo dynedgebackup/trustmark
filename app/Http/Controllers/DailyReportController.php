@@ -73,7 +73,9 @@ class DailyReportController extends Controller
                      END AS `withBMBE`"),
                      'a.category_other_description AS Description',
                      'e.name AS BusinessCategoryName',
-                     'f.name AS CategoryName'
+                     'f.name AS CategoryName',
+                     'a.expired_date AS expiryDate',
+                     'r.description AS idName'
                      
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
@@ -81,6 +83,7 @@ class DailyReportController extends Controller
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
             ->leftJoin('business_category as e', 'a.busn_category_id', '=', 'e.id')
             ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
+            ->leftJoin('requirement_reps as r', 'a.requirement_id', '=', 'r.id')
             ->where('a.is_active', 1);
             if ($request->filled('status')) {
                 $query->where('a.status', $request->status);
@@ -209,15 +212,18 @@ class DailyReportController extends Controller
                         WHEN 1 THEN 'Yes' 
                      END AS `withBMBE`"),
                      'a.category_other_description AS Description',
-                     'bc.name AS BusinessCategoryName',
-                     'f.name AS CategoryName'
+                     'e.name AS BusinessCategoryName',
+                     'f.name AS CategoryName',
+                     'a.expired_date AS expiryDate',
+                     'r.description AS idName'
                      
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
-            ->leftJoin('business_category as bc', 'a.busn_category_id', '=', 'bc.id')
+            ->leftJoin('business_category as e', 'a.busn_category_id', '=', 'e.id')
             ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
+            ->leftJoin('requirement_reps as r', 'a.requirement_id', '=', 'r.id')
             ->where('a.is_active', 1);
             // ->orderByDesc('a.id');
             if ($request->filled('status')) {
@@ -337,7 +343,6 @@ class DailyReportController extends Controller
         $fees = $query->get();
         $data = [];
         $i = $start + 1;
-
         foreach ($fees as $row) {
             $data[] = [
                 'no' => $i++,
@@ -353,6 +358,8 @@ class DailyReportController extends Controller
                     'Status' => $row->Status ?? ' ',
                     'EmailAddress' => $row->EmailAddress ?? ' ',
                     'ContactNo' => $row->ContactNo ?? ' ',
+                    'expiryDate' => $row->expiryDate ?? ' ',
+                    'idName' => $row->idName ?? ' ',
                     'Evaluator' => $row->Evaluator ?? ' ',
                     'DateSubmitted' => $row->DateSubmitted ?? ' ',
                     'DateApproved' => $row->DateApproved ?? ' ',

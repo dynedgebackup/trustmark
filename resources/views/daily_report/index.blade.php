@@ -78,6 +78,8 @@
                                 <th style="width: 120px;">{{ __('Status') }}</th>
                                 <th style="width: 120px;">{{ __('Email Address') }}</th>
                                 <th style="width: 120px;">{{ __('Contact No.') }}</th>
+                                <th style="width: 120px;">{{ __('Government Issued ID') }}</th>
+                                <th style="width: 120px;">{{ __('Expiry Date') }}</th>
                                 <th style="width: 120px;">{{ __('Evaluator') }}</th>
                                 <th style="width: 120px;">{{ __('Date Submitted') }}</th>
                                 <th style="width: 120px;">{{ __('Date Approved') }}</th>
@@ -136,6 +138,8 @@ function datatablefunction() {
             { data: 'Status', width: "120px" },
             { data: 'EmailAddress', width: "120px" },
             { data: 'ContactNo', width: "120px" },
+            { data: 'expiryDate', width: "120px" },
+            { data: 'idName', width: "120px" },
             { data: 'Evaluator', width: "120px" },
             { data: 'DateSubmitted', width: "120px" },
             { data: 'DateApproved', width: "120px" },
@@ -183,6 +187,8 @@ function datatablefunction() {
             { data: 'Status' },
             makeRemarkColumn('EmailAddress'),
             { data: 'ContactNo' },
+            { data: 'idName' },
+            { data: 'expiryDate' },
             { data: 'Evaluator' },
             { data: 'DateSubmitted' },
             { data: 'DateApproved' },
@@ -283,7 +289,7 @@ async function loadDataForExcelSheet() {
         const headerRow = worksheet.addRow([
             "No.", "Security No.", "Business Name","Trade Name","Business Category","Description", "Registration No.",
             "Business Type", "TIN", "Representative", "Payment", "Remarks", "Status", "Email Address"
-            , "Contact No.", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)","Business URL | Website | Social Media Platform"
+            , "Contact No.", "Government Issued ID", "Expiry Date", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)","Business URL | Website | Social Media Platform"
             ,"Business Category Name (Asset Size)"
         ]);
         headerRow.eachCell((cell) => {
@@ -325,6 +331,8 @@ async function loadDataForExcelSheet() {
                 row.Status,
                 row.EmailAddress,
                 row.ContactNo,
+                row.idName,
+                row.expiryDate,
                 row.Evaluator,
                 row.DateSubmitted,
                 row.DateApproved,
