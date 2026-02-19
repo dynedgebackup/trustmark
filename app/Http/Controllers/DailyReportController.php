@@ -70,11 +70,17 @@ class DailyReportController extends Controller
                     DB::raw("CASE a.is_bmbe 
                         WHEN 0 THEN 'No' 
                         WHEN 1 THEN 'Yes' 
-                     END AS `withBMBE`")
+                     END AS `withBMBE`"),
+                     'a.category_other_description AS Description',
+                     'e.name AS BusinessCategoryName)',
+                     'f.name AS CategoryName'
+                     
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
+            ->leftJoin('business_category as e', 'a.busn_category_id', '=', 'e.id')
+            ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
             ->where('a.is_active', 1);
             if ($request->filled('status')) {
                 $query->where('a.status', $request->status);
@@ -201,11 +207,17 @@ class DailyReportController extends Controller
                     DB::raw("CASE a.is_bmbe 
                         WHEN 0 THEN 'No' 
                         WHEN 1 THEN 'Yes' 
-                     END AS `withBMBE`")
+                     END AS `withBMBE`"),
+                     'a.category_other_description AS Description',
+                     'e.name AS BusinessCategoryName)',
+                     'f.name AS CategoryName'
+                     
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
+            ->leftJoin('business_category as e', 'a.busn_category_id', '=', 'e.id')
+            ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
             ->where('a.is_active', 1);
             // ->orderByDesc('a.id');
             if ($request->filled('status')) {
@@ -354,7 +366,10 @@ class DailyReportController extends Controller
                     'Province' => $row->Province ?? ' ',
                     'Region' => $row->Region ?? ' ',
                     'witbemb' => $row->withBMBE ?? ' ',
-                    'business_url' => $row->business_urls ?? ' '
+                    'business_url' => $row->business_urls ?? ' ',
+                    'BusinessCategoryName' => $row->BusinessCategoryName ?? ' ',
+                    'Description' => $row->Description ?? ' ',
+                    'CategoryName' => $row->CategoryName ?? ' '
             ];
         }
 
