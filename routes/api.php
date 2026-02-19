@@ -24,7 +24,6 @@ Route::prefix('email-tokens')->group(function () {
 
 Route::any('/payment/webhook', [WebhookApiController::class, 'handle'])->withoutMiddleware(['throttle:tlpe-webhook']);
 
-
 /*.env
 QUEUE_CONNECTION=database
 
@@ -59,7 +58,6 @@ sudo supervisorctl update
 sudo supervisorctl start trustmark-queue:*
 
 sudo supervisorctl status*/
-
 
 
 
