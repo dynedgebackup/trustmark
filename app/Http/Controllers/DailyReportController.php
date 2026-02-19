@@ -369,7 +369,8 @@ class DailyReportController extends Controller
                     'business_url' => $row->business_urls ?? ' ',
                     'BusinessCategoryName' => $row->BusinessCategoryName ?? ' ',
                     'Description' => $row->Description ?? ' ',
-                    'CategoryName' => $row->CategoryName ?? ' '
+                    'CategoryName' => $row->CategoryName ?? ' ',
+                    'Trade' => ' '
             ];
         }
 
