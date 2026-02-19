@@ -216,7 +216,6 @@ class DailyReportController extends Controller
                      'f.name AS CategoryName',
                      'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
-                     
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
