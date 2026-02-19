@@ -74,7 +74,7 @@ class DailyReportController extends Controller
                      'a.category_other_description AS Description',
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
-                     'a.expired_date AS expiryDate',
+                     'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
                      
                 ])
@@ -214,7 +214,7 @@ class DailyReportController extends Controller
                      'a.category_other_description AS Description',
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
-                     'a.expired_date AS expiryDate',
+                     'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
                      
                 ])
