@@ -66,6 +66,9 @@
                                 <th style="width: 20px;">{{ __('No.') }}</th>
                                 <th style="width: 200px;">{{ __('Security No.') }}</th>
                                 <th style="width: 120px;">{{ __('Business Name') }}</th>
+                                <th style="width: 120px;">{{ __('Trade Name') }}</th>
+                                <th style="width: 120px;">{{ __('Business Category') }}</th>
+                                <th style="width: 120px;">{{ __('Description') }}</th>
                                 <th style="width: 120px;">{{ __('Registration No.') }}</th>
                                 <th style="width: 120px;">{{ __('Business Type') }}</th>
                                 <th style="width: 120px;">{{ __('TIN') }}</th>
@@ -91,8 +94,8 @@
                                 <th style="width: 120px;">{{ __('With BMBE (Yes/No)') }}</th>
                                 <th style="width: 120px;">{{ __('Business URL | Website | Social Media Platform') }}</th>
                                 <th style="width: 120px;">{{ __('Business Category Name (Asset Size)') }}</th>
-                                <th style="width: 120px;">{{ __('Description') }}</th>
-                                <th style="width: 120px;">{{ __('Category Name') }}</th>
+                                
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -146,8 +149,9 @@ function datatablefunction() {
             { data: 'BMBE', width: "120px" },
             { data: 'business_url', width: "120px" },
             { data: 'BusinessCategoryName', width: "120px" },
-            { data: 'Description', width: "120px" },
-            { data: 'CategoryName', width: "120px" }
+            { data: 'Trade', width: "120px" },
+            { data: 'CategoryName', width: "120px" },
+            { data: 'Description', width: "120px" }
         ],
         processing: true,
         serverSide: true,
@@ -167,6 +171,9 @@ function datatablefunction() {
             { data: 'no', orderable: false },
             { data: 'SecurityNo' },
             { data: 'BusinessName' },
+            makeRemarkColumn('Trade'),
+            makeRemarkColumn('CategoryName'),
+            makeRemarkColumn('Description'),
             { data: 'RegistrationNo' },
             { data: 'BusinessType' },
             { data: 'TIN' },
@@ -191,9 +198,8 @@ function datatablefunction() {
             { data: 'Region' },
             { data: 'witbemb' },
             makeRemarkColumn('business_url'),
-            makeRemarkColumn('BusinessCategoryName'),
-            makeRemarkColumn('Description'),
-            makeRemarkColumn('CategoryName')
+            makeRemarkColumn('BusinessCategoryName')
+            
         ],
         drawCallback: function() {
             bindToggleEvents();
@@ -275,10 +281,10 @@ async function loadDataForExcelSheet() {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Daily Report");
         const headerRow = worksheet.addRow([
-            "No.", "Security No.", "Business Name", "Registration No.",
+            "No.", "Security No.", "Business Name","Trade Name","Business Category","Description", "Registration No.",
             "Business Type", "TIN", "Representative", "Payment", "Remarks", "Status", "Email Address"
             , "Contact No.", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)","Business URL | Website | Social Media Platform"
-            ,"Business Category Name (Asset Size)","Description","Category Name"
+            ,"Business Category Name (Asset Size)"
         ]);
         headerRow.eachCell((cell) => {
             cell.fill = {
@@ -306,7 +312,10 @@ async function loadDataForExcelSheet() {
             const newRow = worksheet.addRow([
                 index + 1,
                 row.SecurityNo,
-                row.BusinessName,
+                row.BusinessName, 
+                row.BusinessCategoryName,
+                row.CategoryName,  
+                row.Description,
                 row.RegistrationNo,
                 row.BusinessType,
                 row.TIN,
@@ -331,9 +340,7 @@ async function loadDataForExcelSheet() {
                 row.Region,
                 row.withBMBE,
                 urls,
-                row.BusinessCategoryName,  
-                row.Description,
-                row.CategoryName
+                row.BusinessCategoryName
             ]);
             newRow.getCell(27).alignment = { wrapText: true };
 
