@@ -72,7 +72,7 @@ class DailyReportController extends Controller
                         WHEN 1 THEN 'Yes' 
                      END AS `withBMBE`"),
                      'a.category_other_description AS Description',
-                     'e.name AS BusinessCategoryName)',
+                     'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName'
                      
                 ])
@@ -209,14 +209,14 @@ class DailyReportController extends Controller
                         WHEN 1 THEN 'Yes' 
                      END AS `withBMBE`"),
                      'a.category_other_description AS Description',
-                     'e.name AS BusinessCategoryName)',
+                     'bc.name AS BusinessCategoryName',
                      'f.name AS CategoryName'
                      
                 ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
-            ->leftJoin('business_category as e', 'a.busn_category_id', '=', 'e.id')
+            ->leftJoin('business_category as bc', 'a.busn_category_id', '=', 'bc.id')
             ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
             ->where('a.is_active', 1);
             // ->orderByDesc('a.id');
