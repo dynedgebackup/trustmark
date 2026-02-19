@@ -90,6 +90,9 @@
                                 <th style="width: 120px;">{{ __('Region') }}</th>
                                 <th style="width: 120px;">{{ __('With BMBE (Yes/No)') }}</th>
                                 <th style="width: 120px;">{{ __('Business URL | Website | Social Media Platform') }}</th>
+                                <th style="width: 120px;">{{ __('Business Category Name (Asset Size)') }}</th>
+                                <th style="width: 120px;">{{ __('Description') }}</th>
+                                <th style="width: 120px;">{{ __('Category Name') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -141,7 +144,10 @@ function datatablefunction() {
             { data: 'Province', width: "120px" },
             { data: 'Region', width: "120px" },
             { data: 'BMBE', width: "120px" },
-            { data: 'business_url', width: "120px" }
+            { data: 'business_url', width: "120px" },
+            { data: 'BusinessCategoryName', width: "120px" },
+            { data: 'Description', width: "120px" },
+            { data: 'CategoryName', width: "120px" }
         ],
         processing: true,
         serverSide: true,
@@ -185,6 +191,9 @@ function datatablefunction() {
             { data: 'Region' },
             { data: 'witbemb' },
             makeRemarkColumn('business_url'),
+            makeRemarkColumn('BusinessCategoryName'),
+            makeRemarkColumn('Description'),
+            makeRemarkColumn('CategoryName')
         ],
         drawCallback: function() {
             bindToggleEvents();
@@ -269,6 +278,7 @@ async function loadDataForExcelSheet() {
             "No.", "Security No.", "Business Name", "Registration No.",
             "Business Type", "TIN", "Representative", "Payment", "Remarks", "Status", "Email Address"
             , "Contact No.", "Evaluator", "Date Submitted", "Date Approved", "Date Issued" , "Date Disapproved" , "Date Returned" , "Date Created","Channel","Complete Address","Barangay","Municipality/City","Province","Region","With BMBE (Yes/No)","Business URL | Website | Social Media Platform"
+            ,"Business Category Name (Asset Size)","Description","Category Name"
         ]);
         headerRow.eachCell((cell) => {
             cell.fill = {
@@ -320,7 +330,10 @@ async function loadDataForExcelSheet() {
                 row.Province,
                 row.Region,
                 row.withBMBE,
-                urls  
+                urls,
+                row.BusinessCategoryName,  
+                row.Description,
+                row.CategoryName
             ]);
             newRow.getCell(27).alignment = { wrapText: true };
 
