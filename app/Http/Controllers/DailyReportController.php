@@ -74,7 +74,7 @@ class DailyReportController extends Controller
                      'a.category_other_description AS Description',
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
-                     'a.expired_date AS expiryDate',
+                     'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
                      
                 ])
@@ -214,10 +214,9 @@ class DailyReportController extends Controller
                      'a.category_other_description AS Description',
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
-                     'a.expired_date AS expiryDate',
+                     'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
-                     
-                ])
+            ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
