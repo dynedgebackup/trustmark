@@ -2035,6 +2035,7 @@ class BusinessController extends Controller
     public function updatePaymentResponse(Request $request)
     {
         $transactionId = trim($_REQUEST['orderid']);
+        Log::info($transactionId.' - TLPE Callback Payload', $_REQUEST);
         $arrPayment = DB::table('payments')->where('transaction_id', $transactionId)->select('payment_status', 'id','business_id')->orderBy('id', 'DESC')->first();
         $payment_status = 2;
         if (isset($arrPayment)) {
