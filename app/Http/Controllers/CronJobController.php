@@ -408,7 +408,6 @@ class CronJobController extends Controller
                         if($totalSentEmail==4){
                             $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
                         }else{
-                            if()
                             $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
                         }
                         
