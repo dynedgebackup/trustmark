@@ -384,38 +384,42 @@ class CronJobController extends Controller
                     : Carbon::parse($item->date_returned);
                 $days = abs(Carbon::now()->diffInRealDays($referenceDate));
                 if ($days>=$diffDay) {
-                    $totalCnt++;
                     $json_data = json_encode([
                         'pic_name'=>$item->pic_name,
                         'trustmark_id'=>$item->trustmark_id,
                     ]);
-                    BusinessFollowups::insert([
-                        'busn_id' => $item->id,
-                        'is_type' => '2',
-                        'year' => $item->tax_year,
-                        'followup_date' => now(),
-                        'followup_message' => $json_data,
-                    ]);
 
                     $totalSentEmail = (int)$item->total_returned_sent_email + 1;
-                    DB::table('businesses')->where('id', $item->id)->update([
-                        'last_returned_email_at' => now(),
-                        'total_returned_sent_email' => $totalSentEmail,
-                    ]);
+                    if($totalSentEmail<=4){
+                        $totalCnt++;
+                        BusinessFollowups::insert([
+                            'busn_id' => $item->id,
+                            'is_type' => '2',
+                            'year' => $item->tax_year,
+                            'followup_date' => now(),
+                            'followup_message' => $json_data,
+                        ]);
 
-                    if($totalSentEmail==4){
-                        $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                    }else{
-                        $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                    }
-                    
-                    $sendEmail = $this->email->sendMail('followUpReturn', [
-                        'business' => $item,
-                        'subject'=> $subject,
-                        'totalCount'=>$totalSentEmail
-                    ]);
-                    if (isset($sendEmail['error'])) {
-                        return 'Email failed: '.$sendEmail['error'];
+                        DB::table('businesses')->where('id', $item->id)->update([
+                            'last_returned_email_at' => now(),
+                            'total_returned_sent_email' => $totalSentEmail,
+                        ]);
+
+                        if($totalSentEmail==4){
+                            $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                        }else{
+                            if()
+                            $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                        }
+                        
+                        $sendEmail = $this->email->sendMail('followUpReturn', [
+                            'business' => $item,
+                            'subject'=> $subject,
+                            'totalCount'=>$totalSentEmail
+                        ]);
+                        if (isset($sendEmail['error'])) {
+                            return 'Email failed: '.$sendEmail['error'];
+                        }
                     }
                 }
             }
@@ -443,39 +447,42 @@ class CronJobController extends Controller
                     : Carbon::parse($item->date_approved);
                 $days = abs(Carbon::now()->diffInRealDays($referenceDate));
                 if($days>=$diffDay){
-                    $totalCnt++;
                     $json_data = json_encode([
                         'pic_name'=>$item->pic_name,
                         'trustmark_id'=>$item->trustmark_id,
                     ]);
-                    $data= [
-                        'busn_id' => $item->id,
-                        'is_type' => '1',
-                        'year' => $item->tax_year,
-                        'followup_date' => now(),
-                        'followup_message' => $json_data,
-                    ];
-                    BusinessFollowups::insert($data);
-
-                    $totalSentEmail = (int)$item->total_approved_sent_email + 1;
-                    DB::table('businesses')->where('id', $item->id)->update([
-                        'last_approved_email_at' => now(),
-                        'total_approved_sent_email' => $totalSentEmail,
-                    ]);
-
-                    if($totalSentEmail==4){
-                        $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                    }else{
-                        $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
-                    }
                     
-                    $sendEmail = $this->email->sendMail('followUpUnpaid', [
-                        'business' => $item,
-                        'subject'=> $subject,
-                        'totalCount'=>$totalSentEmail
-                    ]);
-                    if (isset($sendEmail['error'])) {
-                        return 'Email failed: '.$sendEmail['error'];
+                    $totalSentEmail = (int)$item->total_approved_sent_email + 1;
+                    if($totalSentEmail<=4){
+                        $totalCnt++;
+                        $data= [
+                            'busn_id' => $item->id,
+                            'is_type' => '1',
+                            'year' => $item->tax_year,
+                            'followup_date' => now(),
+                            'followup_message' => $json_data,
+                        ];
+                        BusinessFollowups::insert($data);
+
+                        DB::table('businesses')->where('id', $item->id)->update([
+                            'last_approved_email_at' => now(),
+                            'total_approved_sent_email' => $totalSentEmail,
+                        ]);
+
+                        if($totalSentEmail==4){
+                            $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                        }else{
+                            $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
+                        }
+                        
+                        $sendEmail = $this->email->sendMail('followUpUnpaid', [
+                            'business' => $item,
+                            'subject'=> $subject,
+                            'totalCount'=>$totalSentEmail
+                        ]);
+                        if (isset($sendEmail['error'])) {
+                            return 'Email failed: '.$sendEmail['error'];
+                        }
                     }
                 }
             }
