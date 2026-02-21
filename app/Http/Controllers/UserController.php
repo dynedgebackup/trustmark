@@ -91,31 +91,44 @@ class UserController extends Controller
 
     public function savePermission(Request $request)
     {
-        $permissions = $request->input('permissions');
-        $userId = $permissions[0]['user_id'] ?? null;
+        $permissions = $request->input('permissions', []);
+        $userId = $request->input('user_id') ?? Auth::id();
 
         if (! $userId) {
-            return response()->json(['status' => 'error', 'message' => 'Missing user_id'], 400);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Missing user_id'
+            ], 400);
         }
+        if (empty($permissions)) {
 
-        // Get only the selected menu_module_ids and group_ids
-        $selectedModuleIds = collect($permissions)->pluck('menu_module_id')->toArray();
+            DB::table('menu_permissions')
+                ->where('user_id', $userId)
+                ->delete();
 
-        // 1. Delete permissions for user that are NOT in selected list
+            return response()->json(['status' => 'success']);
+        }
+        $selectedModuleIds = collect($permissions)
+            ->pluck('menu_module_id')
+            ->toArray();
         DB::table('menu_permissions')
             ->where('user_id', $userId)
             ->whereNotIn('menu_module_id', $selectedModuleIds)
             ->delete();
-
-        // 2. Insert or update the selected permissions
         foreach ($permissions as $perm) {
+
             DB::table('menu_permissions')->updateOrInsert(
                 [
-                    'user_id' => $perm['user_id'],
+                    'user_id' => $userId,
                     'menu_group_id' => $perm['menu_group_id'],
                     'menu_module_id' => $perm['menu_module_id'],
                 ],
-                ['created_at' => now(), 'updated_at' => now(), 'created_by' => Auth::id(), 'updated_by' => Auth::id()]
+                [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'created_by' => Auth::id(),
+                    'updated_by' => Auth::id()
+                ]
             );
         }
 
@@ -233,6 +246,29 @@ class UserController extends Controller
                     ->where('user_id', $id)
                     ->delete();
             }
+
+            return redirect()->route('user.index')->with('success', 'Updated successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Update Profile Error: '.$e->getMessage());
+
+            return back()->withInput()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+    public function adminPassword_update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'password' => 'nullable|min:8|confirmed',
+        ]);
+
+        try {
+            
+            if ($request->filled('password')) {
+                $updateData['password'] = Hash::make($request->password);
+            }
+           
+            $user->update($updateData);
 
             return redirect()->route('user.index')->with('success', 'Updated successfully!');
         } catch (\Exception $e) {
