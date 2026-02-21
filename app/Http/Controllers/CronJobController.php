@@ -374,7 +374,7 @@ class CronJobController extends Controller
                 ->orWhereNull('last_returned_email_at');
             })
             ->select('id','pic_name','trustmark_id','pic_email', 'tax_year','date_returned','last_returned_email_at','total_returned_sent_email','business_name')
-            ->limit(1000)
+            ->limit(500)
             ->get();
 
         $totalCnt=0;
@@ -442,7 +442,7 @@ class CronJobController extends Controller
             ->whereNull('payment_id')
             ->where('status', 'APPROVED')
             ->select('id','pic_name','trustmark_id','pic_email', 'tax_year','date_approved','last_approved_email_at','total_approved_sent_email','business_name')
-            ->limit(1000)
+            ->limit(500)
             ->get();
         $totalCnt=0;
         foreach ($businesses as $item) {
