@@ -511,6 +511,7 @@ Route::middleware(['auth','role.access'])->group(function () {
     Route::get('/user/view/{id}', [UserController::class, 'admin_profile'])->name('user.view');
     Route::put('/profile/applicant-update/{id}', [UserController::class, 'applicant_update'])->name('profile.applicant_update');
     Route::put('/profile/admin-update/{id}', [UserController::class, 'admin_update'])->name('profile.admin_update');
+    Route::put('/profile/adminPassword_update/{id}', [UserController::class, 'adminPassword_update'])->name('profile.adminPassword_update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
     Route::post('/permissions/save', [UserController::class, 'savePermission'])->name('permissions.save');
 

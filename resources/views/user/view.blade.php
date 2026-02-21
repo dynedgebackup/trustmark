@@ -144,6 +144,10 @@
                                 </div>
                             </div>
                         </div>
+                        </form>
+                        <form action="{{ route('profile.adminPassword_update', $user->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
                         <br>
                         <div class="card">
                             <div class="card-header">
@@ -153,9 +157,10 @@
                                 <div class="row" style="margin-bottom:10px;">
                                     <div class="col">
                                         <div class="mb-3">
-                                            <label class="form-label custom-label">Password</label>
+                                            <label class="form-label custom-label">Password <span
+                                                    class="required-field">*</span></label>
                                             <input class="form-control custom-input" type="password" id="password"
-                                                name="password" placeholder="Password">
+                                                name="password" placeholder="Password" required>
 
                                             <small id="length-error" class="text-danger" style="display:none;">Password
                                                 must
@@ -171,9 +176,10 @@
                                     </div>
                                     <div class="col">
                                         <div class="mb-3">
-                                            <label class="form-label custom-label">Confirm Password</label>
+                                            <label class="form-label custom-label">Confirm Password <span
+                                                    class="required-field">*</span></label>
                                             <input class="form-control custom-input" type="password"
-                                                id="confirm-password" name="password_confirmation"
+                                                id="confirm-password" name="password_confirmation" required
                                                 placeholder="Confirm Password">
 
                                             <small id="password-error" class="text-danger"
@@ -191,6 +197,8 @@
                             </div>
                         </div>
                         <br>
+                        </form>
+                       
                             <div class="card">
                                 <div class="card-header">
                                     <h6 class="text-primary fw-bold m-0" style="font-size: 12px;">Permission</h6>
@@ -205,7 +213,7 @@
                                     </center>
                                     </div>
                                     <div class="col-md-2 mb-3" style="text-align: end;">
-                                    <button id="savePermissions" class="btn btn-primary" >Update</button>
+                                    <button type="button" id="savePermissions" class="btn btn-primary" >Update</button>
                                     </div>
                                 </div>
                                 
@@ -256,7 +264,7 @@
                 </div>
 
                
-            </form>
+            <!-- </form> -->
         </div>
     </div>
 
