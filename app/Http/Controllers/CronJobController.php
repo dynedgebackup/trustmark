@@ -365,6 +365,7 @@ class CronJobController extends Controller
     public function followUpReturnApplication()
     {
         $diffDay= Setting::where('name','follow_up_returned_app_every')->pluck('value')->first();
+        
         $businesses = Business::where('app_status_id', 2)
             ->where('is_active', 1)
             ->whereNull('payment_id')
@@ -392,38 +393,37 @@ class CronJobController extends Controller
 
                     $totalSentEmail = (int)$item->total_returned_sent_email + 1;
                     if($totalSentEmail<=4){
-                        $totalCnt++;
+                        $isExist = DB::table('business_followups')->select('id')->where('busn_id', $item->id)->where('is_type',2)->whereDate('followup_date', '=', Carbon::today())->first();
+                        if(!isset($isExist)){
+                            $totalCnt++;
+                            $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
+                                'last_returned_email_at' => now(),
+                                'total_returned_sent_email' => $totalSentEmail,
+                            ]);
+                            BusinessFollowups::insert([
+                                'busn_id' => $item->id,
+                                'is_type' => '2',
+                                'year' => $item->tax_year,
+                                'followup_date' => now(),
+                                'followup_message' => $json_data,
+                            ]);
 
-                        BusinessFollowups::insert([
-                            'busn_id' => $item->id,
-                            'is_type' => '2',
-                            'year' => $item->tax_year,
-                            'followup_date' => now(),
-                            'followup_message' => $json_data,
-                        ]);
-                        $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
-                            'last_returned_email_at' => now(),
-                            'total_returned_sent_email' => $totalSentEmail,
-                        ]);
-                        if($isUpdate){
-                            $isExist = DB::table('businesses')->select('id')->where('id', $item->id)->whereDate('last_returned_email_at', '=', Carbon::today())->first();
-                            if($isExist){
-                                if($totalSentEmail==4){
-                                    $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                                }else{
-                                    $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                                }
-                                
-                                $sendEmail = $this->email->sendMail('followUpReturn', [
-                                    'business' => $item,
-                                    'subject'=> $subject,
-                                    'totalCount'=>$totalSentEmail
-                                ]);
-                                if (isset($sendEmail['error'])) {
-                                    return 'Email failed: '.$sendEmail['error'];
-                                }
+                            if($totalSentEmail==4){
+                                $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                            }else{
+                                $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                            }
+                            
+                            $sendEmail = $this->email->sendMail('followUpReturn', [
+                                'business' => $item,
+                                'subject'=> $subject,
+                                'totalCount'=>$totalSentEmail
+                            ]);
+                            if (isset($sendEmail['error'])) {
+                                return 'Email failed: '.$sendEmail['error'];
                             }
                         }
+                        
                     }
                 }
             }
@@ -459,37 +459,37 @@ class CronJobController extends Controller
                     
                     $totalSentEmail = (int)$item->total_approved_sent_email + 1;
                     if($totalSentEmail<=4){
-                        $totalCnt++;
-                        $data= [
-                            'busn_id' => $item->id,
-                            'is_type' => '1',
-                            'year' => $item->tax_year,
-                            'followup_date' => now(),
-                            'followup_message' => $json_data,
-                        ];
-                        BusinessFollowups::insert($data);
-                        $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
-                            'last_approved_email_at' => now(),
-                            'total_approved_sent_email' => $totalSentEmail,
-                        ]);
-                        if($isUpdate){
-                            $isExist = DB::table('businesses')->select('id')->where('id', $item->id)->whereDate('last_approved_email_at', '=', Carbon::today())->first();
-                            if($isExist){
-                                if($totalSentEmail==4){
-                                    $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                                }else{
-                                    $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
-                                }
-                                
-                                $sendEmail = $this->email->sendMail('followUpUnpaid', [
-                                    'business' => $item,
-                                    'subject'=> $subject,
-                                    'totalCount'=>$totalSentEmail
-                                ]);
-                                if (isset($sendEmail['error'])) {
-                                    return 'Email failed: '.$sendEmail['error'];
-                                }
+                        $isExist = DB::table('business_followups')->select('id')->where('busn_id', $item->id)->where('is_type',1)->whereDate('followup_date', '=', Carbon::today())->first();
+                        if(!isset($isExist)){
+                            $totalCnt++;
+                            $data= [
+                                'busn_id' => $item->id,
+                                'is_type' => '1',
+                                'year' => $item->tax_year,
+                                'followup_date' => now(),
+                                'followup_message' => $json_data,
+                            ];
+                            BusinessFollowups::insert($data);
+
+                            $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
+                                'last_approved_email_at' => now(),
+                                'total_approved_sent_email' => $totalSentEmail,
+                            ]);
+                            if($totalSentEmail==4){
+                                $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                            }else{
+                                $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
                             }
+                            
+                            $sendEmail = $this->email->sendMail('followUpUnpaid', [
+                                'business' => $item,
+                                'subject'=> $subject,
+                                'totalCount'=>$totalSentEmail
+                            ]);
+                            if (isset($sendEmail['error'])) {
+                                return 'Email failed: '.$sendEmail['error'];
+                            }
+                            
                         }
                     }
                 }
