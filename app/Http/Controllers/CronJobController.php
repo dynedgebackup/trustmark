@@ -374,6 +374,7 @@ class CronJobController extends Controller
                 ->orWhereNull('last_returned_email_at');
             })
             ->select('id','pic_name','trustmark_id','pic_email', 'tax_year','date_returned','last_returned_email_at','total_returned_sent_email','business_name')
+            ->limit(1000)
             ->get();
 
         $totalCnt=0;
@@ -392,6 +393,7 @@ class CronJobController extends Controller
                     $totalSentEmail = (int)$item->total_returned_sent_email + 1;
                     if($totalSentEmail<=4){
                         $totalCnt++;
+
                         BusinessFollowups::insert([
                             'busn_id' => $item->id,
                             'is_type' => '2',
@@ -399,25 +401,28 @@ class CronJobController extends Controller
                             'followup_date' => now(),
                             'followup_message' => $json_data,
                         ]);
-
-                        DB::table('businesses')->where('id', $item->id)->update([
+                        $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
                             'last_returned_email_at' => now(),
                             'total_returned_sent_email' => $totalSentEmail,
                         ]);
-
-                        if($totalSentEmail==4){
-                            $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                        }else{
-                            $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                        }
-                        
-                        $sendEmail = $this->email->sendMail('followUpReturn', [
-                            'business' => $item,
-                            'subject'=> $subject,
-                            'totalCount'=>$totalSentEmail
-                        ]);
-                        if (isset($sendEmail['error'])) {
-                            return 'Email failed: '.$sendEmail['error'];
+                        if($isUpdate){
+                            $isExist = DB::table('businesses')->select('id')->where('id', $item->id)->whereDate('last_returned_email_at', '=', Carbon::today())->first();
+                            if($isExist){
+                                if($totalSentEmail==4){
+                                    $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                                }else{
+                                    $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up on E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                                }
+                                
+                                $sendEmail = $this->email->sendMail('followUpReturn', [
+                                    'business' => $item,
+                                    'subject'=> $subject,
+                                    'totalCount'=>$totalSentEmail
+                                ]);
+                                if (isset($sendEmail['error'])) {
+                                    return 'Email failed: '.$sendEmail['error'];
+                                }
+                            }
                         }
                     }
                 }
@@ -437,6 +442,7 @@ class CronJobController extends Controller
             ->whereNull('payment_id')
             ->where('status', 'APPROVED')
             ->select('id','pic_name','trustmark_id','pic_email', 'tax_year','date_approved','last_approved_email_at','total_approved_sent_email','business_name')
+            ->limit(1000)
             ->get();
         $totalCnt=0;
         foreach ($businesses as $item) {
@@ -462,25 +468,28 @@ class CronJobController extends Controller
                             'followup_message' => $json_data,
                         ];
                         BusinessFollowups::insert($data);
-
-                        DB::table('businesses')->where('id', $item->id)->update([
+                        $isUpdate = DB::table('businesses')->where('id', $item->id)->update([
                             'last_approved_email_at' => now(),
                             'total_approved_sent_email' => $totalSentEmail,
                         ]);
-
-                        if($totalSentEmail==4){
-                            $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
-                        }else{
-                            $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
-                        }
-                        
-                        $sendEmail = $this->email->sendMail('followUpUnpaid', [
-                            'business' => $item,
-                            'subject'=> $subject,
-                            'totalCount'=>$totalSentEmail
-                        ]);
-                        if (isset($sendEmail['error'])) {
-                            return 'Email failed: '.$sendEmail['error'];
+                        if($isUpdate){
+                            $isExist = DB::table('businesses')->select('id')->where('id', $item->id)->whereDate('last_approved_email_at', '=', Carbon::today())->first();
+                            if($isExist){
+                                if($totalSentEmail==4){
+                                    $subject = $this->arrName[(int)$totalSentEmail].' Notification: E-Commerce Philippine Trustmark Application – Reference No. '.$item->trustmark_id;
+                                }else{
+                                    $subject = $this->arrName[(int)$totalSentEmail].' Follow-Up of Payment on your Trustmark Application – Reference No. '.$item->trustmark_id;
+                                }
+                                
+                                $sendEmail = $this->email->sendMail('followUpUnpaid', [
+                                    'business' => $item,
+                                    'subject'=> $subject,
+                                    'totalCount'=>$totalSentEmail
+                                ]);
+                                if (isset($sendEmail['error'])) {
+                                    return 'Email failed: '.$sendEmail['error'];
+                                }
+                            }
                         }
                     }
                 }
@@ -503,6 +512,7 @@ class CronJobController extends Controller
             ->whereNull('payment_id')
             ->where('status', 'RETURNED')
             ->select('id', 'tax_year','total_returned_sent_email','pic_name','trustmark_id','last_returned_email_at')
+            ->limit(1000)
             ->get();
 
         foreach ($businesses as $item) {
@@ -542,6 +552,7 @@ class CronJobController extends Controller
             ->whereNull('payment_id')
             ->where('status', 'APPROVED')
             ->select('id', 'tax_year','total_approved_sent_email','pic_name','trustmark_id','last_approved_email_at')
+            ->limit(1000)
             ->get();
 
         foreach ($businesses as $item) {
@@ -575,7 +586,9 @@ class CronJobController extends Controller
         $diffDay= Setting::where('name','delete_draft_app_every')->pluck('value')->first();
 
         $businesses = Business::where('is_active', 1)->where('status', 'DRAFT')
-            ->select('id','created_at','docs_business_reg','docs_bir_2303','docs_internal_redress','tax_year')->get();
+            ->select('id','created_at','docs_business_reg','docs_bir_2303','docs_internal_redress','tax_year')
+            ->limit(1000)
+            ->get();
         $totalCnt=0;
         foreach ($businesses as $item) {
             $referenceDate = Carbon::parse($item->created_at);
