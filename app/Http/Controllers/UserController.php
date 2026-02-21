@@ -92,7 +92,7 @@ class UserController extends Controller
     public function savePermission(Request $request)
     {
         $permissions = $request->input('permissions', []);
-        $userId = $request->input('user_id') ?? Auth::id();
+        $userId = $permissions[0]['user_id'] ?? Auth::id();
 
         if (! $userId) {
             return response()->json([
