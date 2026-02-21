@@ -298,6 +298,8 @@
                     title: 'Success!',
                     text: 'Permissions saved successfully.',
                     confirmButtonColor: '#3085d6'
+                }).then(() => {
+                    window.location.href = "{{ route('user.index') }}";
                 });
             },
             error: function () {
