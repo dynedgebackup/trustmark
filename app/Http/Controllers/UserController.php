@@ -154,8 +154,8 @@ class UserController extends Controller
     {
         $id = Crypt::decrypt($id);
         $user = User::findOrFail($id);
-        $modules = DB::table('menu_modules AS mm')
-            ->leftJoin('menu_groups AS mg', 'mg.id', '=', 'mm.menu_group_id')
+        $modules = DB::table('menu_groups AS mg')
+            ->leftJoin('menu_modules AS mm', 'mg.id', '=', 'mm.menu_group_id')
             ->select('mm.id', 'mm.name AS module_name', 'mg.name AS group_name', 'mg.id AS group_id')
             ->orderBy('mg.name')
             ->get()
