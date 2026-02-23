@@ -11,7 +11,7 @@
         <li class="breadcrumb-item"><a href="#"><span>View</span></a></li>
     </ol>
 
-    
+
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <form action="{{ route('profile.admin_update', $user->id) }}" method="POST" enctype="multipart/form-data">
@@ -228,7 +228,9 @@
 
                                             $validModules = $items->filter(fn($item) => $item->module_id !== null);
 
-                                            $anyChecked = $validModules->contains(
+                                            $anyChecked =
+                                            in_array($groupId, $assignedGroupIds ?? []) ||
+                                            $validModules->contains(
                                                 fn($module) => in_array($module->module_id, $assignedModuleIds)
                                             );
                                         @endphp
