@@ -11,6 +11,7 @@
         <li class="breadcrumb-item"><a href="#"><span>View</span></a></li>
     </ol>
 
+    
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <form action="{{ route('profile.admin_update', $user->id) }}" method="POST" enctype="multipart/form-data">

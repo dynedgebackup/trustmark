@@ -176,6 +176,7 @@ class UserController extends Controller
 
         return view('user.view', compact('user', 'modules', 'assignedModuleIds', 'user_admins'));
     }
+    
 
     public function admin_update(Request $request, $id)
     {
