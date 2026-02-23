@@ -109,12 +109,27 @@ class UserController extends Controller
             return response()->json(['status' => 'success']);
         }
         $selectedModuleIds = collect($permissions)
-            ->pluck('menu_module_id')
-            ->toArray();
+        ->pluck('menu_module_id')
+        ->filter(fn($id) => $id != 0)
+        ->toArray();
+        $selectedGroupIds = collect($permissions)
+        ->where('menu_module_id', 0)
+        ->pluck('menu_group_id')
+        ->toArray();
         DB::table('menu_permissions')
-            ->where('user_id', $userId)
-            ->whereNotIn('menu_module_id', $selectedModuleIds)
-            ->delete();
+        ->where('user_id', $userId)
+        ->where('menu_module_id', '!=', 0)
+        ->when(!empty($selectedModuleIds), function ($q) use ($selectedModuleIds) {
+            $q->whereNotIn('menu_module_id', $selectedModuleIds);
+        })
+        ->delete();
+        DB::table('menu_permissions')
+        ->where('user_id', $userId)
+        ->where('menu_module_id', 0)
+        ->when(!empty($selectedGroupIds), function ($q) use ($selectedGroupIds) {
+            $q->whereNotIn('menu_group_id', $selectedGroupIds);
+        })
+        ->delete();
         foreach ($permissions as $perm) {
 
             DB::table('menu_permissions')->updateOrInsert(
@@ -165,18 +180,26 @@ class UserController extends Controller
             ->orderBy('mg.name')
             ->get()
             ->groupBy('group_id');
-        $assignedModuleIds = DB::table('menu_permissions')
+        $permissions = DB::table('menu_permissions')
             ->where('user_id', $id)
+            ->get();
+        $assignedModuleIds = $permissions
+            ->where('menu_module_id', '!=', 0)
             ->pluck('menu_module_id')
+            ->toArray();
+
+        $assignedGroupIds = $permissions
+            ->where('menu_module_id', 0)
+            ->pluck('menu_group_id')
             ->toArray();
         $user_admins = DB::connection('mysql')
             ->table('user_admins')
             ->where('user_id', $id)
             ->first();
 
-        return view('user.view', compact('user', 'modules', 'assignedModuleIds', 'user_admins'));
+        return view('user.view', compact('user', 'modules', 'assignedModuleIds','assignedGroupIds', 'user_admins'));
     }
-    
+
 
     public function admin_update(Request $request, $id)
     {
