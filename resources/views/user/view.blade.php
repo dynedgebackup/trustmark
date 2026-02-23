@@ -11,6 +11,7 @@
         <li class="breadcrumb-item"><a href="#"><span>View</span></a></li>
     </ol>
 
+    
     <div id="wrapper">
         <div class="d-flex flex-column" id="content-wrapper">
             <form action="{{ route('profile.admin_update', $user->id) }}" method="POST" enctype="multipart/form-data">
@@ -220,38 +221,51 @@
 
                                 <div class="container">
                                     <div class="row">
-                                        @foreach ($modules as $groupId => $items)
-                                            @php $groupName = $items->first()->group_name; @endphp
-                                            @php
-                                                $anyChecked = $items->contains(fn($module) => in_array($module->id, $assignedModuleIds));
-                                            @endphp
-                                            <div class="col-md-4 mb-3 group-wrapper">
-                                                <div class="card h-100" data-group-id="{{ $groupId }}">
-                                                    <div class="card-header d-flex align-items-center justify-content-between group-toggle" style="cursor: pointer;">
-                                                        <div class="d-flex align-items-center">
+                                    @foreach ($modules as $groupId => $items)
+
+                                        @php
+                                            $groupName = $items->first()->group_name;
+
+                                            $validModules = $items->filter(fn($item) => $item->module_id !== null);
+
+                                            $anyChecked = $validModules->contains(
+                                                fn($module) => in_array($module->module_id, $assignedModuleIds)
+                                            );
+                                        @endphp
+
+                                        <div class="col-md-4 mb-3 group-wrapper">
+                                            <div class="card h-100" data-group-id="{{ $groupId }}">
+                                                
+                                                <div class="card-header d-flex align-items-center justify-content-between group-toggle" style="cursor: pointer;">
+                                                    <div class="d-flex align-items-center">
                                                         <input type="checkbox"
-                                                        class="group-checkbox allcode me-2"
-                                                        data-group-id="{{ $groupId }}"
-                                                        {{ $anyChecked ? 'checked' : '' }}>
-                                                            <span class="group-title">{{ $groupName }}</span>
-                                                        </div>
-                                                        <span class="toggle-icon">▼</span>
+                                                            class="group-checkbox allcode me-2"
+                                                            data-group-id="{{ $groupId }}"
+                                                            {{ $anyChecked ? 'checked' : '' }}>
+                                                        <span class="group-title">{{ $groupName }}</span>
                                                     </div>
+                                                    <span class="toggle-icon">▼</span>
+                                                </div>
+                                                @if($validModules->count() > 0)
                                                     <div class="card-bodyMenu" style="display: none;padding-left: 13px;">
-                                                        @foreach ($items as $module)
+                                                        @foreach ($validModules as $module)
                                                             <div class="form-check">
                                                                 <input type="checkbox"
                                                                     class="form-check-input allcode module-checkbox"
                                                                     data-group-id="{{ $groupId }}"
                                                                     name="modules[]"
-                                                                    value="{{ $module->id }}"
-                                                                    {{ in_array($module->id, $assignedModuleIds) ? 'checked' : '' }}>
-                                                                <label class="form-check-label">{{ $module->module_name }}</label>
+                                                                    value="{{ $module->module_id }}"
+                                                                    {{ in_array($module->module_id, $assignedModuleIds) ? 'checked' : '' }}>
+                                                                <label class="form-check-label">
+                                                                    {{ $module->module_name }}
+                                                                </label>
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                </div>
+                                                @endif
+
                                             </div>
+                                        </div>
                                         @endforeach
                                     </div>
                                 </div>
@@ -270,11 +284,11 @@
 
     <script>
     $('#savePermissions').on('click', function () {
-        const userId = {{ $user->id }}; 
 
+        const userId = {{ $user->id }};
         let permissions = [];
-
         $('.module-checkbox:checked').each(function () {
+
             const groupId = $(this).data('group-id');
             const moduleId = $(this).val();
 
@@ -284,6 +298,27 @@
                 menu_module_id: moduleId
             });
         });
+        $('.group-checkbox:checked').each(function () {
+
+            const groupId = $(this).data('group-id');
+            const modules = $('.module-checkbox[data-group-id="' + groupId + '"]');
+            const checkedModules = modules.filter(':checked');
+
+            if (modules.length === 0 || checkedModules.length === 0) {
+
+                permissions.push({
+                    user_id: userId,
+                    menu_group_id: groupId,
+                    menu_module_id: 0
+                });
+            }
+        });
+        permissions = permissions.filter((value, index, self) =>
+            index === self.findIndex((t) =>
+                t.menu_group_id == value.menu_group_id &&
+                t.menu_module_id == value.menu_module_id
+            )
+        );
 
         $.ajax({
             url: '{{ route("permissions.save") }}',
@@ -310,53 +345,56 @@
                     confirmButtonColor: '#d33'
                 });
             }
-
         });
+
     });
-</script>
+    </script>
 
     <script>
-$(document).ready(function () {
-    $('.card-header').on('click', function (e) {
-        if ($(e.target).is('input[type="checkbox"]')) return;
+    $(document).ready(function () {
+        $('.card-header').on('click', function (e) {
+            if ($(e.target).is('input[type="checkbox"]')) return;
 
-        const $cardBody = $(this).next('.card-bodyMenu');
-        const $icon = $(this).find('.toggle-icon');
-        $cardBody.slideToggle();
-        $icon.text($icon.text() === '▼' ? '▲' : '▼');
-    });
-    $('.group-checkbox').on('change', function () {
-        const isChecked = $(this).is(':checked');
-        const $card = $(this).closest('.card');
-        $card.find('.module-checkbox').prop('checked', isChecked);
-    });
-    $('.module-checkbox').on('change', function () {
-        const $card = $(this).closest('.card');
-        const $modules = $card.find('.module-checkbox');
-        const $groupCheckbox = $card.find('.group-checkbox');
+            const $cardBody = $(this).next('.card-bodyMenu');
+            const $icon = $(this).find('.toggle-icon');
+            $cardBody.slideToggle();
+            $icon.text($icon.text() === '▼' ? '▲' : '▼');
+        });
+        $('.group-checkbox').on('change', function () {
+            const isChecked = $(this).is(':checked');
+            const $card = $(this).closest('.card');
+            $card.find('.module-checkbox').prop('checked', isChecked);
+        });
+        $('.module-checkbox').on('change', function () {
+            const $card = $(this).closest('.card');
+            const $modules = $card.find('.module-checkbox');
+            const $groupCheckbox = $card.find('.group-checkbox');
 
-        const total = $modules.length;
-        const checked = $modules.filter(':checked').length;
-        if (checked === 0) {
-            $groupCheckbox.prop('checked', false);
-        } else {
-            $groupCheckbox.prop('checked', true);
-        }
-    });
-    $('#checkAll').click(function (e) {
-        e.preventDefault();
-        $('.allcode').prop('checked', true);
-        $('.card-bodyMenu').slideDown();
-        $('.toggle-icon').text('▲');
-    });
+            const total = $modules.length;
+            const checked = $modules.filter(':checked').length;
 
-    $('#uncheckAll').click(function (e) {
-        e.preventDefault();
-        $('.allcode').prop('checked', false);
-        $('.card-bodyMenu').slideUp();
-        $('.toggle-icon').text('▼');
+            if (checked === 0) {
+                $groupCheckbox.prop('checked', false).prop('indeterminate', false);
+            } else if (checked === total) {
+                $groupCheckbox.prop('checked', true).prop('indeterminate', false);
+            } else {
+                $groupCheckbox.prop('checked', false).prop('indeterminate', true);
+            }
+        });
+        $('#checkAll').click(function (e) {
+            e.preventDefault();
+            $('.allcode').prop('checked', true);
+            $('.card-bodyMenu').slideDown();
+            $('.toggle-icon').text('▲');
+        });
+
+        $('#uncheckAll').click(function (e) {
+            e.preventDefault();
+            $('.allcode').prop('checked', false);
+            $('.card-bodyMenu').slideUp();
+            $('.toggle-icon').text('▼');
+        });
     });
-});
 </script>
 
 
