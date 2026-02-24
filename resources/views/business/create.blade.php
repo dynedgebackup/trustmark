@@ -870,13 +870,11 @@
                                         
                                         <!-- Default Note -->
                                             <p id="defaultNote" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;">
-                                                <strong>Note:</strong> If you need to upload more than 70 MB, click “Continue”, 
-                                                then click “Previous” to return <br> to this page and upload another 70 MB. 
-                                                Repeat the process as needed.
+                                            Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
                                             </p>
 
                                             <p id="defaultNoteMb" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;float: right;margin-top: -12px;">
-                                                <strong>10 MB of 70 MB used</strong>
+                                                <strong>0 MB of 70 MB used</strong>
                                             </p>
 
                                             <!-- File Validation Note -->
