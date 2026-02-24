@@ -2755,9 +2755,11 @@ $(document).ready(function() {
             if (totalMB >= maxLimit) {
                 $('#limitMessage').show();
                 $('#defaultNote').hide();
+                $('#addDocumentBtn').prop('disabled', true);
             } else {
                 $('#limitMessage').hide();
                 $('#defaultNote').show();
+                $('#addDocumentBtn').prop('disabled', false);
             }
 
         } else {
