@@ -880,9 +880,7 @@
                                             </p>
 
                                             <!-- File Validation Note -->
-                                            <p id="fileNote" style="font-size: 10px; margin-bottom: 2px; color: #bb2121; display: none;">
-                                                Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
-                                            </p>
+                                            
 
                                             <p id="fileNoteMb" style="font-size: 10px; margin-bottom: 2px; color: #bb2121; display: none;float: right;margin-top: -12px;">
                                                 <strong>0 MB of 70 MB used</strong>
@@ -2662,6 +2660,10 @@ $(document).ready(function() {
             </div>
             <div class="col-md-5">
                 <input type="file" class="form-control custom-input doc-file" name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
+                <p class="file-error-msg" 
+                style="font-size: 10px; margin-bottom: 2px; color: #bb2121; display: none;">
+                    Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
+                </p>
             </div>
             <div class="col-md-1 d-flex align-items-center">
                 <span class="delete-btn text-danger fs-4" style="cursor: pointer;">
@@ -2719,10 +2721,8 @@ $(document).ready(function() {
         });
 
         if (hasFile) {
-            $('#defaultNote').hide();
             $('#fileNote').show();
         } else {
-            $('#defaultNote').show();
             $('#fileNote').hide();
         }
     }
@@ -2740,33 +2740,52 @@ $(document).ready(function() {
         const maxLimit = 70;
 
         if (totalSize > 0) {
-            $('#defaultNote').hide();
-            $('#defaultNoteMb').hide();
-            $('#fileNote').show();
-            $('#fileNoteMb')
+            $('#defaultNoteMb')
                 .show()
                 .html(`<strong>${totalMB} MB of ${maxLimit} MB used</strong>`);
         } else {
-            $('#defaultNote').show();
-            $('#defaultNoteMb')
-                .show()
-                .html(`<strong>0 MB of ${maxLimit} MB used</strong>`);
-            $('#fileNote').hide();
-            $('#fileNoteMb').hide();
+            $('#fileNote').show();
         }
     }
-    $(document).on('input change', '.doc-name, .doc-file', function() {
-        checkButtonState();
-        updateFileSizeInfo();
-    });
+    $(document).on('change', '.doc-file', function () {
 
-    $(document).on('click', '.delete-btn', function() {
-        $(this).closest('.document-row').remove();
-        checkButtonState();
-        updateFileSizeInfo();
-    });
+        const fileInput = this;
+        const file = fileInput.files[0];
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+        const maxSize = 10 * 1024 * 1024;
 
-});
+        const errorMsg = $(this).closest('.col-md-5').find('.file-error-msg');
+
+        if (!file) {
+            errorMsg.hide();
+            return;
+        }
+        if (!allowedTypes.includes(file.type)) {
+            errorMsg.text('Invalid file type. Allowed: .jpg, .jpeg, .png, .pdf');
+            errorMsg.show();
+            fileInput.value = '';
+            updateFileSizeInfo();
+            return;
+        }
+        if (file.size > maxSize) {
+            errorMsg.text('File size must not exceed 10MB.');
+            errorMsg.show();
+            fileInput.value = '';
+            updateFileSizeInfo(); 
+            return;
+        }
+
+        // If valid
+        errorMsg.hide();
+        });
+
+            $(document).on('click', '.delete-btn', function() {
+                $(this).closest('.document-row').remove();
+                checkButtonState();
+                updateFileSizeInfo();
+            });
+
+        });
 </script>
 
 
