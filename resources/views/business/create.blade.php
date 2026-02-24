@@ -870,9 +870,15 @@
                                         
                                         <!-- Default Note -->
                                             <p id="defaultNote" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;">
-                                            Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
+                                                Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
                                             </p>
 
+                                                <p id="limitMessage" 
+                                                style="font-size: 12px; margin-bottom: 5px; color: #bb2121; display:none;">
+                                                    <strong>Note:</strong> If you need to upload more than 70 MB, click “Continue”, 
+                                                    then click “Previous” to return <br> to this page and upload another 70 MB. 
+                                                    Repeat the process as needed.
+                                                </p>
                                             <p id="defaultNoteMb" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;float: right;margin-top: -12px;">
                                                 <strong>0 MB of 70 MB used</strong>
                                             </p>
@@ -2738,11 +2744,22 @@ $(document).ready(function() {
         const maxLimit = 70;
 
         if (totalSize > 0) {
+
             $('#defaultNoteMb')
                 .show()
                 .html(`<strong>${totalMB} MB of ${maxLimit} MB used</strong>`);
+
+            if (totalMB >= maxLimit) {
+                $('#limitMessage').show();
+                $('#defaultNote').hide();
+            } else {
+                $('#limitMessage').hide();
+                $('#defaultNote').show();
+            }
+
         } else {
-            $('#fileNote').show();
+            $('#defaultNoteMb').hide();
+            $('#limitMessage').hide();
         }
     }
     $(document).on('change', '.doc-file', function () {
@@ -2758,6 +2775,7 @@ $(document).ready(function() {
             errorMsg.hide();
             return;
         }
+        updateFileSizeInfo(); 
         if (!allowedTypes.includes(file.type)) {
             errorMsg.text('Invalid file type. Allowed: .jpg, .jpeg, .png, .pdf');
             errorMsg.show();
@@ -2772,7 +2790,7 @@ $(document).ready(function() {
             updateFileSizeInfo(); 
             return;
         }
-
+         
         // If valid
         errorMsg.hide();
         });
