@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\Api\EmailTokenController;
 use App\Http\Controllers\Api\WebhookApiController;
+use App\Http\Controllers\BusinessController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,6 +24,9 @@ Route::prefix('email-tokens')->group(function () {
 });
 
 Route::any('/payment/webhook', [WebhookApiController::class, 'handle'])->withoutMiddleware(['throttle:tlpe-webhook']);
+
+Route::any('/updatePaymentResponse', [BusinessController::class, 'updatePaymentResponse'])->name('business.updatePaymentResponse');
+
 
 /*.env
 QUEUE_CONNECTION=database
