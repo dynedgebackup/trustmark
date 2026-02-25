@@ -75,7 +75,8 @@ class DailyReportController extends Controller
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
                      'a.requirement_expired AS expiryDate',
-                     'r.description AS idName'
+                     'r.description AS idName',
+                     'a.franchise AS Trade'
             ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
@@ -215,7 +216,8 @@ class DailyReportController extends Controller
                      'e.name AS BusinessCategoryName',
                      'f.name AS CategoryName',
                      'a.requirement_expired AS expiryDate',
-                     'r.description AS idName'
+                     'r.description AS idName',
+                     'a.franchise AS Trade'
             ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
@@ -376,7 +378,7 @@ class DailyReportController extends Controller
                     'BusinessCategoryName' => $row->BusinessCategoryName ?? ' ',
                     'Description' => $row->Description ?? ' ',
                     'CategoryName' => $row->CategoryName ?? ' ',
-                    'Trade' => ' '
+                    'Trade' => $row->Trade ?? ' ',
             ];
         }
 
