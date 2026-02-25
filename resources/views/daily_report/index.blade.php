@@ -314,12 +314,12 @@ async function loadDataForExcelSheet() {
             const urls = row.business_urls
                 ? row.business_urls.replace(/<br\s*\/?>/gi, '\n')
                 : "";
-
+            
             const newRow = worksheet.addRow([
                 index + 1,
                 row.SecurityNo,
                 row.BusinessName, 
-                row.BusinessCategoryName,
+               '',
                 row.CategoryName,  
                 row.Description,
                 row.RegistrationNo,
@@ -361,15 +361,22 @@ async function loadDataForExcelSheet() {
                 };
             });
             });
-
-        worksheet.columns.forEach(column => {
-            let maxLength = 10;
-            column.eachCell({ includeEmpty: true }, cell => {
-                const value = cell.value ? cell.value.toString() : '';
-                maxLength = Math.max(maxLength, value.length);
+            worksheet.columns.forEach((column, index) => {
+                if (index === 0) {
+                    column.width = 5; 
+                    column.alignment = {
+                        wrapText: true,
+                        vertical: 'top'
+                    };  
+                } else {
+                    column.width = 50;
+                    column.alignment = {
+                        wrapText: true,
+                        vertical: 'top'
+                    };  
+                }
             });
-            column.width = maxLength + 2;
-        });
+            
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = window.URL.createObjectURL(blob);

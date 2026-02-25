@@ -26,7 +26,7 @@ class DailyReportController extends Controller
         $enddate = $request->input('todate');
         $query = DB::table('businesses as a')
                 ->leftJoin(
-                    DB::raw("(SELECT busn_id, GROUP_CONCAT(url SEPARATOR '<br>') AS business_urls
+                    DB::raw("(SELECT busn_id, GROUP_CONCAT(url SEPARATOR '\n') AS business_urls
                             FROM business_url
                             GROUP BY busn_id) as burl"),
                     'burl.busn_id',
@@ -76,8 +76,7 @@ class DailyReportController extends Controller
                      'f.name AS CategoryName',
                      'a.requirement_expired AS expiryDate',
                      'r.description AS idName'
-                     
-                ])
+            ])
             ->leftJoin('users as b', 'a.user_id', '=', 'b.id')
             ->leftJoin('users as c', 'a.evaluator_id', '=', 'c.id')
             ->leftJoin('barangays as d', 'a.barangay_id', '=', 'd.id')
@@ -85,6 +84,7 @@ class DailyReportController extends Controller
             ->leftJoin('categories as f', 'a.category_id', '=', 'f.id')
             ->leftJoin('requirement_reps as r', 'a.requirement_id', '=', 'r.id')
             ->where('a.is_active', 1);
+            // ->orderByDesc('a.id');
             if ($request->filled('status')) {
                 $query->where('a.status', $request->status);
             }
@@ -133,7 +133,7 @@ class DailyReportController extends Controller
                 $query->whereDate($dateField, '<=', $enddate);
             }
 
-        // Search filter
+        
         if (!empty($request->q)) {
             $search = $request->q;
             $query->where(function($q) use ($search) {
@@ -153,7 +153,7 @@ class DailyReportController extends Controller
                 });
         }
 
-        $data = $query->get();
+        $data = $query->orderBy('a.id', 'desc')->get();
 
         return response()->json(['data' => $data]);
     }
