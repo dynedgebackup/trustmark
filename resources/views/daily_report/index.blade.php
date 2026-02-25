@@ -319,7 +319,7 @@ async function loadDataForExcelSheet() {
                 index + 1,
                 row.SecurityNo,
                 row.BusinessName, 
-               '',
+                row.Trade, 
                 row.CategoryName,  
                 row.Description,
                 row.RegistrationNo,
