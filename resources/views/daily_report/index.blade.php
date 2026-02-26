@@ -383,7 +383,11 @@ async function loadDataForExcelSheet() {
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = "Daily_Report.xlsx";
+        let today = new Date();
+        let formattedDate = today.getFullYear() + "-" +
+            String(today.getMonth() + 1).padStart(2, '0') + "-" +
+            String(today.getDate()).padStart(2, '0');
+        a.download = formattedDate + "_Daily_Report.xlsx";
         a.click();
         window.URL.revokeObjectURL(url);
     } catch (error) {
