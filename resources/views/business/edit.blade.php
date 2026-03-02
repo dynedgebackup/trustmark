@@ -1016,30 +1016,9 @@
                                         </button>
                                         <div class="divider-line"></div>
                                         
-                                        <!-- Default Note -->
-                                        <p id="defaultNote" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;">
-                                            <strong>Note:</strong> If you need to upload more than 70 MB, click “Continue”, 
-                                                    then click “Previous” to return <br> to this page and upload another 70 MB. 
-                                                    Repeat the process as needed.
-                                                <!-- Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb -->
-                                            </p>
-
-                                                <p id="limitMessage" 
-                                                style="font-size: 12px; margin-bottom: 5px; color: #bb2121; display:none;">
-                                                    <strong>Note:</strong> If you need to upload more than 70 MB, click “Continue”, 
-                                                    then click “Previous” to return <br> to this page and upload another 70 MB. 
-                                                    Repeat the process as needed.
-                                                </p>
-                                            <p id="defaultNoteMb" style="font-size: 10px; margin-bottom: 2px; color: #bb2121;float: right;margin-top: -12px;">
-                                                <strong>0 MB of 70 MB used</strong>
-                                            </p>
-
-                                            <!-- File Validation Note -->
-                                            
-
-                                            <p id="fileNoteMb" style="font-size: 10px; margin-bottom: 2px; color: #bb2121; display: none;float: right;margin-top: -12px;">
-                                                <strong>0 MB of 70 MB used</strong>
-                                            </p>
+                                        <p style="font-size: 10px;color: #bb2121;">
+                                                    Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size
+                                                    is 10mb</p>
                                         <!-- <style>
                                             #document-container {
                                                 max-height: 80px; 
@@ -2473,149 +2452,46 @@
 <script>
     $(document).ready(function() {
 
-function getNewRow() {
-    return `
-    <div class="row document-row mb-2">
-        <div class="col-md-6">
-            <input type="text" class="form-control custom-input doc-name" name="document_name[]" placeholder="Document Name" />
-        </div>
-        <div class="col-md-5">
-            <input type="file" class="form-control custom-input doc-file" name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
-            <p class="file-error-msg" 
-            style="font-size: 10px; margin-bottom: 2px; color: #bb2121; display: none;">
-                Please upload file type like .jpg, .jpeg, .png, .pdf. Maximum file size is 10mb
-            </p>
-        </div>
-        <div class="col-md-1 d-flex align-items-center">
-            <span class="delete-btn text-danger fs-4" style="cursor: pointer;">
-                <i class="fa fa-trash"></i>
-            </span>
-        </div>
-    </div>`;
-}
-
-$('#addDocumentBtn').on('click', function() {
-    if (hasIncompleteRow()) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Incomplete Document!',
-            text: 'Please complete existing document rows before adding a new one.',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
+        function getNewRow() {
+            return `
+            <div class="row document-row mb-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control custom-input doc-name" name="document_name[]" placeholder="Document Name" />
+                </div>
+                <div class="col-md-5">
+                    <input type="file" class="form-control custom-input doc-file" name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
+                </div>
+                <div class="col-md-1 d-flex align-items-center">
+                    <span class="delete-btn text-danger fs-4" style="cursor: pointer;"><i class="fa fa-trash"></i></span>
+                </div>
+            </div>
+        `;
+        }
+        $('#addDocumentBtn').on('click', function() {
+            if (hasIncompleteRow()) {
+                alert("Please complete existing document rows before adding a new one.");
+                return;
+            }
+            $('#document-container').append(getNewRow());
+            checkButtonState();
         });
-        return;
-    }
-    $('#document-container').append(getNewRow());
-    checkButtonState();
-});
-
-$('#addDocumentBtn').click();
-
-function hasIncompleteRow() {
-    let incomplete = false;
-
-    $('.document-row').each(function() {
-        let docNameVal = ($(this).find('.doc-name').val() || "").trim();
-        let docFileVal = ($(this).find('.doc-file').val() || "").trim();
-
-        if ((docNameVal && !docFileVal) || (docFileVal && !docNameVal)) {
-            incomplete = true;
-            return false;
+        $('#addDocumentBtn').click();
+        function hasIncompleteRow() {
+            let incomplete = false;
+            $('.document-row').each(function() {
+                let docNameVal = ($(this).find('.doc-name').val() || "").trim();
+                let docFileVal = ($(this).find('.doc-file').val() || "").trim();
+                if ((docNameVal && !docFileVal) || (docFileVal && !docNameVal)) {
+                    incomplete = true;
+                    return false;
+                }
+            });
+            return incomplete;
         }
-    });
-
-    return incomplete;
-}
-
-function checkButtonState() {
-    $('#saveAppointmentBtn4').prop('disabled', hasIncompleteRow());
-    toggleNote();
-}
-function toggleNote() {
-    let hasFile = false;
-
-    $('.doc-file').each(function() {
-        if ($(this)[0].files.length > 0) {
-            hasFile = true;
-            return false;
+        function checkButtonState() {
+            $('#saveAppointmentBtn4').prop('disabled', hasIncompleteRow());
         }
-    });
-
-    if (hasFile) {
-        $('#fileNote').show();
-    } else {
-        $('#fileNote').hide();
-    }
-}
-function updateFileSizeInfo() {
-
-    let totalSize = 0;
-
-    $('.doc-file').each(function () {
-        if (this.files.length > 0) {
-            totalSize += this.files[0].size; 
-        }
-    });
-
-    let totalMB = (totalSize / (1024 * 1024)).toFixed(2); 
-    const maxLimit = 70;
-
-    if (totalSize > 0) {
-
-        $('#defaultNoteMb')
-            .show()
-            .html(`<strong>${totalMB} MB of ${maxLimit} MB used</strong>`);
-
-        if (totalMB >= maxLimit) {
-            $('#limitMessage').show();
-            $('#defaultNote').hide();
-            $('#addDocumentBtn').prop('disabled', true);
-            $('#saveAppointmentBtn4').prop('disabled', true);
-        } else {
-            $('#limitMessage').hide();
-            $('#defaultNote').show();
-            $('#addDocumentBtn').prop('disabled', false);
-            $('#saveAppointmentBtn4').prop('disabled', false);
-        }
-
-    } else {
-        $('#defaultNoteMb').hide();
-        $('#limitMessage').hide();
-    }
-}
-$(document).on('change', '.doc-file', function () {
-
-    const fileInput = this;
-    const file = fileInput.files[0];
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-    const maxSize = 10 * 1024 * 1024;
-
-    const errorMsg = $(this).closest('.col-md-5').find('.file-error-msg');
-
-    if (!file) {
-        errorMsg.hide();
-        return;
-    }
-    updateFileSizeInfo(); 
-    if (!allowedTypes.includes(file.type)) {
-        errorMsg.text('Invalid file type. Allowed: .jpg, .jpeg, .png, .pdf');
-        errorMsg.show();
-        fileInput.value = '';
-        updateFileSizeInfo();
-        return;
-    }
-    if (file.size > maxSize) {
-        errorMsg.text('File size must not exceed 10MB.');
-        errorMsg.show();
-        fileInput.value = '';
-        updateFileSizeInfo(); 
-        return;
-    }
-     
-    // If valid
-    errorMsg.hide();
-    });
-
+        $(document).on('input change', '.doc-name, .doc-file', checkButtonState);
         $(document).on('click', '.delete-btn', function() {
             $(this).closest('.document-row').remove();
             checkButtonState();
