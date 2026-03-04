@@ -498,6 +498,7 @@ Route::middleware(['auth','role.access'])->group(function () {
     Route::post('/business/update-business-businessAddress/{id}', [BusinessController::class, 'updatebusinessAddress'])->name('business.updatebusinessAddress');
     Route::post('/business/update-business-attachments/{id}', [BusinessController::class, 'save_documentattachments'])->name('business.save_documentattachments');
     Route::post('/business/update-business-AdditionalPermitsstore/{id}', [BusinessController::class, 'AdditionalPermitsstoreView'])->name('business.AdditionalPermitsstore');
+    Route::post('/business/additional-permit-store/{id}', [BusinessController::class, 'AdditionalPermitsstore'])->name('business.additional-permit-store');
     Route::post('/business/assign-evaluator', [BusinessController::class, 'assignEvaluator'])
         ->name('business.assignEvaluator');
     Route::get('/monthly-pending-summary', [BusinessController::class, 'getMonthlyPendingSummary'])->name('monthly.pending.summary');
