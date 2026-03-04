@@ -2649,7 +2649,7 @@ function getNewRow() {
         </div>
         <div class="col-md-5">
             <input type="file" class="form-control custom-input doc-file"
-                name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
+                name="attachment[]" accept=".jpg,.jpeg,.png,.pdf" multiple/>
             <small class="text-danger error-file d-none"></small>
         </div>
         <div class="col-md-1 d-flex align-items-center">
@@ -2670,7 +2670,28 @@ $('#addDocumentBtn').on('click', function () {
     $('#document-container').append(getNewRow());
     checkButtonState();
 });
+$(document).on('change', '.doc-file', function (e) {
 
+    let files = e.target.files;
+
+    if (files.length > 1) {
+
+        let currentRow = $(this).closest('.document-row');
+        currentRow.remove();
+
+        for (let i = 0; i < files.length; i++) {
+
+            let newRow = $(getNewRow());
+            let dataTransfer = new DataTransfer();
+            dataTransfer.items.add(files[i]);
+
+            newRow.find('.doc-file')[0].files = dataTransfer.files;
+
+            $('#document-container').append(newRow);
+        }
+
+    }
+});
 $('#addDocumentBtn').click();
 
 function hasIncompleteRow() {
