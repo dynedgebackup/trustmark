@@ -2637,52 +2637,171 @@
 
 <script>
 
-    $(document).ready(function() {
-        function getNewRow() {
-            return `
-            <div class="row document-row mb-2">
-                <div class="col-md-6">
-                    <input type="text" class="form-control custom-input doc-name" name="document_name[]" placeholder="Document Name" />
-                </div>
-                <div class="col-md-5">
-                    <input type="file" class="form-control custom-input doc-file" name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
-                </div>
-                <div class="col-md-1 d-flex align-items-center">
-                    <span class="delete-btn text-danger fs-4" style="cursor: pointer;"><i class="fa fa-trash"></i></span>
-                </div></div>
-        `;
-    }
-        $('#addDocumentBtn').on('click', function() {
-            if (hasIncompleteRow()) {
-                alert("Please complete existing document rows before adding a new one.");
-                return;
-            }
-            $('#document-container').append(getNewRow());
-            checkButtonState();
-        });
-        $('#addDocumentBtn').click();
+$(document).ready(function () {
 
-        function hasIncompleteRow() {
-            let incomplete = false;
-            $('.document-row').each(function() {
-                let docNameVal = ($(this).find('.doc-name').val() || "").trim();
-                let docFileVal = ($(this).find('.doc-file').val() || "").trim();
-                if ((docNameVal && !docFileVal) || (docFileVal && !docNameVal)) {
-                    incomplete = true;
-                    return false;
-                }
-            });
-            return incomplete;
+function getNewRow() {
+    return `
+    <div class="row document-row mb-2">
+        <div class="col-md-6">
+            <input type="text" class="form-control custom-input doc-name"
+                name="document_name[]" placeholder="Document Name" />
+            <small class="text-danger error-name d-none"></small>
+        </div>
+        <div class="col-md-5">
+            <input type="file" class="form-control custom-input doc-file"
+                name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
+            <small class="text-danger error-file d-none"></small>
+        </div>
+        <div class="col-md-1 d-flex align-items-center">
+            <span class="delete-btn text-danger fs-4 me-2" style="cursor:pointer;">
+                <i class="fa fa-trash"></i>
+            </span>
+            <span class="upload-btn text-primary fs-4" style="cursor:pointer;">
+                <i class="fa fa-upload"></i>
+            </span>
+        </div>
+    </div>`;
+}
+
+$('#addDocumentBtn').on('click', function () {
+    if (hasIncompleteRow()) {
+        return;
+    }
+    $('#document-container').append(getNewRow());
+    checkButtonState();
+});
+
+$('#addDocumentBtn').click();
+
+function hasIncompleteRow() {
+    let incomplete = false;
+    $('.document-row').each(function () {
+        let docNameVal = ($(this).find('.doc-name').val() || "").trim();
+        let docFileVal = ($(this).find('.doc-file').val() || "").trim();
+        if ((docNameVal && !docFileVal) || (docFileVal && !docNameVal)) {
+            incomplete = true;
+            return false;
         }
-        function checkButtonState() {
-            $('#saveDocumentsBtn').prop('disabled', hasIncompleteRow());
-        }
-        $(document).on('input change', '.doc-name, .doc-file', checkButtonState);
-        $(document).on('click', '.delete-btn', function() {
-            $(this).closest('.document-row').remove();
-            checkButtonState();
-        });
     });
+    return incomplete;
+}
+
+function checkButtonState() {
+    $('#saveDocumentsBtn').prop('disabled', hasIncompleteRow());
+}
+
+$(document).on('input change', '.doc-name, .doc-file', function () {
+    let row = $(this).closest('.document-row');
+    row.find('.error-name, .error-file').addClass('d-none').text('');
+    row.find('.doc-name, .doc-file').removeClass('is-invalid');
+    checkButtonState();
+});
+
+$(document).on('click', '.delete-btn', function () {
+    $(this).closest('.document-row').remove();
+    checkButtonState();
+});
+
+// =========================
+// UPLOAD BUTTON CLICK
+// =========================
+
+$(document).on('click', '.upload-btn', function () {
+
+    let row = $(this).closest('.document-row');
+    let docName = row.find('.doc-name').val().trim();
+    let fileInput = row.find('.doc-file')[0];
+
+    let hasError = false;
+
+    // Reset old errors
+    row.find('.error-name, .error-file').addClass('d-none').text('');
+    row.find('.doc-name, .doc-file').removeClass('is-invalid');
+
+    if (!docName) {
+        row.find('.error-name')
+            .removeClass('d-none')
+            .text('Document name is required.');
+        row.find('.doc-name').addClass('is-invalid');
+        hasError = true;
+    }
+
+    if (fileInput.files.length === 0) {
+        row.find('.error-file')
+            .removeClass('d-none')
+            .text('Please select a file.');
+        row.find('.doc-file').addClass('is-invalid');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    let formData = new FormData();
+    formData.append('document_name[]', docName);
+    formData.append('attachment[]', fileInput.files[0]);
+
+    let businessId = document.querySelector('input[name="business_id"]')?.value || '';
+
+    $.ajax({
+        url: BASE_URL + '/business/additional-permit-store/' + businessId,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        beforeSend: function () {
+            row.find('.upload-btn')
+                .html('<i class="fa fa-spinner fa-spin"></i>')
+                .css('pointer-events', 'none');
+        },
+        success: function (response) {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Document uploaded successfully!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            row.find('.upload-btn')
+                .removeClass('text-primary')
+                .addClass('text-success')
+                .html('<i class="fa fa-check"></i>');
+
+            row.find('.doc-name, .doc-file').prop('disabled', true);
+        },
+        error: function (xhr) {
+
+            row.find('.upload-btn')
+                .html('<i class="fa fa-upload"></i>')
+                .css('pointer-events', 'auto');
+
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+
+                let errors = xhr.responseJSON.errors;
+
+                if (errors['attachment.0']) {
+                    row.find('.error-file')
+                        .removeClass('d-none')
+                        .text(errors['attachment.0'][0]);
+                    row.find('.doc-file').addClass('is-invalid');
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed!',
+                    text: 'Something went wrong.'
+                });
+            }
+        }
+    });
+
+});
+
+});
 </script>
 
 
