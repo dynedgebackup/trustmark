@@ -2456,16 +2456,24 @@
             return `
             <div class="row document-row mb-2">
                 <div class="col-md-6">
-                    <input type="text" class="form-control custom-input doc-name" name="document_name[]" placeholder="Document Name" />
+                    <input type="text" class="form-control custom-input doc-name"
+                        name="document_name[]" placeholder="Document Name" />
+                    <small class="text-danger error-name d-none"></small>
                 </div>
                 <div class="col-md-5">
-                    <input type="file" class="form-control custom-input doc-file" name="attachment[]" accept=".jpg,.jpeg,.png,.pdf"/>
+                    <input type="file" class="form-control custom-input doc-file"
+                        name="attachment[]" accept=".jpg,.jpeg,.png,.pdf" multiple/>
+                    <small class="text-danger error-file d-none"></small>
                 </div>
                 <div class="col-md-1 d-flex align-items-center">
-                    <span class="delete-btn text-danger fs-4" style="cursor: pointer;"><i class="fa fa-trash"></i></span>
+                    <span class="delete-btn text-danger fs-4 me-2" style="cursor:pointer;">
+                        <i class="fa fa-trash"></i>
+                    </span>
+                    <span class="upload-btn text-primary fs-4" style="cursor:pointer;">
+                        <i class="fa fa-upload"></i>
+                    </span>
                 </div>
-            </div>
-        `;
+            </div>`;
         }
         $('#addDocumentBtn').on('click', function() {
             if (hasIncompleteRow()) {
@@ -2488,16 +2496,138 @@
             });
             return incomplete;
         }
+        $(document).on('change', '.doc-file', function (e) {
+
+            let files = e.target.files;
+
+            if (files.length > 1) {
+
+                let currentRow = $(this).closest('.document-row');
+                currentRow.remove();
+
+                for (let i = 0; i < files.length; i++) {
+
+                    let newRow = $(getNewRow());
+                    let dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[i]);
+
+                    newRow.find('.doc-file')[0].files = dataTransfer.files;
+
+                    $('#document-container').append(newRow);
+                }
+
+            }
+            });
         function checkButtonState() {
             $('#saveAppointmentBtn4').prop('disabled', hasIncompleteRow());
         }
+        $(document).on('input change', '.doc-name, .doc-file', function () {
+            let row = $(this).closest('.document-row');
+            row.find('.error-name, .error-file').addClass('d-none').text('');
+            row.find('.doc-name, .doc-file').removeClass('is-invalid');
+            checkButtonState();
+        });
         $(document).on('input change', '.doc-name, .doc-file', checkButtonState);
         $(document).on('click', '.delete-btn', function() {
             $(this).closest('.document-row').remove();
             checkButtonState();
             updateFileSizeInfo();
         });
+        $(document).on('click', '.upload-btn', function (e) {
 
+        e.preventDefault();     
+        e.stopPropagation();    
+
+        let row = $(this).closest('.document-row');
+        let docName = row.find('.doc-name').val().trim();
+        let fileInput = row.find('.doc-file')[0];
+
+        let hasError = false;
+
+        row.find('.error-name, .error-file').addClass('d-none').text('');
+        row.find('.doc-name, .doc-file').removeClass('is-invalid');
+
+        if (!docName) {
+            row.find('.error-name')
+                .removeClass('d-none')
+                .text('Document name is required.');
+            row.find('.doc-name').addClass('is-invalid');
+            hasError = true;
+        }
+
+        if (fileInput.files.length === 0) {
+            row.find('.error-file')
+                .removeClass('d-none')
+                .text('Please select a file.');
+            row.find('.doc-file').addClass('is-invalid');
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        let formData = new FormData();
+        formData.append('document_name[]', docName);
+        formData.append('attachment[]', fileInput.files[0]);
+        const businessIdAdd = {{ $business->id }};
+// alert(businessIdAdd);
+        $.ajax({
+            url: BASE_URL + '/business/additional-permit-store/' + businessIdAdd,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function () {
+                row.find('.upload-btn')
+                    .html('<i class="fa fa-spinner fa-spin"></i>')
+                    .css('pointer-events', 'none');
+            },
+            success: function (response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Document uploaded successfully!',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                row.find('.upload-btn')
+                    .removeClass('text-primary')
+                    .addClass('text-success')
+                    .html('<i class="fa fa-check"></i>');
+
+                row.find('.doc-name, .doc-file').prop('disabled', true);
+            },
+            error: function (xhr) {
+
+                row.find('.upload-btn')
+                    .html('<i class="fa fa-upload"></i>')
+                    .css('pointer-events', 'auto');
+
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+
+                    let errors = xhr.responseJSON.errors;
+
+                    if (errors['attachment.0']) {
+                        row.find('.error-file')
+                            .removeClass('d-none')
+                            .text(errors['attachment.0'][0]);
+                        row.find('.doc-file').addClass('is-invalid');
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed!',
+                        text: 'Something went wrong.'
+                    });
+                }
+            }
+        });
+
+        });
     });
 </script>
 
